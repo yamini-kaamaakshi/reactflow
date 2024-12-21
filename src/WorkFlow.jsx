@@ -1,107 +1,169 @@
 import React, { useEffect, useState } from "react";
-import ReactFlow, {
-  Controls,
-  Handle,
-  Position,
-  Background,
-} from "react-flow-renderer";
+import ReactFlow, { Controls, Handle, Position } from "react-flow-renderer";
 import { Drawer, Segmented, Spin } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { FundOutlined, PlusOutlined } from "@ant-design/icons";
 import { Card, Flex } from "antd";
+import { MdDelete } from "react-icons/md";
+import { Button, Form, Select } from "antd";
+import { IoIosFlash } from "react-icons/io";
+import { VscRunCoverage } from "react-icons/vsc";
+import { GrTrigger } from "react-icons/gr";
+import { BsFunnelFill } from "react-icons/bs";
 
-import { Button, Form, Input, Select } from "antd";
-
-const AddTriggerNode = ({ data }) => {
+const AddTriggerNode = ({ data, onDelete }) => {
   const isDefaultLabel = data.label === "Add Trigger";
-  const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false); // State for filter drawer
-  const [isTriggerDrawerVisible, setIsTriggerDrawerVisible] = useState(false); // State for trigger drawer
-  const [formData, setFormData] = useState({ filter: "" }); // State for form data
+  const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
+  const [, setIsTriggerDrawerVisible] = useState(false);
+  const [formData, setFormData] = useState({ jobStatus: "" });
+  const [appliedFilters, setAppliedFilters] = useState(null);
+  const [selectedTriggerName] = useState("");
 
   const handleFilterDrawerOpen = () => {
-    setIsFilterDrawerVisible(true); // Open filter drawer
-    setIsTriggerDrawerVisible(false); // Close trigger drawer when filter is opened
+    setIsFilterDrawerVisible(true);
+    setIsTriggerDrawerVisible(false);
   };
 
-  const closeDrawers = () => {
-    setIsTriggerDrawerVisible(false); // Close trigger drawer
-    setIsFilterDrawerVisible(false); // Close filter drawer
+  const closeDrawer = () => {
+    setIsFilterDrawerVisible(false);
+    setIsTriggerDrawerVisible(false);
   };
 
-  const handleFilterChange = (value) => {
-    setFormData({ ...formData, filter: value });
+  const handleFilterChange = (value, field) => {
+    setFormData({ ...formData, [field]: value });
   };
 
-  const handleFormSubmit = () => {
-    // Handle form submission logic here
+  const handleFilterSubmit = () => {
     console.log(formData);
-    setIsFilterDrawerVisible(false); // Optionally close filter drawer after submission
+    setAppliedFilters(formData);
+    setIsFilterDrawerVisible(false);
+    setIconColor("green");
+  };
+
+  const handleDelete = () => {
+    onDelete();
   };
 
   return (
     <>
-      <div
-        style={{
-          backgroundColor: "rgb(199, 220, 252)",
-          padding: "3px 8px",
-          borderRadius: 16,
-          marginBottom: 7,
-          display: "inline-block",
-        }}
-      >
-        <Flex gap={2}>
-          <span
-            style={{
-              color: "rgb(11, 47, 115)",
-              fontWeight: "medium",
-              fontSize: "14px",
-            }}
-          >
-            When this happens
-          </span>
-        </Flex>
-      </div>
-      <Card style={{ width: 350, padding: 0 }} hoverable size="small">
+      <span>
+        <div
+          style={{
+            backgroundColor: "rgb(199, 220, 252)",
+            paddingLeft: 8,
+            paddingTop: 3,
+            paddingBottom: 3,
+            paddingRight: 8,
+            borderRadius: 16,
+            marginBottom: 7,
+            display: "inline-block",
+          }}
+        >
+          <Flex gap={2}>
+            <IoIosFlash size={16} color={"rgb(11, 47, 115)"} />
+            <span
+              style={{
+                color: "rgb(11, 47, 115)",
+                fontWeight: "medium",
+                fontSize: "14px",
+              }}
+            >
+              When this happens
+            </span>
+          </Flex>
+        </div>
+      </span>
+      <Card style={{ width: 350, padding: 0 }} hoverable size={"small"}>
         <Flex align="center" justify="center" gap="middle">
           {isDefaultLabel && <PlusOutlined />}
           <span style={{ color: "rgb(11, 47, 115)" }}>{data.label}</span>
         </Flex>
+
+        {!appliedFilters && !isDefaultLabel && (
+          <div
+            style={{
+              marginTop: 10,
+              textAlign: "center",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
+            <Button
+              type="primary"
+              onClick={handleFilterDrawerOpen}
+              size="small"
+              style={{
+                height: "15px",
+                width: "40px",
+                fontSize: "12px",
+              }}
+            >
+              Filters
+            </Button>
+          </div>
+        )}
+
+        {!isDefaultLabel && (
+          <Button
+            onClick={handleDelete}
+            style={{
+              backgroundColor: "white",
+              border: "none",
+              position: "absolute",
+              top: "5px",
+              right: "10px",
+              padding: 0,
+            }}
+            icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
+          />
+        )}
+        {/* Applied filters display */}
+        {appliedFilters && (
+          <div
+            style={{
+              marginTop: 10,
+              backgroundColor: "#f0f2f5",
+              padding: "5px 15px",
+              borderRadius: "10px",
+              display: "inline-block",
+            }}
+          >
+            <span style={{ color: "rgb(11, 47, 115)", fontSize: "10px" }}>
+              Applied Job Status: {appliedFilters.jobStatus}
+            </span>
+          </div>
+        )}
+
         <Handle type="source" position={Position.Bottom} />
       </Card>
 
-      {!isDefaultLabel && (
-        <div style={{ marginTop: 10 }}>
-          <Button type="default" onClick={handleFilterDrawerOpen}>
-            Filters
-          </Button>
-        </div>
-      )}
-
-      {/* Filter Drawer */}
       <Drawer
-        title="Apply Filter"
-        width={400}
+        title={selectedTriggerName || "Select a Trigger"}
+        width={550}
         open={isFilterDrawerVisible}
-        onClose={closeDrawers}
+        onClose={closeDrawer}
       >
         <Form
           layout="vertical"
-          onFinish={handleFormSubmit}
-          initialValues={formData}
+          onFinish={handleFilterSubmit}
+          initialValues={{
+            jobStatus: formData.jobStatus || null,
+          }}
           style={{
             backgroundColor: "#f0f2f5",
             padding: "10px",
             borderRadius: "10px",
           }}
         >
-          <Form.Item label="Filter" name="filter">
+          <Form.Item label="Job Status" name="jobStatus">
             <Select
-              value={formData.filter}
-              onChange={handleFilterChange}
-              placeholder="Select a filter"
+              value={formData.jobStatus || null}
+              onChange={(value) => handleFilterChange(value, "jobStatus")}
+              placeholder="Select Job Status"
             >
-              <Select.Option value="filter1">Filter 1</Select.Option>
-              <Select.Option value="filter2">Filter 2</Select.Option>
-              <Select.Option value="filter3">Filter 3</Select.Option>
+              <Select.Option value="Open">Open</Select.Option>
+              <Select.Option value="On Hold">On Hold</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item>
@@ -118,31 +180,37 @@ const AddTriggerNode = ({ data }) => {
 const AddActionNode = ({ data }) => {
   return (
     <>
-      <div
-        style={{
-          backgroundColor: "rgb(199, 220, 252)",
-          padding: "3px 8px",
-          borderRadius: 16,
-          marginBottom: 7,
-          display: "inline-block",
-        }}
-      >
-        <Flex gap={2}>
-          <span
-            style={{
-              color: "rgb(11, 47, 115)",
-              fontWeight: "medium",
-              fontSize: "14px",
-            }}
-          >
-            Then do this
-          </span>
-        </Flex>
-      </div>
+      <span>
+        <div
+          style={{
+            backgroundColor: "rgb(199, 220, 252)",
+            paddingLeft: 8,
+            paddingTop: 3,
+            paddingBottom: 3,
+            paddingRight: 8,
+            borderRadius: 16,
+            marginBottom: 7,
+            display: "inline-block",
+          }}
+        >
+          <Flex gap={2}>
+            <VscRunCoverage color={"rgb(11, 47, 115)"} size={16} />
+            <span
+              style={{
+                fontSize: "14px",
+                color: "rgb(11, 47, 115)",
+                fontWeight: "medium",
+              }}
+            >
+              Then do this
+            </span>
+          </Flex>
+        </div>
+      </span>
       <Card
         style={{ width: 350, padding: 0, border: "1px dashed #dadada" }}
         hoverable
-        size="small"
+        size={"small"}
       >
         <Handle type="target" position={Position.Top} />
         <Flex align="center" justify="center" gap="middle">
@@ -154,12 +222,6 @@ const AddActionNode = ({ data }) => {
       </Card>
     </>
   );
-};
-
-// Node Types
-const nodeTypes = {
-  addTrigger: AddTriggerNode,
-  addAction: AddActionNode,
 };
 
 const initialNodes = [
@@ -185,19 +247,55 @@ const initialEdges = [
     id: "e1-2",
     source: "1",
     target: "2",
-    animated: true,
+    animated: false,
+    type: "custom",
+    label: "Edge with Icon",
   },
 ];
 
+const CustomEdge = ({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  iconVisible,
+}) => {
+  const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
+
+  // Position the icon in the middle of the edge
+  const iconX = (sourceX + targetX) / 2 - 12;
+  const iconY = (sourceY + targetY) / 2 - 12;
+
+  return (
+    <g>
+      <path
+        id={id}
+        className="react-flow__edge-path"
+        d={edgePath}
+        style={{ stroke: "#000", strokeWidth: 2 }}
+      />
+      {iconVisible && (
+        <foreignObject x={iconX} y={iconY} width="24" height="24">
+          <BsFunnelFill />
+        </foreignObject>
+      )}
+    </g>
+  );
+};
+
 const WorkFlow = ({ apiServer, apiKey }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [selectedNode, setSelectedNode] = useState(null);
+  const [, setSelectedNode] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [triggers, setTriggers] = useState([]);
   const [nodes, setNodes] = useState(initialNodes);
-  const [selected, setSelected] = useState(null);
+  const [selected] = useState(null);
   const [selectFilter, setSelectFilter] = useState("All");
-  const [triggerSelected, setTriggerSelected] = useState(false); // Track if a trigger has been selected
+  const [triggerSelected, setTriggerSelected] = useState(false);
+
+  const [, setDroppedItem] = useState(null);
+  const [iconVisible, setIconVisible] = useState(false);
 
   useEffect(() => {
     fetchTriggers();
@@ -218,7 +316,6 @@ const WorkFlow = ({ apiServer, apiKey }) => {
       }
 
       const result = await response.json();
-      console.log("result", result);
 
       if (result && result.data) {
         setTriggers(result.data);
@@ -250,15 +347,61 @@ const WorkFlow = ({ apiServer, apiKey }) => {
     );
     setNodes(updatedNodes);
     setDrawerVisible(false);
-    setTriggerSelected(true); // Set trigger as selected
+    setTriggerSelected(true);
+    setIconVisible(true);
   };
 
-  const handleDeleteTrigger = () => {
-    const updatedNodes = nodes.map((node) =>
-      node.id === "1" ? { ...node, data: { label: "Add Trigger" } } : node
-    );
-    setNodes(updatedNodes);
-    setTriggerSelected(false); // Reset trigger selection
+  const handleDragStart = (event, trigger) => {
+    closeDrawer(); // Close the drawer when dragging starts
+    event.dataTransfer.setData("text/plain", JSON.stringify(trigger)); // Set the dragged trigger data
+    console.log("Dragging started!", trigger);
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const data = event.dataTransfer.getData("text/plain");
+    setIconVisible(true);
+    setDrawerVisible(false);
+    setTriggerSelected(true);
+    if (data) {
+      try {
+        const draggedTrigger = JSON.parse(data);
+
+        const updatedNodes = nodes.map((node) => {
+          if (node.id === "1") {
+            return {
+              ...node,
+              data: { label: draggedTrigger.name },
+            };
+          }
+          return node;
+        });
+
+        setNodes(updatedNodes); // Update the nodes state
+        setDroppedItem(draggedTrigger.name); // Optionally, update the dropped item display text
+        console.log(draggedTrigger, "Dropped and updated!");
+      } catch (error) {
+        console.error("Error parsing the dropped data:", error);
+      }
+    } else {
+      console.error("No data found in drop event.");
+    }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault(); // Allow dropping
+  };
+
+  const handleNodeDelete = () => {
+    if (window.confirm("Are you sure you want to delete this node?")) {
+      const updatedNodes = nodes.map((node) =>
+        node.id === "1" ? { ...node, data: { label: "Add Trigger" } } : node
+      );
+      setNodes(updatedNodes);
+      setTriggerSelected(false);
+      setIconVisible(false);
+      setDrawerVisible(true);
+    }
   };
 
   const moduleNames = [
@@ -288,26 +431,30 @@ const WorkFlow = ({ apiServer, apiKey }) => {
   return (
     <div style={{ height: "90vh", verticalAlign: "top" }}>
       <ReactFlow
-        nodes={nodes.map((node) =>
-          node.id === "1"
-            ? {
-                ...node,
-                data: { ...node.data, onDeleteTrigger: handleDeleteTrigger },
-              }
-            : node
-        )}
+        nodes={nodes}
         edges={initialEdges}
-        nodeTypes={nodeTypes}
         onNodeClick={onNodeClick}
+        nodeTypes={{
+          addTrigger: (props) => (
+            <AddTriggerNode {...props} onDelete={handleNodeDelete} />
+          ),
+          addAction: AddActionNode,
+        }}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        edgeTypes={{
+          custom: (props) => (
+            <CustomEdge {...props} iconVisible={iconVisible} />
+          ),
+        }}
         fitView
       >
-        <Background />
         <Controls />
       </ReactFlow>
 
       <Drawer
         title={selected ? `${selectedBlock.data.label}` : "Triggers"}
-        width={550}
+        width={580}
         open={drawerVisible}
         onClose={closeDrawer}
       >
@@ -335,10 +482,12 @@ const WorkFlow = ({ apiServer, apiKey }) => {
                   style={{ marginBottom: "14px", cursor: "pointer" }}
                   hoverable
                   onClick={() => handleTriggerSelection(trigger)}
+                  draggable
+                  onDragStart={(event) => handleDragStart(event, trigger)} // Ensure trigger is passed here
                 >
                   <div>
                     <Flex gap={"middle"}>
-                      <span>{trigger.name}</span>
+                      <GrTrigger size={20} /> <span>{trigger.name}</span>
                     </Flex>
                   </div>
                 </Card>
