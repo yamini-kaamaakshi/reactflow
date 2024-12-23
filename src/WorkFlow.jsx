@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactFlow, { Controls, Handle, Position } from "react-flow-renderer";
 import { Drawer, Segmented, Spin } from "antd";
-import { FundOutlined, PlusOutlined } from "@ant-design/icons";
+import {  PlusOutlined } from "@ant-design/icons";
 import { Card, Flex } from "antd";
 import { MdDelete } from "react-icons/md";
 import { Button, Form, Select } from "antd";
@@ -10,13 +10,32 @@ import { VscRunCoverage } from "react-icons/vsc";
 import { GrTrigger } from "react-icons/gr";
 import { BsFunnelFill } from "react-icons/bs";
 
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+
+const useFilterStore = create(
+    persist(
+        (set) => ({
+          appliedFilters: null,
+          setAppliedFilters: (filters) => set({ appliedFilters: filters }),
+
+          setIconColor: (color) => set({ iconColor: color }),
+        }),
+        {
+          name: "applied-filters",
+        }
+    )
+);
+
+
 const AddTriggerNode = ({ data, onDelete }) => {
   const isDefaultLabel = data.label === "Add Trigger";
   const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
   const [, setIsTriggerDrawerVisible] = useState(false);
   const [formData, setFormData] = useState({ jobStatus: "" });
-  const [appliedFilters, setAppliedFilters] = useState(null);
-  const [selectedTriggerName] = useState("");
+
+  const { appliedFilters, setAppliedFilters, setIconColor } = useFilterStore()
 
   const handleFilterDrawerOpen = () => {
     setIsFilterDrawerVisible(true);
@@ -40,6 +59,8 @@ const AddTriggerNode = ({ data, onDelete }) => {
   };
 
   const handleDelete = () => {
+    setAppliedFilters(null);
+    setIconColor("red");
     onDelete();
   };
 
@@ -139,7 +160,7 @@ const AddTriggerNode = ({ data, onDelete }) => {
       </Card>
 
       <Drawer
-        title={selectedTriggerName || "Select a Trigger"}
+        title={ "Select a Filter"}
         width={550}
         open={isFilterDrawerVisible}
         onClose={closeDrawer}
@@ -266,6 +287,7 @@ const CustomEdge = ({
   // Position the icon in the middle of the edge
   const iconX = (sourceX + targetX) / 2 - 12;
   const iconY = (sourceY + targetY) / 2 - 12;
+  const { iconColor } = useFilterStore();
 
   return (
     <g>
@@ -277,25 +299,68 @@ const CustomEdge = ({
       />
       {iconVisible && (
         <foreignObject x={iconX} y={iconY} width="24" height="24">
-          <BsFunnelFill />
+          <BsFunnelFill style={{ fontSize: "24px", color: iconColor }} />
         </foreignObject>
       )}
     </g>
   );
 };
 
+// Zustand store for trigger name persistence
+const useTriggerStore = create(
+    persist(
+        (set) => ({
+          selectedTriggerName: null, // Store trigger name
+          setSelectedTriggerName: (name) => set({ selectedTriggerName: name }),
+          resetTriggerName: () => set({ selectedTriggerName: null }),
+        }),
+        {
+          name: "trigger-store",
+        }
+    )
+);
+
 const WorkFlow = ({ apiServer, apiKey }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [, setSelectedNode] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [triggers, setTriggers] = useState([]);
-  const [nodes, setNodes] = useState(initialNodes);
+  const { selectedTriggerName, setSelectedTriggerName, resetTriggerName } =
+      useTriggerStore();
+  const [nodes, setNodes] = useState(()=>{
+
+
+
+    // Restore nodes with the trigger name on reload
+    const initialNodes = [
+      {
+        id: "1",
+        type: "addTrigger",
+        data: { label: selectedTriggerName || "Add Trigger" },
+        position: { x: 100, y: 200 },
+      },
+      {
+        id: "2",
+        type: "addAction",
+        data: {
+          label:
+              "Drag and drop to start building, or add a block from the connector line",
+        },
+        position: { x: 100, y: 400 },
+      },
+    ];
+    return initialNodes;
+
+  });
   const [selected] = useState(null);
   const [selectFilter, setSelectFilter] = useState("All");
-  const [triggerSelected, setTriggerSelected] = useState(false);
+  // const [triggerSelected, setTriggerSelected] = useState(false);
 
-  const [, setDroppedItem] = useState(null);
-  const [iconVisible, setIconVisible] = useState(false);
+   const [, setDroppedItem] = useState(null);
+   const [iconVisible, setIconVisible] = useState(!!selectedTriggerName);
+
+
+
 
   useEffect(() => {
     fetchTriggers();
@@ -330,7 +395,7 @@ const WorkFlow = ({ apiServer, apiKey }) => {
   };
 
   const onNodeClick = (_, node) => {
-    if (!triggerSelected) {
+    if (!selectedTriggerName) {
       setSelectedNode(node);
       setDrawerVisible(true);
     }
@@ -347,7 +412,7 @@ const WorkFlow = ({ apiServer, apiKey }) => {
     );
     setNodes(updatedNodes);
     setDrawerVisible(false);
-    setTriggerSelected(true);
+    setSelectedTriggerName(trigger.name);
     setIconVisible(true);
   };
 
@@ -362,7 +427,7 @@ const WorkFlow = ({ apiServer, apiKey }) => {
     const data = event.dataTransfer.getData("text/plain");
     setIconVisible(true);
     setDrawerVisible(false);
-    setTriggerSelected(true);
+
     if (data) {
       try {
         const draggedTrigger = JSON.parse(data);
@@ -398,7 +463,7 @@ const WorkFlow = ({ apiServer, apiKey }) => {
         node.id === "1" ? { ...node, data: { label: "Add Trigger" } } : node
       );
       setNodes(updatedNodes);
-      setTriggerSelected(false);
+      resetTriggerName();
       setIconVisible(false);
       setDrawerVisible(true);
     }
@@ -501,3 +566,6 @@ const WorkFlow = ({ apiServer, apiKey }) => {
 };
 
 export default WorkFlow;
+
+
+
