@@ -666,28 +666,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
       setIsLoading(false);
     }
   };
-  const addNewAction = (cardLabel) => {
-    if (!isFirstNodeUsed) {
-      // Do nothing to existing node 2, just add a new node for the first time
-      console.log("isFirstNodeUsed", isFirstNodeUsed);
-      setNodes((prevNodes) =>
-          prevNodes.map((node) =>
-              node.id === '2' ? { ...node, data: { label: cardLabel } } : node
-          )
-      );
-      setIsFirstNodeUsed(true);
-    } else {
-      // Create a new node and ensure it doesn't modify existing nodes
-      console.log("isFirstNodeUsed", isFirstNodeUsed);
-      const newNode = {
-        id: `${nodes.length + 1}`,
-        type: '',
-        position: { x: 100, y: 100 * (nodes.length + 1) },
-        data: { label: cardLabel },
-      };
-      setNodes((prevNodes) => [...prevNodes, newNode]);
-    }
-  };
 
   const onNodeClick = (_, node) => {
     if (!selectedTriggerName) {
