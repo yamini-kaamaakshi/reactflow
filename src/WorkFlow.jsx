@@ -18,76 +18,76 @@ import { persist } from "zustand/middleware";
 const useFilterStore = create(
     persist(
         (set) => ({
-          appliedFilters: null,
-          setAppliedFilters: (filters) => set({ appliedFilters: filters }),
+            appliedFilters: null,
+            setAppliedFilters: (filters) => set({ appliedFilters: filters }),
 
-          setIconColor: (color) => set({ iconColor: color }),
+            setIconColor: (color) => set({ iconColor: color }),
         }),
         {
-          name: "applied-filters",
+            name: "applied-filters",
         }
     )
 );
 
 
 const AddTriggerNode = ({ data, onDelete }) => {
-  const isDefaultLabel = data.label === "Add Trigger";
-  const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
-  const [, setIsTriggerDrawerVisible] = useState(false);
-  const [formData, setFormData] = useState({ jobStatus: "" });
+    const isDefaultLabel = data.label === "Add Trigger";
+    const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
+    const [, setIsTriggerDrawerVisible] = useState(false);
+    const [formData, setFormData] = useState({ jobStatus: "" });
 
-  const { appliedFilters, setAppliedFilters, setIconColor } = useFilterStore()
-  // const { setAppliedActions ,setSelectedAction } = useActionStore();
+    const { appliedFilters, setAppliedFilters, setIconColor } = useFilterStore()
+    // const { setAppliedActions ,setSelectedAction } = useActionStore();
 
-  const handleFilterDrawerOpen = () => {
-    setIsFilterDrawerVisible(true);
-    setIsTriggerDrawerVisible(false);
-  };
+    const handleFilterDrawerOpen = () => {
+        setIsFilterDrawerVisible(true);
+        setIsTriggerDrawerVisible(false);
+    };
 
-  const closeDrawer = () => {
-    setIsFilterDrawerVisible(false);
-    setIsTriggerDrawerVisible(false);
-  };
+    const closeDrawer = () => {
+        setIsFilterDrawerVisible(false);
+        setIsTriggerDrawerVisible(false);
+    };
 
-  const handleFilterChange = (value, field) => {
-    setFormData({ ...formData, [field]: value });
-  };
+    const handleFilterChange = (value, field) => {
+        setFormData({ ...formData, [field]: value });
+    };
 
-  const handleFilterSubmit = () => {
-    console.log(formData);
-    setAppliedFilters(formData);
-    setIsFilterDrawerVisible(false);
-    setIconColor("green");
-  };
+    const handleFilterSubmit = () => {
+        console.log(formData);
+        setAppliedFilters(formData);
+        setIsFilterDrawerVisible(false);
+        setIconColor("green");
+    };
 
-  const handleDelete = () => {
-    setAppliedFilters(null);
-    setIconColor("black");
-    onDelete();
-  };
+    const handleDelete = () => {
+        setAppliedFilters(null);
+        setIconColor("black");
+        onDelete();
+    };
 
-  return (
-      <>
+    return (
+        <>
       <span>
         <div
             style={{
-              backgroundColor: "rgb(199, 220, 252)",
-              paddingLeft: 8,
-              paddingTop: 3,
-              paddingBottom: 3,
-              paddingRight: 8,
-              borderRadius: 16,
-              marginBottom: 7,
-              display: "inline-block",
+                backgroundColor: "rgb(199, 220, 252)",
+                paddingLeft: 8,
+                paddingTop: 3,
+                paddingBottom: 3,
+                paddingRight: 8,
+                borderRadius: 16,
+                marginBottom: 7,
+                display: "inline-block",
             }}
         >
           <Flex gap={2}>
             <IoIosFlash size={16} color={"rgb(11, 47, 115)"} />
             <span
                 style={{
-                  color: "rgb(11, 47, 115)",
-                  fontWeight: "medium",
-                  fontSize: "14px",
+                    color: "rgb(11, 47, 115)",
+                    fontWeight: "medium",
+                    fontSize: "14px",
                 }}
             >
               When this happens
@@ -95,148 +95,182 @@ const AddTriggerNode = ({ data, onDelete }) => {
           </Flex>
         </div>
       </span>
-        <Card style={{ width: 350, padding: 0 }} hoverable size={"small"}>
-          <Flex align="center" justify="center" gap="middle">
-            {isDefaultLabel && <PlusOutlined />}
-            <span style={{ color: "rgb(11, 47, 115)" }}>{data.label}</span>
-          </Flex>
+            <Card style={{ width: 350, padding: 0 }} hoverable size={"small"}>
+                <Flex align="center" justify="center" gap="middle">
+                    {isDefaultLabel && <PlusOutlined />}
+                    <span style={{ color: "rgb(11, 47, 115)" }}>{data.label}</span>
+                </Flex>
 
-          {!appliedFilters && !isDefaultLabel && (
-              <div
-                  style={{
-                    marginTop: 10,
-                    textAlign: "center",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    gap: "10px",
-                  }}
-              >
-                <Button
-                    type="primary"
-                    onClick={handleFilterDrawerOpen}
-                    size="small"
-                    style={{
-                      height: "15px",
-                      width: "40px",
-                      fontSize: "12px",
-                    }}
-                >
-                  Filters
-                </Button>
-              </div>
-          )}
+                {!appliedFilters && !isDefaultLabel && (
+                    <div
+                        style={{
+                            marginTop: 10,
+                            textAlign: "center",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: "10px",
+                        }}
+                    >
+                        <Button
+                            type="primary"
+                            onClick={handleFilterDrawerOpen}
+                            size="small"
+                            style={{
+                                height: "15px",
+                                width: "40px",
+                                fontSize: "12px",
+                            }}
+                        >
+                            Filters
+                        </Button>
+                    </div>
+                )}
 
-          {!isDefaultLabel && (
-              <Button
-                  onClick={handleDelete}
-                  style={{
-                    backgroundColor: "white",
-                    border: "none",
-                    position: "absolute",
-                    top: "5px",
-                    right: "10px",
-                    padding: 0,
-                  }}
-                  icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
-              />
-          )}
-          {/* Applied filters display */}
-          {appliedFilters && (
-              <div
-                  style={{
-                    marginTop: 10,
-                    backgroundColor: "#f0f2f5",
-                    padding: "5px 15px",
-                    borderRadius: "10px",
-                    display: "inline-block",
-                  }}
-              >
+                {!isDefaultLabel && (
+                    <Button
+                        onClick={handleDelete}
+                        style={{
+                            backgroundColor: "white",
+                            border: "none",
+                            position: "absolute",
+                            top: "5px",
+                            right: "10px",
+                            padding: 0,
+                        }}
+                        icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
+                    />
+                )}
+                {/* Applied filters display */}
+                {appliedFilters && (
+                    <div
+                        style={{
+                            marginTop: 10,
+                            backgroundColor: "#f0f2f5",
+                            padding: "5px 15px",
+                            borderRadius: "10px",
+                            display: "inline-block",
+                        }}
+                    >
             <span style={{ color: "rgb(11, 47, 115)", fontSize: "10px" }}>
               Applied Job Status: {appliedFilters.jobStatus}
             </span>
-              </div>
-          )}
+                    </div>
+                )}
 
-          <Handle type="source" position={Position.Bottom} />
-        </Card>
+                <Handle type="source" position={Position.Bottom} />
+            </Card>
 
-        <Drawer
-            title={ "Select a Filter"}
-            width={550}
-            open={isFilterDrawerVisible}
-            onClose={closeDrawer}
-        >
-          <Form
-              layout="vertical"
-              onFinish={handleFilterSubmit}
-              initialValues={{
-                jobStatus: formData.jobStatus || null,
-              }}
-              style={{
-                backgroundColor: "#f0f2f5",
-                padding: "10px",
-                borderRadius: "10px",
-              }}
-          >
-            <Form.Item label="Job Status" name="jobStatus">
-              <Select
-                  value={formData.jobStatus || null}
-                  onChange={(value) => handleFilterChange(value, "jobStatus")}
-                  placeholder="Select Job Status"
-              >
-                <Select.Option value="Open">Send </Select.Option>
-                <Select.Option value="On Hold">On Hold</Select.Option>
+            <Drawer
+                title={ "Select a Filter"}
+                width={550}
+                open={isFilterDrawerVisible}
+                onClose={closeDrawer}
+            >
+                <Form
+                    layout="vertical"
+                    onFinish={handleFilterSubmit}
+                    initialValues={{
+                        jobStatus: formData.jobStatus || null,
+                    }}
+                    style={{
+                        backgroundColor: "#f0f2f5",
+                        padding: "10px",
+                        borderRadius: "10px",
+                    }}
+                >
+                    <Form.Item label="Job Status" name="jobStatus">
+                        <Select
+                            value={formData.jobStatus || null}
+                            onChange={(value) => handleFilterChange(value, "jobStatus")}
+                            placeholder="Select Job Status"
+                        >
+                            <Select.Option value="Open">Send </Select.Option>
+                            <Select.Option value="On Hold">On Hold</Select.Option>
 
-              </Select>
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Apply Filter
-              </Button>
-            </Form.Item>
-          </Form>
-        </Drawer>
-      </>
-  );
+                        </Select>
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Apply Filter
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Drawer>
+        </>
+    );
 };
 
 
 const CustomEdge = ({
-                      id,
-                      sourceX,
-                      sourceY,
-                      targetX,
-                      targetY,
-                      iconVisible,
+                        id,
+                        sourceX,
+                        sourceY,
+                        targetX,
+                        targetY,
+                        iconVisible,
                     }) => {
-  const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
+    const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
 
-  // Position the icon in the middle of the edge
-  const iconX = (sourceX + targetX) / 2 - 12;
-  const iconY = (sourceY + targetY) / 2 - 12;
-  const { iconColor } = useFilterStore();
+    // Position the icon in the middle of the edge
+    const iconX = (sourceX + targetX) / 2 - 12;
+    const iconY = (sourceY + targetY) / 2 - 12;
+    const { iconColor } = useFilterStore();
 
-  return (
-      <g>
-        <path
-            id={id}
-            className="react-flow__edge-path"
-            d={edgePath}
-            style={{ stroke: "#000", strokeWidth: 2 }}
-        />
-        {iconVisible && (
-            <foreignObject x={iconX} y={iconY} width="24" height="24">
-              <BsFunnelFill style={{ fontSize: "24px", color: iconColor }} />
-            </foreignObject>
-        )}
-      </g>
-  );
+    return (
+        <g>
+            <path
+                id={id}
+                className="react-flow__edge-path"
+                d={edgePath}
+                style={{ stroke: "#000", strokeWidth: 2 }}
+            />
+            {iconVisible && (
+                <foreignObject x={iconX} y={iconY} width="24" height="24">
+                    <BsFunnelFill style={{ fontSize: "24px", color: iconColor }} />
+                </foreignObject>
+            )}
+        </g>
+    );
 };
 
 
 
-const AddActionNode = ({data}) => {
+const AddActionNode = ({data,nodes,setNodes,setEdges}) => {
+    const {
+
+        selectedAction,
+        setSelectedAction,
+        setFormData,
+    } = useTriggerStore();
+
+
+    const handleDelete = (event) => {
+        event.stopPropagation();
+
+        // Show confirmation alert before proceeding with delete action
+        const isConfirmed = window.confirm("Are you sure you want to delete this action?");
+
+        if (isConfirmed) {
+            setSelectedAction(null);
+            setFormData(null);
+
+            // Get the target node ID from the closest element
+            const targetElement = event.target.closest("[data-id]");
+            const targetNodeId = targetElement?.getAttribute("data-id");
+
+            // Filter out the node that needs to be deleted
+            const updatedNodes = nodes.filter((node) => node.id !== targetNodeId);
+
+            // Filter out the edges that are associated with the deleted node
+            const updatedEdges = edges.filter((edge) => edge.source !== targetNodeId && edge.target !== targetNodeId);
+
+            setNodes(updatedNodes); // Update the nodes state
+            setEdges(updatedEdges); // Update the edges state
+        }
+    };
+
+
     return (
         <>
             <span>
@@ -266,6 +300,21 @@ const AddActionNode = ({data}) => {
                     <Handle type="target" position={Position.Top}/>
                     <Flex align={"center"} justify={"center"} gap={"middle"}>
                         <span style={{fontSize: '14px', color: "#888888"}}>{data.label}</span></Flex>
+                    {selectedAction && (
+                        <Button
+                            onClick={handleDelete}
+                            style={{
+                                backgroundColor: "white",
+                                border: "none",
+                                position: "absolute",
+                                top: "5px",
+                                right: "10px",
+                                padding: 0,
+                            }}
+                            icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
+                        />
+
+                    )}
                     <Handle type="source" position={Position.Bottom}/>
                 </div>
             </Card>
@@ -317,20 +366,20 @@ const initialEdges = [
 
 
 const WorkFlow = ({apiServer, apiKey}) => {
-  const [drawerVisible, setDrawerVisible] = useState(false);
-  const [, setSelectedNode] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [triggers, setTriggers] = useState([]);
+    const [drawerVisible, setDrawerVisible] = useState(false);
+    const [, setSelectedNode] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [triggers, setTriggers] = useState([]);
     const [formDrawerVisible, setFormDrawerVisible] = useState(false); // For the Form Drawer
     // const [selectedAction, setSelectedAction] = useState(null);
     // const [formData, setFormData] = useState({
     //     dropdownOption: '', // Store selected dropdown option
-
+    //
     // });
     const [actionDrawerVisible, setActionDrawerVisible] = useState(false); // For Action Drawer
     const [, setSelectedBlock] = useState(null);
     const [selectedActions, setSelectedActions] = useState([]);
-  // const {selectedTriggerName, setSelectedTriggerName, resetTriggerName} = useTriggerStore();
+    // const {selectedTriggerName, setSelectedTriggerName, resetTriggerName} = useTriggerStore();
     const {
         selectedTriggerName,
         selectedAction,
@@ -342,196 +391,233 @@ const WorkFlow = ({apiServer, apiKey}) => {
     } = useTriggerStore();
 
 
-  const [nodes, setNodes] = useState(() => {
-    const initialNodes = [
-      {
-        id: "1",
-        type: "addTrigger",
-        data: {label:  selectedTriggerName || "Add Trigger"},
-        position: {x: 100, y: 200},
-      },
-      {
-        id: "2",
-        type: "addAction",
-        data: {
-          label:
-              "Drag and drop to start building, or add a block from the connector line",
-        },
-        position: {x: 100, y: 400},
-      },
-    ];
-    return initialNodes;
+    const [nodes, setNodes] = useState(() => {
+        const initialNodes = [
+            {
+                id: "1",
+                type: "addTrigger",
+                data: {label: "Add Trigger"},
+                position: {x: 100, y: 200},
+            },
+            {
+                id: "2",
+                type: "addAction",
+                data: {
+                    label:
+                        "Drag and drop to start building, or add a block from the connector line",
+                },
+                position: {x: 100, y: 400},
+            },
+        ];
+        return initialNodes;
 
-  });
+    });
 
 
-  const [selectFilter, setSelectFilter] = useState("All");
-  const [, setDroppedItem] = useState(null);
-  const [iconVisible, setIconVisible] = useState(!!selectedTriggerName);
+    const [selectFilter, setSelectFilter] = useState("All");
+    const [, setDroppedItem] = useState(null);
+    const [iconVisible, setIconVisible] = useState(!!selectedTriggerName);
     const [edges, setEdges] = useState(initialEdges);
+
     useEffect(() => {
-    fetchTriggers();
-  }, []);
+        fetchTriggers();
+    }, []);
 
-  const fetchTriggers = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(
-          `${apiServer}/api/lookup_automation/triggers`,
-          {
-            headers: { Authorization: `Bearer ${apiKey}` },
-          }
-      );
+    const fetchTriggers = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetch(
+                `${apiServer}/api/lookup_automation/triggers`,
+                {
+                    headers: { Authorization: `Bearer ${apiKey}` },
+                }
+            );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
 
-      const result = await response.json();
-      console.log("data",result)
-      if (result && result.data) {
-        setTriggers(result.data);
-      } else {
-        setTriggers([]);
-      }
-    } catch (error) {
-      console.error("Error fetching triggers data: ", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const onNodeClick = (_, node) => {
-    if (!selectedTriggerName) {
-      setSelectedNode(node);
-      setDrawerVisible(true);
-    }
-  else if(selectedTriggerName){
-      setActionDrawerVisible(true)
-    }
-  };
-
-  const closeDrawer = () => {
-    setDrawerVisible(false);
-    setSelectedNode(null);
-  };
-
-
-
-  const handleTriggerSelection = (trigger) => {
-    const updatedNodes = nodes.map((node) =>
-        node.id === "1" ? { ...node, data: { label: trigger.name } } : node
-    );
-    setNodes(updatedNodes);
-    setSelectedTriggerName(trigger.name);
-    setDrawerVisible(false);
-
-    setIconVisible(true);
-  };
-
-  const handleDragStart = (event, trigger) => {
-    closeDrawer();
-    event.dataTransfer.setData("text/plain", JSON.stringify(trigger)); // Set the dragged trigger data
-    console.log("Dragging started!", trigger);
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const data = event.dataTransfer.getData("text/plain");
-    setIconVisible(true);
-    setDrawerVisible(false);
-
-    if (data) {
-      try {
-        const draggedTrigger = JSON.parse(data);
-
-        // Get the target node's ID from the `data-id` attribute of the event target
-        const targetElement = event.target.closest("[data-id]");
-        const targetNodeId = targetElement?.getAttribute("data-id");
-
-        if (!targetNodeId) {
-          console.error("No target node ID found in drop event.");
-          return;
+            const result = await response.json();
+            console.log("data",result)
+            if (result && result.data) {
+                setTriggers(result.data);
+            } else {
+                setTriggers([]);
+            }
+        } catch (error) {
+            console.error("Error fetching triggers data: ", error);
+        } finally {
+            setIsLoading(false);
         }
-        const updatedNodes = nodes.map((node) => {
-          if (node.id === targetNodeId) {
-            return {
-              ...node,
-              data: { label: draggedTrigger.name },
-            };
-          }
-          return node;
-        });
+    };
 
-        setNodes(updatedNodes); // Update the nodes state
-        setDroppedItem(draggedTrigger.name); // Optionally, update the dropped item display text
-        setSelectedTriggerName(draggedTrigger.name)
+    // const onNodeClick = (_, node) => {
+    //     if (!selectedTriggerName) {
+    //         setSelectedNode(node);
+    //         setDrawerVisible(true); // Open Trigger Drawer
+    //     }
+    // };
 
-          // addNewActionNode(draggedTrigger.name)
-        console.log(draggedTrigger, "Dropped and updated!");
-      } catch (error) {
-        console.error("Error parsing the dropped data:", error);
-      }
-    } else {
-      console.error("No data found in drop event.");
-    }
-  };
+    const onNodeClick = (_, node) => {
+        if (node.id === "1") {
+            if (!selectedTriggerName) {
+                // Open Trigger Drawer for Node 1
+                setSelectedNode(node);
+                setDrawerVisible(true); // Trigger Drawer
+                setActionDrawerVisible(false); // Ensure Action Drawer is closed
+            }
+        } else if (node.id === "2") {
+            // Node 2 logic
+            if (selectedTriggerName) {
+                setActionDrawerVisible(true); // Open Action Drawer
+                setDrawerVisible(false); // Ensure Trigger Drawer is closed
+            } else {
+                setDrawerVisible(true); // Open Trigger Drawer
+                setActionDrawerVisible(false); // Ensure Action Drawer is closed
+            }
+            setSelectedNode(node);
+        }
+    };
+
+    const closeDrawer = () => {
+        setDrawerVisible(false);
+        setSelectedNode(null);
+        setActionDrawerVisible(false)
+    };
 
 
-  const handleDragOver = (event) => {
-    event.preventDefault(); // Allow dropping
-  };
+
+    const handleTriggerSelection = (trigger) => {
+        const updatedNodes = nodes.map((node) =>
+            node.id === "1" ? { ...node, data: { label: trigger.name } } : node
+        );
+        setNodes(updatedNodes);
+        setSelectedTriggerName(trigger.name);
+        setDrawerVisible(false);
+
+        setIconVisible(true);
+    };
+
+    const handleDragStart = (event, trigger) => {
+        closeDrawer();
+        event.dataTransfer.setData("text/plain", JSON.stringify(trigger)); // Set the dragged trigger data
+        console.log("Dragging started!", trigger);
+    };
+
+    const handleDrop = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const data = event.dataTransfer.getData("text/plain");
+        setIconVisible(true);
+        setDrawerVisible(false);
+
+        if (data) {
+            try {
+                const draggedTrigger = JSON.parse(data);
+
+                // Get the target node's ID from the `data-id` attribute of the event target
+                const targetElement = event.target.closest("[data-id]");
+                const targetNodeId = targetElement?.getAttribute("data-id");
+
+                if (!targetNodeId) {
+                    console.error("No target node ID found in drop event.");
+                    return;
+                }
+                const updatedNodes = nodes.map((node) => {
+                    if (node.id === targetNodeId) {
+                        return {
+                            ...node,
+                            data: { label: draggedTrigger.name },
+                        };
+                    }
+                    return node;
+                });
+
+                setNodes(updatedNodes); // Update the nodes state
+                setDroppedItem(draggedTrigger.name); // Optionally, update the dropped item display text
+                setSelectedTriggerName(draggedTrigger.name)
+
+                // addNewActionNode(draggedTrigger.name)
+                console.log(draggedTrigger, "Dropped and updated!");
+            } catch (error) {
+                console.error("Error parsing the dropped data:", error);
+            }
+        } else {
+            console.error("No data found in drop event.");
+        }
+    };
+
+
+    const handleDragOver = (event) => {
+        event.preventDefault(); // Allow dropping
+    };
 
     const handleNodeDelete = (event) => {
         if (window.confirm("Are you sure you want to delete these nodes?")) {
-            const updatedNodes = nodes.map((node) => {
+            // Filter out all nodes and edges that were added after the trigger
+            const initialNodes = ["1", "2"]; // IDs of the initial nodes (Trigger and Instruction)
+
+            // Keep only the initial nodes, and reset their data
+            const updatedNodes = nodes.filter((node) => initialNodes.includes(node.id)).map((node) => {
                 if (node.id === "1") {
                     return { ...node, data: { label: "Add Trigger" } };
                 } else if (node.id === "2") {
-                    return { ...node, data: { label: "Drag and drop to start building, or add a block from the connector line" } };
+                    return {
+                        ...node,
+                        data: { label: "Drag and drop to start building, or add a block from the connector line" }
+                    };
                 } else {
                     return node;
                 }
             });
 
+            // Remove edges that are connected to non-initial nodes
+            const updatedEdges = edges.filter(
+                (edge) => initialNodes.includes(edge.source) && initialNodes.includes(edge.target)
+            );
+
+            // Update state with filtered nodes and edges
             setNodes(updatedNodes);
+            setEdges(updatedEdges);
+
+            // Reset other state and UI elements
             resetAll();
             setIconVisible(false);
             setDrawerVisible(true);
-            setActionDrawerVisible(false);
+            closeActionDrawer();
         }
     };
 
 
 
 
+
     const moduleNames = [
-    "All",
-    ...new Set(
-        triggers.map((trigger) =>
-            trigger.module.name.replaceAll(" Automation", "")
-        )
-    ),
-  ];
+        "All",
+        ...new Set(
+            triggers.map((trigger) =>
+                trigger.module.name.replaceAll(" Automation", "")
+            )
+        ),
+    ];
 
-  const filteredTriggers =
-      selectFilter === "All"
-          ? triggers
-          : triggers.filter(
-              (trigger) => trigger.module.name === selectFilter + " Automation"
-          );
+    const filteredTriggers =
+        selectFilter === "All"
+            ? triggers
+            : triggers.filter(
+                (trigger) => trigger.module.name === selectFilter + " Automation"
+            );
 
-  if (isLoading) {
-    return (
-        <div style={{ textAlign: "center", marginTop: "50px" }}>
-          <Spin size="large" />
-        </div>
-    );
-  }
+    if (isLoading) {
+        return (
+            <div style={{ textAlign: "center", marginTop: "50px" }}>
+                <Spin size="large" />
+            </div>
+        );
+    }
 
 
-  // Action node
+    // Action node
 
 // Close Action Drawer
     const closeActionDrawer = () => {
@@ -598,6 +684,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         // Add the action to the selected actions array
         setSelectedActions((prevActions) => [...prevActions, action]);
 
+        setSelectedAction(action)
         // Open the Form Drawer immediately after selecting an action
         setFormDrawerVisible(true); // Open the form drawer
 
@@ -635,7 +722,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         // Reset form data
         setFormData({ dropdownOption: '' });
-        setSelectedAction(null);
+
     };
 
 
@@ -653,150 +740,153 @@ const WorkFlow = ({apiServer, apiKey}) => {
         });
     };
 
-  return (
-      <div style={{ height: "90vh", verticalAlign: "top" }}>
-        <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodeClick={onNodeClick}
-            nodeTypes={{
-              addTrigger: (props) => (
-                  <AddTriggerNode {...props} onDelete={handleNodeDelete} />
-              ),
-              addAction: (props) => (
-                  <AddActionNode {...props} nodes={nodes} setNodes={setNodes} setEdges={setEdges} />
-              )
-            }}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            edgeTypes={{
-              custom: (props) => (
-                  <CustomEdge {...props} iconVisible={iconVisible} />
-              ),
-            }}
-            fitView
-        >
-          <Controls />
-        </ReactFlow>
 
-        <Drawer
-            title={"Triggers"}
-            width={580}
-            open={drawerVisible}
-            onClose={closeDrawer}
-        >
-          <div>
-            <Segmented
-                options={moduleNames}
-                value={selectFilter}
-                onChange={setSelectFilter}
-                style={{ marginBottom: "20px" }}
-            />
 
-            <div
-                style={{
-                  backgroundColor: "#f0f2f5",
-                  padding: "10px",
-                  borderRadius: "10px",
+    return (
+        <div style={{ height: "90vh", verticalAlign: "top" }}>
+            <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodeClick={onNodeClick}
+                nodeTypes={{
+                    addTrigger: (props) => (
+                        <AddTriggerNode {...props} onDelete={handleNodeDelete} />
+                    ),
+                    addAction: (props) => (
+                        <AddActionNode {...props} nodes={nodes}
+                                       setNodes={setNodes}
+                                       setEdges={setEdges}
+                                       selectedAction={selectedAction}
+                                       setSelectedAction={setSelectedAction}
+                                       setFormData={setFormData}
+
+                        />
+                    )
                 }}
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                edgeTypes={{
+                    custom: (props) => (
+                        <CustomEdge {...props} iconVisible={iconVisible} />
+                    ),
+                }}
+                fitView
             >
-              {filteredTriggers.length === 0 ? (
-                  <p>No triggers available</p>
-              ) : (
-                  filteredTriggers.map((trigger) => (
-                      <Card
-                          key={trigger.code}
-                          style={{ marginBottom: "14px", cursor: "pointer" }}
-                          hoverable
-                          onClick={() => handleTriggerSelection(trigger)}
-                          draggable
-                          onDragStart={(event) => handleDragStart(event, trigger)}
-                      >
-                        <div>
-                          <Flex gap={"middle"}>
-                            <GrTrigger size={20} /> <span>{trigger.name}</span>
-                          </Flex>
+                <Controls />
+            </ReactFlow>
+
+            <Drawer
+                title={"Triggers"}
+                width={580}
+                open={drawerVisible}
+                onClose={closeDrawer}
+            >
+                <div>
+                    <Segmented
+                        options={moduleNames}
+                        value={selectFilter}
+                        onChange={setSelectFilter}
+                        style={{ marginBottom: "20px" }}
+                    />
+
+                    <div
+                        style={{
+                            backgroundColor: "#f0f2f5",
+                            padding: "10px",
+                            borderRadius: "10px",
+                        }}
+                    >
+                        {filteredTriggers.length === 0 ? (
+                            <p>No triggers available</p>
+                        ) : (
+                            filteredTriggers.map((trigger) => (
+                                <Card
+                                    key={trigger.code}
+                                    style={{ marginBottom: "14px", cursor: "pointer" }}
+                                    hoverable
+                                    onClick={() => handleTriggerSelection(trigger)}
+                                    draggable
+                                    onDragStart={(event) => handleDragStart(event, trigger)}
+                                >
+                                    <div>
+                                        <Flex gap={"middle"}>
+                                            <GrTrigger size={20} /> <span>{trigger.name}</span>
+                                        </Flex>
+                                    </div>
+                                </Card>
+                            ))
+                        )}
+                    </div>
+                </div>
+            </Drawer>
+
+            {/*Action Drawer */}
+            <Drawer
+                title="Actions"
+                width={550}
+                open={actionDrawerVisible}
+                onClose={closeActionDrawer}
+            >
+                <div style={{ backgroundColor: '#f0f2f5', padding: '10px', borderRadius: '10px' }}>
+                    {actions.map((action) => (
+                        <Card
+                            key={action.id}
+                            style={{ marginBottom: '14px', cursor: 'pointer' }}
+                            hoverable
+                            onClick={() => handleActionSelection(action)} // Handle action selection
+                        >
+                            <div>
+                                <Flex gap={'middle'}>
+                                    <IoIosFlash size={20} color="rgb(11, 47, 115)" />
+                                    <span>{action.name}</span>
+                                </Flex>
+                            </div>
+                        </Card>
+                    ))}
+                </div>
+            </Drawer>
+
+            {/* Form Drawer */}
+            <Drawer
+                title={`Configure ${selectedActions?.name || ''}`}
+                width={550}
+                open={formDrawerVisible}
+                onClose={closeFormDrawer}
+            >
+                <div style={{ padding: '20px' }}>
+                    <form onSubmit={handleFormSubmit}>
+                        <div style={{ marginBottom: '15px' }}>
+                            <select
+                                name="dropdownOption"
+                                // value={formData.dropdownOption}
+                                onChange={handleFormChange}
+                                style={{ width: '100%', padding: '8px' }}
+                            >
+                                <option value="Option 1">Option 1</option>
+                                <option value="Option 2">Option 2</option>
+                                <option value="Option 3">Option 3</option>
+                            </select>
                         </div>
-                      </Card>
-                  ))
-              )}
-            </div>
-          </div>
-        </Drawer>
 
-          {/*Action Drawer */}
-          <Drawer
-              title="Actions"
-              width={550}
-              open={actionDrawerVisible}
-              onClose={closeActionDrawer}
-          >
-              <div style={{ backgroundColor: '#f0f2f5', padding: '10px', borderRadius: '10px' }}>
-                  {actions.map((action) => (
-                      <Card
-                          key={action.id}
-                          style={{ marginBottom: '14px', cursor: 'pointer' }}
-                          hoverable
-                          onClick={() => handleActionSelection(action)} // Handle action selection
-                      >
-                          <div>
-                              <Flex gap={'middle'}>
-                                  <IoIosFlash size={20} color="rgb(11, 47, 115)" />
-                                  <span>{action.name}</span>
-                              </Flex>
-                          </div>
-                      </Card>
-                  ))}
-              </div>
-          </Drawer>
+                        <button
+                            type="submit"
+                            style={{
+                                backgroundColor: 'rgb(11, 47, 115)',
+                                color: '#fff',
+                                padding: '10px 20px',
+                                border: 'none',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Save
+                        </button>
+                    </form>
+                </div>
+            </Drawer>
 
-          {/* Form Drawer */}
-          <Drawer
-              title={`Configure ${selectedAction?.name || ''}`}
-              width={550}
-              open={formDrawerVisible}
-              onClose={closeFormDrawer}
-          >
-              <div style={{ padding: '20px' }}>
-                  <p>Fill in the details for the selected action:</p>
-                  <form onSubmit={handleFormSubmit}>
-                      {/* Dropdown 1 */}
-                      <div style={{ marginBottom: '15px' }}>
-                          <label style={{ display: 'block', marginBottom: '5px' }}>Select an Option</label>
-                          <select
-                              name="dropdownOption"
-                              value={formData.dropdownOption}
-                              onChange={handleFormChange}
-                              style={{ width: '100%', padding: '8px' }}
-                          >
-                              <option value="" disabled>
-                                  Choose an option
-                              </option>
-                              <option value="Option 1">Option 1</option>
-                              <option value="Option 2">Option 2</option>
-                              <option value="Option 3">Option 3</option>
-                          </select>
-                      </div>
-
-                      <button
-                          type="submit"
-                          style={{
-                              backgroundColor: 'rgb(11, 47, 115)',
-                              color: '#fff',
-                              padding: '10px 20px',
-                              border: 'none',
-                              borderRadius: '5px',
-                              cursor: 'pointer',
-                          }}
-                      >
-                          Save
-                      </button>
-                  </form>
-              </div>
-          </Drawer>
-
-      </div>
-  );
+        </div>
+    );
 };
 
 export default WorkFlow;
