@@ -236,39 +236,7 @@ const CustomEdge = ({
 
 
 
-const AddActionNode = ({data,nodes,setNodes,setEdges}) => {
-    const {
-
-        selectedAction,
-        setSelectedAction,
-        setFormData,
-    } = useTriggerStore();
-
-
-    const handleDelete = (event) => {
-        event.stopPropagation();
-
-        // Show confirmation alert before proceeding with delete action
-        const isConfirmed = window.confirm("Are you sure you want to delete this action?");
-
-        if (isConfirmed) {
-            setSelectedAction(null);
-            setFormData(null);
-
-            // Get the target node ID from the closest element
-            const targetElement = event.target.closest("[data-id]");
-            const targetNodeId = targetElement?.getAttribute("data-id");
-
-            // Filter out the node that needs to be deleted
-            const updatedNodes = nodes.filter((node) => node.id !== targetNodeId);
-
-            // Filter out the edges that are associated with the deleted node
-            const updatedEdges = edges.filter((edge) => edge.source !== targetNodeId && edge.target !== targetNodeId);
-
-            setNodes(updatedNodes); // Update the nodes state
-            setEdges(updatedEdges); // Update the edges state
-        }
-    };
+const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handleActionDragOver}) => {
 
 
     return (
@@ -295,6 +263,8 @@ const AddActionNode = ({data,nodes,setNodes,setEdges}) => {
                  </div>
             </span>
             <Card style={{width: 350, padding: 0, border: '1px dashed #dadada'}} hoverable size={'small'}
+                  onDrop={handleActionDrop}
+                  onDragOver={handleActionDragOver}
             >
                 <div>
                     <Handle type="target" position={Position.Top}/>
@@ -302,7 +272,7 @@ const AddActionNode = ({data,nodes,setNodes,setEdges}) => {
                         <span style={{fontSize: '14px', color: "#888888"}}>{data.label}</span></Flex>
                     {selectedAction && (
                         <Button
-                            onClick={handleDelete}
+                            onClick={deleteAction}
                             style={{
                                 backgroundColor: "white",
                                 border: "none",
@@ -313,7 +283,6 @@ const AddActionNode = ({data,nodes,setNodes,setEdges}) => {
                             }}
                             icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
                         />
-
                     )}
                     <Handle type="source" position={Position.Bottom}/>
                 </div>
@@ -362,6 +331,7 @@ const initialEdges = [
         type: "custom",
         label: "Edge with Icon",
     },
+
 ];
 
 
@@ -396,7 +366,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             {
                 id: "1",
                 type: "addTrigger",
-                data: {label: "Add Trigger"},
+                data: {label: selectedTriggerName || "Add Trigger"},
                 position: {x: 100, y: 200},
             },
             {
@@ -408,6 +378,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 },
                 position: {x: 100, y: 400},
             },
+
         ];
         return initialNodes;
 
@@ -451,13 +422,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     };
 
-    // const onNodeClick = (_, node) => {
-    //     if (!selectedTriggerName) {
-    //         setSelectedNode(node);
-    //         setDrawerVisible(true); // Open Trigger Drawer
-    //     }
-    // };
-
     const onNodeClick = (_, node) => {
         if (node.id === "1") {
             if (!selectedTriggerName) {
@@ -466,7 +430,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 setDrawerVisible(true); // Trigger Drawer
                 setActionDrawerVisible(false); // Ensure Action Drawer is closed
             }
-        } else if (node.id === "2") {
+        } else {
             // Node 2 logic
             if (selectedTriggerName) {
                 setActionDrawerVisible(true); // Open Action Drawer
@@ -510,6 +474,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         const data = event.dataTransfer.getData("text/plain");
         setIconVisible(true);
         setDrawerVisible(false);
+
 
         if (data) {
             try {
@@ -588,10 +553,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     };
 
-
-
-
-
     const moduleNames = [
         "All",
         ...new Set(
@@ -636,6 +597,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
 // Your other logic follows here
     const handleActionSelection = (action) => {
+        let newNode, newEdge;
+
         // If this is the first action selection, update Node 2's label
         if (selectedActions.length === 0) {
             // Update Node 2 with the first selected action's label
@@ -653,29 +616,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 )
             );
         } else {
-            // Create a new node for each subsequent action
-            const newNodeId = `${nodes.length + 1}`;
-            const newNode = {
-                id: newNodeId,
-                type: 'addAction', // Action node type
-                data: {
-                    label: `${action.name}`, // Label for the new action node
-                },
-                position: { x: 100, y: 300 + nodes.length * 100 }, // Dynamically position new nodes
-
-            };
+            // Create a new node
+            newNode = createNewNode(action, nodes.length);
 
             // Add the new node to the nodes array
             setNodes((prevNodes) => [...prevNodes, newNode]);
 
-            // Add an edge from the last selected action node to the new node
-            const newEdge = {
-                id: `e${selectedActions.length + 2}-${newNodeId}`,
-                source: nodes[nodes.length - 1].id, // Previous action node's ID
-                target: newNodeId,
-                animated: false,
-                style: { stroke: '#d7d9e1', strokeWidth: 1 },
-            };
+            // Create a new edge connecting the previous node to the new node
+            const sourceNodeId = nodes.length === 2 ? '2' : nodes[nodes.length - 1].id;
+            newEdge = createNewEdge(sourceNodeId, newNode.id);
 
             // Add the new edge to the edges array
             setEdges((prevEdges) => [...prevEdges, newEdge]);
@@ -684,14 +633,38 @@ const WorkFlow = ({apiServer, apiKey}) => {
         // Add the action to the selected actions array
         setSelectedActions((prevActions) => [...prevActions, action]);
 
-        setSelectedAction(action)
+        // Set the selected action
+        setSelectedAction(action);
+
         // Open the Form Drawer immediately after selecting an action
-        setFormDrawerVisible(true); // Open the form drawer
+        setFormDrawerVisible(true);
 
         // Close the Action Drawer
-        setActionDrawerVisible(false);
     };
 
+// Function to create a new node
+    // Function to create a new node dynamically
+    const createNewNode = (action, nodesLength) => {
+        const newNodeId = `${nodesLength + 1}`;  // Create a new unique ID
+        return {
+            id: newNodeId,
+            type: 'addAction',
+            data: {
+                label: `${action.name}`,
+            },
+            position: { x: 100, y: 300 + nodesLength * 100 }, // Position nodes dynamically
+        };
+    };
+
+    const createNewEdge = (sourceNodeId, targetNodeId) => {
+        return {
+            id: `e${sourceNodeId}-${targetNodeId}`,
+            source: sourceNodeId,
+            target: targetNodeId,
+            animated: false,
+            style: { stroke: '#d7d9e1', strokeWidth: 1 },
+        };
+    };
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
@@ -716,23 +689,13 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 )
             );
         }
-
-        // Close the Form Drawer after saving
         setFormDrawerVisible(false);
-
-        // Reset form data
-        setFormData({ dropdownOption: '' });
-
+        setActionDrawerVisible(false);
     };
-
-
-
     const closeFormDrawer = () => {
         setFormDrawerVisible(false);
-        setSelectedAction(null); // Reset the selected action
+
     };
-
-
     const handleFormChange = (e) => {
         setFormData({
             ...formData,
@@ -740,7 +703,124 @@ const WorkFlow = ({apiServer, apiKey}) => {
         });
     };
 
+    const deleteAction = (event) => {
+        event.stopPropagation();
 
+        // Show confirmation alert before proceeding with delete action
+        const isConfirmed = window.confirm("Are you sure you want to delete this action?");
+
+        if (isConfirmed) {
+            const targetElement = event.target.closest("[data-id]");
+            const targetNodeId = targetElement?.getAttribute("data-id");
+
+            if (!targetNodeId) return; // If no targetNodeId is found, exit
+
+            // Remove the node from the nodes array (but never remove Node 2)
+            const updatedNodes = nodes.filter((node) => node.id !== targetNodeId || node.id === "2");
+
+            // Find the previous and next nodes (if they exist)
+            const targetNodeIndex = nodes.findIndex((node) => node.id === targetNodeId);
+            const prevNodeId = targetNodeIndex > 0 ? nodes[targetNodeIndex - 1].id : null;
+            const nextNodeId = targetNodeIndex < nodes.length - 1 ? nodes[targetNodeIndex + 1].id : null;
+
+            // If there is a previous node and a next node, create a new edge between them
+            let updatedEdges = edges.filter(
+                (edge) => edge.source !== targetNodeId && edge.target !== targetNodeId
+            );
+
+            if (prevNodeId && nextNodeId) {
+                const newEdge = {
+                    id: `e${prevNodeId}-${nextNodeId}`,
+                    source: prevNodeId,
+                    target: nextNodeId,
+                    animated: false,
+                    style: { stroke: '#d7d9e1', strokeWidth: 1 },
+                };
+                updatedEdges.push(newEdge);
+            }
+
+            // Update Node 2's label if all action nodes are deleted
+            if (updatedNodes.length === 1 && updatedNodes[0].id === "1") {
+                const updatedNode2 = nodes.find((node) => node.id === "2");
+                updatedNode2.data.label =
+                    "Drag and drop to start building, or add a block from the connector line";
+                if (!updatedNodes.some((node) => node.id === "2")) {
+                    updatedNodes.push(updatedNode2);
+                }
+            }
+
+            setNodes(updatedNodes); // Update the nodes state
+            setEdges(updatedEdges); // Update the edges state
+        }
+    };
+
+    const handleActionDragStart = (event, action) => {
+        closeActionDrawer(); // Close the drawer when dragging starts
+        event.dataTransfer.setData("text/plain", JSON.stringify(action)); // Set the dragged trigger data
+        console.log("Dragging started!", action);
+    };
+
+    const handleActionDrop = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setActionDrawerVisible(true);
+        console.log("event", event);
+        const data = event.dataTransfer.getData("text/plain");
+        console.log("data", data);
+
+        if (data) {
+            try {
+                const action = JSON.parse(data);
+
+                // If it's the first action, update Node 2's label
+                if (selectedActions.length === 0) {
+                    setNodes((prevNodes) =>
+                        prevNodes.map((node) =>
+                            node.id === '2'
+                                ? {
+                                    ...node,
+                                    data: {
+                                        ...node.data,
+                                        label: `${action.name}`,
+                                    },
+                                }
+                                : node
+                        )
+                    );
+                } else {
+                    // Use the utility function to create a new node for subsequent actions
+                    const newNode = createNewNode(action, nodes.length);
+
+                    // Add the new node to the nodes array
+                    setNodes((prevNodes) => [...prevNodes, newNode]);
+
+                    // If there is a previous node, create an edge to the new node
+                    const lastNodeId = nodes[nodes.length - 1].id;
+                    const newEdge = createNewEdge(lastNodeId, newNode.id);
+                    setEdges((prevEdges) => [...prevEdges, newEdge]);
+                }
+
+                // Add the action to the selected actions array
+                setSelectedActions((prevActions) => [...prevActions, action]);
+
+                // Set the selected action
+                setSelectedAction(action);
+
+                // Immediately open the form drawer after setting the action
+                setFormDrawerVisible(true);
+
+                console.log("Dropped action and updated node:", action);
+            } catch (error) {
+                console.error("Error parsing the dropped data:", error);
+            }
+        } else {
+            console.error("No data found in drop event.");
+        }
+    };
+
+    const handleActionDragOver  = (event) => {
+        event.preventDefault(); // Allow dropping
+    };
 
     return (
         <div style={{ height: "90vh", verticalAlign: "top" }}>
@@ -759,6 +839,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                        selectedAction={selectedAction}
                                        setSelectedAction={setSelectedAction}
                                        setFormData={setFormData}
+                                       deleteAction={deleteAction}
+                                       handleActionDrop={handleActionDrop}
+                                       handleActionDragOver={handleActionDragOver}
 
                         />
                     )
@@ -820,7 +903,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 </div>
             </Drawer>
 
-            {/*Action Drawer */}
             <Drawer
                 title="Actions"
                 width={550}
@@ -834,6 +916,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                             style={{ marginBottom: '14px', cursor: 'pointer' }}
                             hoverable
                             onClick={() => handleActionSelection(action)} // Handle action selection
+                            draggable
+                            onDragStart={(event) => handleActionDragStart(event, action)}
+
                         >
                             <div>
                                 <Flex gap={'middle'}>
@@ -844,45 +929,55 @@ const WorkFlow = ({apiServer, apiKey}) => {
                         </Card>
                     ))}
                 </div>
-            </Drawer>
 
-            {/* Form Drawer */}
-            <Drawer
-                title={`Configure ${selectedActions?.name || ''}`}
-                width={550}
-                open={formDrawerVisible}
-                onClose={closeFormDrawer}
-            >
-                <div style={{ padding: '20px' }}>
-                    <form onSubmit={handleFormSubmit}>
-                        <div style={{ marginBottom: '15px' }}>
-                            <select
-                                name="dropdownOption"
-                                // value={formData.dropdownOption}
-                                onChange={handleFormChange}
-                                style={{ width: '100%', padding: '8px' }}
+                {/* Form Drawer within the Action Drawer */}
+                {formDrawerVisible && (
+                    <div
+                        style={{
+                            backgroundColor: '#fff',
+                            marginTop: '20px',
+                            padding: '20px',
+                            borderRadius: '10px',
+                            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                        }}
+                    >
+                        <h3>Configure {selectedAction?.name || ''}</h3>
+                        <p>Fill in the details for the selected action:</p>
+                        <form onSubmit={handleFormSubmit}>
+                            {/* Dropdown 1 */}
+                            <div style={{ marginBottom: '15px' }}>
+                                <label style={{ display: 'block', marginBottom: '5px' }}>Select an Option</label>
+                                <select
+                                    name="dropdownOption"
+                                    value={formData.dropdownOption}
+                                    onChange={handleFormChange}
+                                    style={{ width: '100%', padding: '8px' }}
+                                >
+                                    <option value="" disabled>
+                                        Choose an option
+                                    </option>
+                                    <option value="Option 1">Option 1</option>
+                                    <option value="Option 2">Option 2</option>
+                                    <option value="Option 3">Option 3</option>
+                                </select>
+                            </div>
+
+                            <button
+                                type="submit"
+                                style={{
+                                    backgroundColor: 'rgb(11, 47, 115)',
+                                    color: '#fff',
+                                    padding: '10px 20px',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                }}
                             >
-                                <option value="Option 1">Option 1</option>
-                                <option value="Option 2">Option 2</option>
-                                <option value="Option 3">Option 3</option>
-                            </select>
-                        </div>
-
-                        <button
-                            type="submit"
-                            style={{
-                                backgroundColor: 'rgb(11, 47, 115)',
-                                color: '#fff',
-                                padding: '10px 20px',
-                                border: 'none',
-                                borderRadius: '5px',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            Save
-                        </button>
-                    </form>
-                </div>
+                                Save
+                            </button>
+                        </form>
+                    </div>
+                )}
             </Drawer>
 
         </div>
