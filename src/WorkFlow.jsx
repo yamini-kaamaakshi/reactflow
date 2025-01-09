@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ReactFlow, { Controls, Handle, Position } from "react-flow-renderer";
+import ReactFlow, {Background, Controls, Handle, Position} from "react-flow-renderer";
 import { Drawer, Segmented, Spin } from "antd";
 import {  PlusOutlined } from "@ant-design/icons";
 import { Card, Flex } from "antd";
@@ -413,6 +413,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 type: "addTrigger",
                 data: {label: selectedTriggerName || "Add Trigger"},
                 position: {x: 100, y: 200},
+
             },
             {
                 id: "2",
@@ -645,6 +646,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setSelectedActions((prevActions) => [...prevActions, action]);
         // Set the selected action
         setSelectedAction(action);
+        setActionDrawerVisible(false)
         // Open the Form Drawer immediately after selecting an action
         setFormDrawerVisible(true);
     };
@@ -745,15 +747,18 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         // Ensure the Exit node is present
         const lastNodePosition = newNode ? newNode.position : nodes[nodes.length - 1].position;
-        const exitNodePositionY = lastNodePosition.y + 100;
+        const exitNodePositionY = lastNodePosition.y + 130;
+        console.log("exitNodePositionY",exitNodePositionY)
 
         setNodes((prevNodes) => [
             ...prevNodes,
             {
                 id: 'exit',
                 type: 'default',
-                data: { label: 'Exit Node' },
-                position: { x: 200, y: exitNodePositionY },
+                data: { label: <div style={{ textAlign: 'center', lineHeight: '25px' }}>Exit Node</div> }, // Center the label
+                position: { x: 235, y: exitNodePositionY },
+                style: { width: 80, height: 25, display: 'flex', justifyContent: 'center', alignItems: 'center' }, // Ensure centering
+
             },
         ]);
 
@@ -933,7 +938,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 }}
                 fitView
             >
-                <Controls />
+                {/*<Controls />*/}
+                <Background />
             </ReactFlow>
 
             <Drawer
@@ -1007,56 +1013,55 @@ const WorkFlow = ({apiServer, apiKey}) => {
                         </Card>
                     ))}
                 </div>
-
-                {/* Form Drawer within the Action Drawer */}
-                {formDrawerVisible && (
-                    <div
-                        style={{
-                            backgroundColor: '#fff',
-                            marginTop: '20px',
-                            padding: '20px',
-                            borderRadius: '10px',
-                            boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-                        }}
-                    >
-                        <h3>Configure {selectedAction?.name || ''}</h3>
-                        <p>Fill in the details for the selected action:</p>
-                        <form onSubmit={handleFormSubmit}>
-                            {/* Dropdown 1 */}
-                            <div style={{ marginBottom: '15px' }}>
-                                <label style={{ display: 'block', marginBottom: '5px' }}>Select an Option</label>
-                                <select
-                                    name="dropdownOption"
-                                    value={formData.dropdownOption}
-                                    onChange={handleFormChange}
-                                    style={{ width: '100%', padding: '8px' }}
-                                >
-                                    <option value="" disabled>
-                                        Choose an option
-                                    </option>
-                                    <option value="Option 1">Option 1</option>
-                                    <option value="Option 2">Option 2</option>
-                                    <option value="Option 3">Option 3</option>
-                                </select>
-                            </div>
-
-                            <button
-                                type="submit"
-                                style={{
-                                    backgroundColor: 'rgb(11, 47, 115)',
-                                    color: '#fff',
-                                    padding: '10px 20px',
-                                    border: 'none',
-                                    borderRadius: '5px',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                Save
-                            </button>
-                        </form>
-                    </div>
-                )}
             </Drawer>
+
+            {/* Form Drawer */}
+            <Drawer
+                title={`Configure ${selectedAction?.name || ''}`}
+                width={550}
+                open={formDrawerVisible}
+                onClose={closeFormDrawer}
+            >
+                <div style={{ padding: '20px' }}>
+                    <p>Fill in the details for the selected action:</p>
+                    <form onSubmit={handleFormSubmit}>
+                        {/* Dropdown 1 */}
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px' }}>Select an Option</label>
+                            <select
+                                name="dropdownOption"
+                                value={formData.dropdownOption}
+                                onChange={handleFormChange}
+                                style={{ width: '100%', padding: '8px' }}
+                            >
+                                <option value="">
+                                    Choose an option
+                                </option>
+                                <option value="Option 1">Option 1</option>
+                                <option value="Option 2">Option 2</option>
+                                <option value="Option 3">Option 3</option>
+                            </select>
+                        </div>
+
+                        <button
+                            type="submit"
+                            style={{
+                                backgroundColor: 'rgb(11, 47, 115)',
+                                color: '#fff',
+                                padding: '10px 20px',
+                                border: 'none',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Save
+                        </button>
+                    </form>
+                </div>
+            </Drawer>
+
+
+
 
         </div>
     );
