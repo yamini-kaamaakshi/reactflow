@@ -234,6 +234,65 @@ const CustomEdge = ({
     );
 };
 
+const CustomButton = ({
+                          id,
+                          sourceX,
+                          sourceY,
+                          targetX,
+                          targetY,
+                          setActionDrawerVisible
+                      }) => {
+    // Edge path
+    const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
+
+    // Button dimensions
+    const width = 20;
+    const height = 20;
+
+    // Calculate the button position (middle of the edge, static)
+    const iconX = (sourceX + targetX) / 2 - width / 2;
+    const iconY = (sourceY + targetY) / 2 - height / 2;
+
+
+    console.log("Button Position:", "iconX:", iconX, "iconY:", iconY);
+
+    return (
+        <g>
+            <path
+                id={id}
+                className="react-flow__edge-path"
+                d={edgePath}
+                style={{ stroke: "#000", strokeWidth: 2 }}
+            />
+            <foreignObject x={iconX} y={iconY} width={width} height={height}>
+                <button
+                    style={{
+                        all: "unset",
+                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: `${width}px`,
+                        height: `${height}px`,
+                        backgroundColor: "black",
+                        borderRadius: "50%",
+                        border: "none",
+                    }}
+                    onClick={() => setActionDrawerVisible(true)}// Add custom functionality here
+                >
+                    <PlusOutlined
+                        style={{
+                            fontSize: "10px",
+                            color: "white",
+                        }}
+                    />
+                </button>
+            </foreignObject>
+        </g>
+    );
+};
+
+
 
 
 const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handleActionDragOver}) => {
@@ -651,6 +710,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
             target: targetNodeId,
             animated: false,
             style: { stroke: '#d7d9e1', strokeWidth: 1 },
+            type: "button",
+            label: "Edge with button",
         };
     };
 
@@ -888,6 +949,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 edgeTypes={{
                     custom: (props) => (
                         <CustomEdge {...props} iconVisible={iconVisible} />
+                    ),
+                    button: (props) => (
+                        <CustomButton {...props} setActionDrawerVisible={setActionDrawerVisible} />
                     ),
                 }}
                 fitView
