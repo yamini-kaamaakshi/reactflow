@@ -666,17 +666,18 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         let newNodePositionY = 100;
 
-        if(nodesLength<=3) {
-            newNodePositionY= 100 + nodesLength * 100; // Dynamically calculate the position
-            // console.log("newNodePositionY <= 3",newNodePositionY,"nodesLength",nodesLength)
-        }else if(nodesLength===4) {
-            newNodePositionY =  (nodesLength * 100) +100; // Dynamically calculate the position
-            // console.log("newNodePositionY = 4",newNodePositionY,"nodesLength",nodesLength)
-        }else{
+        // if(nodesLength<=3) {
+        //     newNodePositionY= 100 + nodesLength * 100; // Dynamically calculate the position
+        //     // console.log("newNodePositionY <= 3",newNodePositionY,"nodesLength",nodesLength)
+        // }else if(nodesLength===4) {
+        //     newNodePositionY =  (nodesLength * 100) +100; // Dynamically calculate the position
+        //     // console.log("newNodePositionY = 4",newNodePositionY,"nodesLength",nodesLength)
+        // }else{
+        // if(nodesLength>2){
             let increments = Math.ceil((nodesLength - 3) / 2);
-            newNodePositionY = 400 + increments * 100;
-            // console.log("newNodePositionY",newNodePositionY,"nodesLength",nodesLength)
-        }
+            newNodePositionY = 300 + increments * 100;
+            console.log("newNodePositionY",newNodePositionY,"nodesLength",nodesLength)
+        // }
 
         return {
             id: newNodeId,
@@ -690,63 +691,57 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         let newNode, newEdge;
 
-        // Handle case when no actions are selected yet
-        if (selectedActions.length === 0) {
-            setNodes((prevNodes) =>
-                prevNodes.map((node) =>
+        setNodes((prevNodes) => {
+            if (selectedActions.length === 0) {
+                // If no actions are selected, update the label of node '2' only
+                return prevNodes.map((node) =>
                     node.id === '2'
                         ? {
                             ...node,
                             data: {
                                 ...node.data,
-                                label: ` ${formData.dropdownOption}`, // Display selected option in the label
+                                label: `${formData.dropdownOption}`, // Update label with selected dropdown option
                             },
                         }
                         : node
-                )
-            );
-        } else {
-            // Handle case when actions are selected
-            const lastNode = nodes[nodes.length - 1];
-            const lastAction = selectedActions[selectedActions.length - 1];
+                );
+            } else {
+                // Handle case when actions are selected
+                const lastNode = prevNodes[prevNodes.length - 1];
+                const lastAction = selectedActions[selectedActions.length - 1];
 
-            // Update the label for the last action node with form data
-            setNodes((prevNodes) => {
-
+                // Update the label of the last node
                 const updatedNodes = prevNodes.map((node) =>
                     node.id === lastNode.id
                         ? {
                             ...node,
                             data: {
                                 ...node.data,
-                                label: `${lastAction?.name || ''} \n${formData.dropdownOption}`, // Display selected option
-                            },
-                            position: {
-                                x: lastNode.position.x,
-                                y: lastNode.position.y,
+                                label: `${lastAction?.name || ''} \n${formData.dropdownOption}`, // Update label
                             },
                         }
                         : node
                 );
 
-
+                // Create a new node for the selected action
                 newNode = createNewNode(
                     `${lastAction.name}\n ${formData.dropdownOption}`,
-                    nodes.length
+                    prevNodes.length
                 );
 
-                updatedNodes.push(newNode); // Add the new node to the updated list of nodes
+                // Add the new node to the list
+                updatedNodes.push(newNode);
 
-
+                // Create a new edge from the last node to the new node
                 const sourceNodeId = lastNode.id;
                 newEdge = createNewEdge(sourceNodeId, newNode.id);
 
-                // Update the edges as well
+                // Update the edges
                 setEdges((prevEdges) => [...prevEdges, newEdge]);
 
-                return updatedNodes; // Return the updated nodes
-            });
-        }
+                return updatedNodes;
+            }
+        });
 
         // Ensure the Exit node is present
         const lastNodePosition = newNode ? newNode.position : nodes[nodes.length - 1].position;
