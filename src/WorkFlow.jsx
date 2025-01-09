@@ -376,7 +376,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     label:
                         "Drag and drop to start building, or add a block from the connector line",
                 },
-                position: {x: 100, y: 400},
+                position: {x: 100, y: 300},
             },
 
         ];
@@ -617,17 +617,21 @@ const WorkFlow = ({apiServer, apiKey}) => {
             );
         } else {
             // Create a new node
-            newNode = createNewNode(action, nodes.length);
+            newNode = createNewNode(action.name, nodes.length);
 
-            // Add the new node to the nodes array
-            setNodes((prevNodes) => [...prevNodes, newNode]);
+            // Update nodes array with the new node
+            setNodes((prevNodes) => {
+                const updatedNodes = [...prevNodes, newNode];
 
-            // Create a new edge connecting the previous node to the new node
-            const sourceNodeId = nodes.length === 2 ? '2' : nodes[nodes.length - 1].id;
-            newEdge = createNewEdge(sourceNodeId, newNode.id);
+                // Create an edge connecting the previous node to the new node
+                const sourceNodeId = nodes.length === 2 ? '2' : prevNodes[prevNodes.length - 1].id;
+                newEdge = createNewEdge(sourceNodeId, newNode.id);
 
-            // Add the new edge to the edges array
-            setEdges((prevEdges) => [...prevEdges, newEdge]);
+                // Add the new edge to the edges array
+                setEdges((prevEdges) => [...prevEdges, newEdge]);
+
+                return updatedNodes;
+            });
         }
 
         // Add the action to the selected actions array
@@ -638,22 +642,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         // Open the Form Drawer immediately after selecting an action
         setFormDrawerVisible(true);
-
-        // Close the Action Drawer
-    };
-
-// Function to create a new node
-    // Function to create a new node dynamically
-    const createNewNode = (action, nodesLength) => {
-        const newNodeId = `${nodesLength + 1}`;  // Create a new unique ID
-        return {
-            id: newNodeId,
-            type: 'addAction',
-            data: {
-                label: `${action.name}`,
-            },
-            position: { x: 100, y: 300 + nodesLength * 100 }, // Position nodes dynamically
-        };
     };
 
     const createNewEdge = (sourceNodeId, targetNodeId) => {
@@ -666,15 +654,36 @@ const WorkFlow = ({apiServer, apiKey}) => {
         };
     };
 
+    const createNewNode = (label, nodesLength) => {
+        const newNodeId = `${nodesLength + 1}`; // Create a new unique ID for each new node
+
+        let newNodePositionY = 100;
+
+        if(nodesLength<=3) {
+            newNodePositionY= 100 + nodesLength * 100; // Dynamically calculate the position
+        }else if(nodesLength===4) {
+            newNodePositionY =  (nodesLength * 100) +100; // Dynamically calculate the position
+        }else{
+            let increments = Math.ceil((nodesLength - 3) / 2);
+            newNodePositionY = 400 + increments * 100;
+        }
+        console.log("newNodePositionY",newNodePositionY,"nodesLength",nodesLength)
+        return {
+            id: newNodeId,
+            type: 'addAction',
+            data: { label: label },
+            position: { x: 100, y: newNodePositionY }, // Dynamically position nodes
+        };
+    };
+
     const handleFormSubmit = (e) => {
         e.preventDefault();
 
-        // Update the Action Node with the selected action and form data
         if (selectedActions.length > 0) {
-            // Get the last selected action node's ID
             const lastActionNodeId = nodes[nodes.length - 1].id;
+            const lastNode = nodes[nodes.length - 1];
 
-            // Update the label for the new action node with form data
+            // Update the label for the last action node with form data
             setNodes((prevNodes) =>
                 prevNodes.map((node) =>
                     node.id === lastActionNodeId
@@ -682,16 +691,44 @@ const WorkFlow = ({apiServer, apiKey}) => {
                             ...node,
                             data: {
                                 ...node.data,
-                                label: `${selectedActions[selectedActions.length - 1]?.name || ''}\n ${formData.dropdownOption}`, // Update node label with form data
+                                label: `${selectedActions[selectedActions.length - 1]?.name || ''}\n ${formData.dropdownOption}`, // Update the label with form data
+                            },
+                            position: {
+                                x: lastNode.position.x , // Adjust X position as needed
+                                y: lastNode.position.y , // Adjust Y position as needed
                             },
                         }
                         : node
                 )
             );
+
+
+            // const exitNodePositionY = lastNode.position.y + 100;
+            const exitNodePositionY = lastNode.position.y + 100;
+            // Ensure the Exit node is present
+            setNodes((prevNodes) => [
+                ...prevNodes,
+                {
+                    id: 'exit',
+                    type: 'default',
+                    data: { label: 'Exit Node' },
+                    position: { x: 200, y: exitNodePositionY }, // Position of the Exit node below the last node
+                }
+            ]);
+
+            // Create an edge from the last node to the Exit node
+            const newEdge = createNewEdge(lastActionNodeId, 'exit');
+            setEdges((prevEdges) => [...prevEdges, newEdge]);
         }
+
+        // Close the form drawer and action drawer
         setFormDrawerVisible(false);
         setActionDrawerVisible(false);
     };
+
+
+
+
     const closeFormDrawer = () => {
         setFormDrawerVisible(false);
 
