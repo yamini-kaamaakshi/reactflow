@@ -9,7 +9,6 @@ import { IoIosFlash } from "react-icons/io";
 import { VscRunCoverage } from "react-icons/vsc";
 import { GrTrigger } from "react-icons/gr";
 import { BsFunnelFill } from "react-icons/bs";
-const { Option } = Select;
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -37,7 +36,7 @@ const AddTriggerNode = ({ data, onDelete }) => {
     const [formData, setFormData] = useState({ jobStatus: "" });
 
     const { appliedFilters, setAppliedFilters, setIconColor } = useFilterStore()
-    // const { setAppliedActions ,setSelectedAction } = useActionStore();
+    const [isHovered, setIsHovered] = useState(false);
 
     const handleFilterDrawerOpen = () => {
         setIsFilterDrawerVisible(true);
@@ -95,7 +94,8 @@ const AddTriggerNode = ({ data, onDelete }) => {
           </Flex>
         </div>
       </span>
-            <Card style={{ width: 350, padding: 0 }} hoverable size={"small"}>
+            <Card style={{ width: 350, padding: 0 }} hoverable size={"small"} onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}>
                 <Flex align="center" justify="center" gap="middle">
                     {isDefaultLabel && <PlusOutlined />}
                     <span style={{ color: "rgb(11, 47, 115)" }}>{data.label}</span>
@@ -127,7 +127,7 @@ const AddTriggerNode = ({ data, onDelete }) => {
                     </div>
                 )}
 
-                {!isDefaultLabel && (
+                {!isDefaultLabel && isHovered && (
                     <Button
                         onClick={handleDelete}
                         style={{
@@ -145,10 +145,10 @@ const AddTriggerNode = ({ data, onDelete }) => {
                 {appliedFilters && (
                     <div
                         style={{
-                            marginTop: 10,
+                            marginTop: 8,
                             backgroundColor: "#f0f2f5",
-                            padding: "5px 15px",
-                            borderRadius: "10px",
+                            padding: "1px 10px",
+                            borderRadius: "5px",
                             display: "inline-block",
                         }}
                     >
@@ -233,19 +233,18 @@ const CustomButton = ({
                           targetX,
                           targetY,
                           setActionDrawerVisible,
+                          nodes
                       }) => {
     // Edge path
     const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
-    // console.log("sourceX",sourceX,"sourceY",sourceX,"targetX",targetX,"targetY",targetY)
-    // Button dimensions
-    const width = 20;
-    const height = 20;
+
+    const filteredNodes = nodes.filter(node => node.type === "addAction");
+    const latestNode = filteredNodes.length > 0 ? filteredNodes[filteredNodes.length - 1] : null;
+
 
     // Calculate the button's position (middle of the edge)
-    const iconX =((sourceX + targetX) / 2 - width / 2);
-    const iconY =((sourceY + targetY) / 2 - height / 2);
-
-    // console.log("Button Position:", "iconX:", iconX, "iconY:", iconY);
+    const iconX =((sourceX + targetX) / 2 - 20 / 2);
+    const iconY =latestNode.position.y+95
 
     return (
         <g>
@@ -257,7 +256,12 @@ const CustomButton = ({
                 style={{ stroke: "#000", strokeWidth: 2 }}
             />
             {/* Add button in the middle of the edge */}
-            <foreignObject x={iconX} y={iconY} width={width} height={height}>
+            <foreignObject
+                x={iconX}
+                y={iconY}
+                width={20}
+                height={20}
+            >
                 <button
                     style={{
                         all: "unset",
@@ -265,8 +269,8 @@ const CustomButton = ({
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        width: `${width}px`,
-                        height: `${height}px`,
+                        width: 20,
+                        height: 20,
                         backgroundColor: "black",
                         borderRadius: "50%",
                         border: "none",
@@ -288,7 +292,7 @@ const CustomButton = ({
 
 
 const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handleActionDragOver}) => {
-
+    const [isHovered, setIsHovered] = useState(false);
 
     return (
         <>
@@ -313,15 +317,26 @@ const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handle
                      </Flex>
                  </div>
             </span>
-            <Card style={{width: 350, padding: 0, border: '1px dashed #dadada'}} hoverable size={'small'}
-                  onDrop={handleActionDrop}
-                  onDragOver={handleActionDragOver}
+            <Card
+                style={{
+                    width: 350,
+                    padding: 0,
+                    border: "1px dashed #dadada",
+                    position: "relative",
+                }}
+                hoverable
+                size="small"
+                onDrop={handleActionDrop}
+                onDragOver={handleActionDragOver}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
             >
                 <div>
-                    <Handle type="target" position={Position.Top}/>
-                    <Flex align={"center"} justify={"center"} gap={"middle"}>
-                        <span style={{fontSize: '14px', color: "#888888"}}>{data.label}</span></Flex>
-                    {selectedAction && (
+                    <Handle type="target" position="top" />
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                        <span style={{ fontSize: "14px", color: "#888888" }}>{data.label}</span>
+                    </div>
+                    {selectedAction && isHovered && (
                         <Button
                             onClick={deleteAction}
                             style={{
@@ -335,7 +350,7 @@ const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handle
                             icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
                         />
                     )}
-                    <Handle type="source" position={Position.Bottom}/>
+                    <Handle type="source" position="bottom" />
                 </div>
             </Card>
         </>
@@ -386,15 +401,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [isLoading, setIsLoading] = useState(true);
     const [triggers, setTriggers] = useState([]);
     const [formDrawerVisible, setFormDrawerVisible] = useState(false); // For the Form Drawer
-    // const [selectedAction, setSelectedAction] = useState(null);
-    // const [formData, setFormData] = useState({
-    //     dropdownOption: '', // Store selected dropdown option
-    //
-    // });
     const [actionDrawerVisible, setActionDrawerVisible] = useState(false); // For Action Drawer
     const [, setSelectedBlock] = useState(null);
     const [selectedActions, setSelectedActions] = useState([]);
-    // const {selectedTriggerName, setSelectedTriggerName, resetTriggerName} = useTriggerStore();
+
     const {
         selectedTriggerName,
         selectedAction,
@@ -422,7 +432,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     label:
                         "Drag and drop to start building, or add a block from the connector line",
                 },
-                position: {x: 100, y: 300},
+                position: {x: 100, y: 350},
             },
 
         ];
@@ -435,7 +445,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [, setDroppedItem] = useState(null);
     const [iconVisible, setIconVisible] = useState(!!selectedTriggerName);
     const [edges, setEdges] = useState(initialEdges);
-
+    const [isFirstNodeUsed, setIsFirstNodeUsed] = useState(false);
     useEffect(() => {
         fetchTriggers();
     }, []);
@@ -595,6 +605,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             resetAll();
             setIconVisible(false);
             setDrawerVisible(true);
+            setIsFirstNodeUsed(false)
             closeActionDrawer();
         }
     };
@@ -641,15 +652,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
 
 
-// Your other logic follows here
-    const handleActionSelection = (action) => {
-        setSelectedActions((prevActions) => [...prevActions, action]);
-        // Set the selected action
-        setSelectedAction(action);
-        setActionDrawerVisible(false)
-        // Open the Form Drawer immediately after selecting an action
-        setFormDrawerVisible(true);
-    };
 
     const createNewEdge = (sourceNodeId, targetNodeId) => {
         return {
@@ -667,20 +669,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
         const newNodeId = `${nodesLength + 1}`; // Create a new unique ID for each new node
 
         let newNodePositionY = 100;
-
-        // if(nodesLength<=3) {
-        //     newNodePositionY= 100 + nodesLength * 100; // Dynamically calculate the position
-        //     // console.log("newNodePositionY <= 3",newNodePositionY,"nodesLength",nodesLength)
-        // }else if(nodesLength===4) {
-        //     newNodePositionY =  (nodesLength * 100) +100; // Dynamically calculate the position
-        //     // console.log("newNodePositionY = 4",newNodePositionY,"nodesLength",nodesLength)
-        // }else{
-        // if(nodesLength>2){
-            let increments = Math.ceil((nodesLength - 3) / 2);
-            newNodePositionY = 300 + increments * 100;
-            console.log("newNodePositionY",newNodePositionY,"nodesLength",nodesLength)
-        // }
-
+        let increments = Math.ceil((nodesLength) / 2);
+        newNodePositionY = 250 + increments * 100;
         return {
             id: newNodeId,
             type: 'addAction',
@@ -688,90 +678,83 @@ const WorkFlow = ({apiServer, apiKey}) => {
             position: { x: 100, y: newNodePositionY }, // Dynamically position nodes
         };
     };
+
+
+// Your other logic follows here
+    const handleActionSelection = (action) => {
+        setSelectedActions((prevActions) => [...prevActions, action]);
+        // Set the selected action
+        setSelectedAction(action);
+        setActionDrawerVisible(false)
+        // Open the Form Drawer immediately after selecting an action
+        setFormDrawerVisible(true);
+        // setNodeCounter((prevCount) => prevCount + 1);
+    };
+
     const handleFormSubmit = (e) => {
         e.preventDefault();
 
-        let newNode, newEdge;
+        const updatedData = {
+            label: `${selectedAction.name}\n ${formData.dropdownOption}\n`,
+        };
 
-        setNodes((prevNodes) => {
-            if (selectedActions.length === 0) {
-                // If no actions are selected, update the label of node '2' only
-                return prevNodes.map((node) =>
-                    node.id === '2'
-                        ? {
-                            ...node,
-                            data: {
-                                ...node.data,
-                                label: `${formData.dropdownOption}`, // Update label with selected dropdown option
-                            },
-                        }
-                        : node
-                );
-            } else {
-                // Handle case when actions are selected
-                const lastNode = prevNodes[prevNodes.length - 1];
-                const lastAction = selectedActions[selectedActions.length - 1];
+        let newNode = null;
 
-                // Update the label of the last node
-                const updatedNodes = prevNodes.map((node) =>
-                    node.id === lastNode.id
-                        ? {
-                            ...node,
-                            data: {
-                                ...node.data,
-                                label: `${lastAction?.name || ''} \n${formData.dropdownOption}`, // Update label
-                            },
-                        }
-                        : node
-                );
+        if (!isFirstNodeUsed) {
+            // If no node is selected, update Node 1 (first selection)
+            setNodes((prevNodes) =>
+                prevNodes.map((node) =>
+                    node.id === '2' ? { ...node, data: updatedData } : node
+                )
+            );
+            setIsFirstNodeUsed(true);
+        } else {
+            // Create a new node using createNewNode
+            newNode = createNewNode(updatedData.label, nodes.length);
 
-                // Create a new node for the selected action
-                newNode = createNewNode(
-                    `${lastAction.name}\n ${formData.dropdownOption}`,
-                    prevNodes.length
-                );
-
-                // Add the new node to the list
-                updatedNodes.push(newNode);
-
-                // Create a new edge from the last node to the new node
-                const sourceNodeId = lastNode.id;
-                newEdge = createNewEdge(sourceNodeId, newNode.id);
-
-                // Update the edges
-                setEdges((prevEdges) => [...prevEdges, newEdge]);
-
-                return updatedNodes;
-            }
-        });
+            setNodes((prevNodes) => [...prevNodes, newNode]);
+        }
 
         // Ensure the Exit node is present
-        const lastNodePosition = newNode ? newNode.position : nodes[nodes.length - 1].position;
-        const exitNodePositionY = lastNodePosition.y + 130;
-        console.log("exitNodePositionY",exitNodePositionY)
+        const lastNodePosition = newNode
+            ? newNode.position
+            : nodes[nodes.length - 1].position; // Get the position of the last node
+        const exitNodePositionY = lastNodePosition.y + 130; // Position the Exit node below the last node
 
         setNodes((prevNodes) => [
             ...prevNodes,
             {
                 id: 'exit',
                 type: 'default',
-                data: { label: <div style={{ textAlign: 'center', lineHeight: '25px' }}>Exit Node</div> }, // Center the label
-                position: { x: 235, y: exitNodePositionY },
-                style: { width: 80, height: 25, display: 'flex', justifyContent: 'center', alignItems: 'center' }, // Ensure centering
-
+                data: {
+                    label: (
+                        <div style={{ textAlign: 'center', lineHeight: '25px' }}>
+                            Exit
+                        </div>
+                    ),
+                },
+                position: { x: 258, y: exitNodePositionY },
+                style: {
+                    width: 35,
+                    height: 20,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                },
             },
         ]);
-
-        // Create an edge from the last node to the Exit node
         const lastNodeId = newNode ? newNode.id : nodes[nodes.length - 1].id;
         const exitEdge = createNewEdge(lastNodeId, 'exit');
 
         setEdges((prevEdges) => [...prevEdges, exitEdge]);
 
-        // Close the form drawer and action drawer
-        setFormDrawerVisible(false);
-        setActionDrawerVisible(false);
+
+        console.log('exitNodePositionY:', exitNodePositionY);
+
+        setFormDrawerVisible(false); // Close the form drawer after submission
+        setFormData({ name: '', description: '' }); // Reset form data
     };
+
     const closeFormDrawer = () => {
         setFormDrawerVisible(false);
 
@@ -808,16 +791,16 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 (edge) => edge.source !== targetNodeId && edge.target !== targetNodeId
             );
 
-            if (prevNodeId && nextNodeId) {
-                const newEdge = {
-                    id: `e${prevNodeId}-${nextNodeId}`,
-                    source: prevNodeId,
-                    target: nextNodeId,
-                    animated: false,
-                    style: { stroke: '#d7d9e1', strokeWidth: 1 },
-                };
-                updatedEdges.push(newEdge);
-            }
+            // if (prevNodeId && nextNodeId) {
+            //     const newEdge = {
+            //         id: `e${prevNodeId}-${nextNodeId}`,
+            //         source: prevNodeId,
+            //         target: nextNodeId,
+            //         animated: false,
+            //         style: { stroke: '#d7d9e1', strokeWidth: 1 },
+            //     };
+            //     updatedEdges.push(newEdge);
+            // }
 
             // Update Node 2's label if all action nodes are deleted
             if (updatedNodes.length === 1 && updatedNodes[0].id === "1") {
@@ -922,7 +905,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                        deleteAction={deleteAction}
                                        handleActionDrop={handleActionDrop}
                                        handleActionDragOver={handleActionDragOver}
-
                         />
                     )
                 }}
@@ -933,7 +915,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                         <CustomEdge {...props} iconVisible={iconVisible} />
                     ),
                     button: (props) => (
-                        <CustomButton {...props} setActionDrawerVisible={setActionDrawerVisible} />
+                        <CustomButton {...props} setActionDrawerVisible={setActionDrawerVisible} nodes={nodes} />
                     ),
                 }}
                 fitView
@@ -1059,10 +1041,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     </form>
                 </div>
             </Drawer>
-
-
-
-
         </div>
     );
 };
