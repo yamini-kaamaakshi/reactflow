@@ -29,8 +29,7 @@ const useFilterStore = create(
 );
 
 
-const AddTriggerNode = ({ data, onDelete }) => {
-    const isDefaultLabel = data.label === "Add Trigger";
+const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
     const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
     const [, setIsTriggerDrawerVisible] = useState(false);
     const [formData, setFormData] = useState({ jobStatus: "" });
@@ -97,11 +96,11 @@ const AddTriggerNode = ({ data, onDelete }) => {
             <Card style={{ width: 350, padding: 0 }} hoverable size={"small"} onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}>
                 <Flex align="center" justify="center" gap="middle">
-                    {isDefaultLabel && <PlusOutlined />}
+                    {!selectedTriggerName && <PlusOutlined />}
                     <span style={{ color: "rgb(11, 47, 115)" }}>{data.label}</span>
                 </Flex>
 
-                {!appliedFilters && !isDefaultLabel && (
+                {!appliedFilters &&  selectedTriggerName && (
                     <div
                         style={{
                             marginTop: 10,
@@ -127,7 +126,7 @@ const AddTriggerNode = ({ data, onDelete }) => {
                     </div>
                 )}
 
-                {!isDefaultLabel && isHovered && (
+                {selectedTriggerName && isHovered && (
                     <Button
                         onClick={handleDelete}
                         style={{
@@ -226,7 +225,9 @@ const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, iconVisible,}) => {
         </g>
     );
 };
-const CustomButton = ({
+
+
+  const CustomButton = ({
                           id,
                           sourceX,
                           sourceY,
@@ -237,17 +238,21 @@ const CustomButton = ({
                       }) => {
     // Edge path
     const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
+      const [, setIsHovered] = useState(false);
+
+      // console.log("nodes",nodes)
 
     const filteredNodes = nodes.filter(node => node.type === "addAction");
     const latestNode = filteredNodes.length > 0 ? filteredNodes[filteredNodes.length - 1] : null;
 
 
     // Calculate the button's position (middle of the edge)
-    const iconX =((sourceX + targetX) / 2 - 20 / 2);
-    const iconY =latestNode.position.y+95
+    const iconX =((sourceX + targetX) / 2 - 15 / 2);
+    const iconY =latestNode.position.y+98
 
     return (
-        <g>
+        <g   onMouseEnter={() => setIsHovered(true)} // Show button on hover
+             onMouseLeave={() => setIsHovered(false)} >
             {/* Draw the edge */}
             <path
                 id={id}
@@ -269,11 +274,18 @@ const CustomButton = ({
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        width: 20,
-                        height: 20,
+                        width: 15,
+                        height: 15,
                         backgroundColor: "black",
                         borderRadius: "50%",
                         border: "none",
+                        transition: "background-color 0.8s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = "#555"; // Change background color on hover
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = "black"; // Reset background color when not hovering
                     }}
                     onClick={() => setActionDrawerVisible(true)} // Handle button click
                 >
@@ -412,6 +424,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setSelectedTriggerName,
         setSelectedAction,
         setFormData,
+        resetSelectedAction,
+        resetFormData,
         resetAll
     } = useTriggerStore();
 
@@ -430,7 +444,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 type: "addAction",
                 data: {
                     label:
-                        "Drag and drop to start building, or add a block from the connector line",
+                        "Add a trigger to start building",
                 },
                 position: {x: 100, y: 350},
             },
@@ -446,6 +460,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [iconVisible, setIconVisible] = useState(!!selectedTriggerName);
     const [edges, setEdges] = useState(initialEdges);
     const [isFirstNodeUsed, setIsFirstNodeUsed] = useState(false);
+
+    console.log("edges",edges)
     useEffect(() => {
         fetchTriggers();
     }, []);
@@ -486,7 +502,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 setDrawerVisible(true); // Trigger Drawer
                 setActionDrawerVisible(false); // Ensure Action Drawer is closed
             }
-        } else {
+        } else if(node.id==="2") {
             // Node 2 logic
             if (selectedTriggerName) {
                 setActionDrawerVisible(true); // Open Action Drawer
@@ -585,7 +601,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 } else if (node.id === "2") {
                     return {
                         ...node,
-                        data: { label: "Drag and drop to start building, or add a block from the connector line" }
+                        data: { label: "Add a trigger to start building" }
                     };
                 } else {
                     return node;
@@ -643,15 +659,14 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setSelectedBlock(null);
     };
 
+
+
     // Sample action data for the Action Drawer
     const actions = [
         { id: 1, name: 'Send Email' },
         { id: 2, name: 'Create Task' },
         { id: 3, name: 'Update CRM' },
     ];
-
-
-
 
     const createNewEdge = (sourceNodeId, targetNodeId) => {
         return {
@@ -669,8 +684,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
         const newNodeId = `${nodesLength + 1}`; // Create a new unique ID for each new node
 
         let newNodePositionY = 100;
-        let increments = Math.ceil((nodesLength) / 2);
-        newNodePositionY = 250 + increments * 100;
+        let increments = Math.ceil(nodesLength / 2);
+        console.log("increments", increments);
+        // Add a unique offset for each new node
+        newNodePositionY = 250 + (nodesLength - 1) * 100;
+        console.log("newNodePositionY", newNodePositionY);
+
         return {
             id: newNodeId,
             type: 'addAction',
@@ -679,18 +698,91 @@ const WorkFlow = ({apiServer, apiKey}) => {
         };
     };
 
+    const deleteAction = (event) => {
+        event.stopPropagation();
 
-// Your other logic follows here
-    const handleActionSelection = (action) => {
-        setSelectedActions((prevActions) => [...prevActions, action]);
-        // Set the selected action
-        setSelectedAction(action);
-        setActionDrawerVisible(false)
-        // Open the Form Drawer immediately after selecting an action
-        setFormDrawerVisible(true);
-        // setNodeCounter((prevCount) => prevCount + 1);
+        // Show confirmation alert before proceeding with delete action
+        const isConfirmed = window.confirm("Are you sure you want to delete this action?");
+
+        if (isConfirmed) {
+            const targetElement = event.target.closest("[data-id]");
+            const targetNodeId = targetElement?.getAttribute("data-id");
+
+            if (!targetNodeId) return; // Exit if no targetNodeId is found
+
+            // Filter nodes of type 'addAction'
+            const addActionNodes = nodes.filter((node) => node.type === "addAction");
+            console.log("addActionNodes",addActionNodes)
+
+            // If only one 'addAction' node remains, display the default label
+            if (addActionNodes.length === 1) {
+                // Update Node 2's label
+                const updatedNodes = nodes.map((node) =>
+                    node.id === "2"
+                        ? {
+                            ...node,
+                            data: { ...node.data, label: "Add a trigger to start building" },
+                        }
+                        : node
+                );
+
+                // Remove the "Exit" node since this is the last action node being deleted
+                const finalNodes = updatedNodes.filter((node) => node.id !== "exit");
+
+                // Remove edges connected to the Exit node
+                const updatedEdges = edges.filter(
+                    (edge) => edge.source !== "exit" && edge.target !== "exit"
+                );
+
+                setIsFirstNodeUsed(false);
+                setSelectedAction(null);
+                setFormData([]);
+                resetSelectedAction();
+                resetFormData();
+                setNodes(finalNodes);
+                setEdges(updatedEdges);
+
+
+        } else {
+                const deletedNodeIndex = nodes.findIndex((node) => node.id === targetNodeId);
+                const deletedNode = deletedNodeIndex !== -1 ? nodes[deletedNodeIndex] : null;
+
+                if (!deletedNode) {
+                    console.warn("Deleted node not found.");
+                    return;
+                }
+                console.log("Deleted Node:", deletedNode);
+
+                 // Remove the specific node and update edges
+                const updatedNodes = nodes.filter((node) => node.id !== targetNodeId);
+                console.log("Updated Nodes:", updatedNodes);
+
+                const updatedEdges = edges.filter(
+                    (edge) => edge.source !== targetNodeId && edge.target !== targetNodeId
+                );
+                console.log("Updated Edges:", updatedEdges);
+                const nextNode =
+                    deletedNodeIndex !== -1 && deletedNodeIndex < updatedNodes.length
+                        ? updatedNodes[deletedNodeIndex]
+                        : null;
+
+                console.log("Next Node:", nextNode);
+
+                if (nextNode) {
+                    // Update only the y position of the next node
+                    nextNode.position = {
+                        ...nextNode.position,
+                        y: deletedNode.position.y+30, // Set the next node's y to the deleted node's y
+                    };
+                    console.log("Updated Next Node Y Position:", nextNode.position.y);
+                }
+
+                // Update the state
+                setNodes(updatedNodes);
+                setEdges(updatedEdges);
+            }
+            }
     };
-
     const handleFormSubmit = (e) => {
         e.preventDefault();
 
@@ -708,52 +800,103 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 )
             );
             setIsFirstNodeUsed(true);
+
+            // Add the Exit node only once when the first action is selected
+            const firstNode = nodes.find((node) => node.id === '2');
+            const exitNodePositionY = firstNode.position.y + 130;
+
+            setNodes((prevNodes) => [
+                ...prevNodes,
+                {
+                    id: 'exit',
+                    type: 'default',
+                    data: {
+                        label: (
+                            <div style={{ textAlign: 'center', lineHeight: '25px' }}>
+                                Exit
+                            </div>
+                        ),
+                    },
+                    position: { x: 258, y: exitNodePositionY },
+                    style: {
+                        width: 35,
+                        height: 20,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    },
+                },
+            ]);
+
+            // Create an edge connecting the first node to the Exit node only once
+            const exitEdge = createNewEdge('2', 'exit');
+            setEdges((prevEdges) => [...prevEdges, exitEdge]);
         } else {
             // Create a new node using createNewNode
             newNode = createNewNode(updatedData.label, nodes.length);
 
             setNodes((prevNodes) => [...prevNodes, newNode]);
+
+            // Find the last "addAction" node
+            const lastAddActionNode = nodes
+                .filter((node) => node.type === 'addAction')
+                .slice(-1)[0]; // Get the last added action node
+
+            // Create an edge connecting the last "addAction" node to the new node
+            const newEdge = createNewEdge(lastAddActionNode.id, newNode.id);
+            setEdges((prevEdges) => [...prevEdges, newEdge]);
+
+            // Calculate the position of the "Exit" node based on the last "addAction" node
+            const lastNodePositionY = newNode.position.y;
+            const exitNodePositionY = lastNodePositionY + 130;
+
+
+            setNodes((prevNodes) => [
+                ...prevNodes.filter((node) => node.id !== 'exit'), // Keep the existing Exit node
+                {
+                    id: 'exit',
+                    type: 'default',
+                    data: {
+                        label: (
+                            <div style={{ textAlign: 'center', lineHeight: '25px' }}>
+                                Exit
+                            </div>
+                        ),
+                    },
+                    position: { x: 258, y: exitNodePositionY },
+                    style: {
+                        width: 35,
+                        height: 20,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    },
+                },
+            ]);
+
+            // Only add the edge between the last action node and the Exit node once
+            const exitEdgeExists = edges.some((edge) => edge.source === newNode.id && edge.target === 'exit');
+            if (!exitEdgeExists) {
+                const exitEdge = createNewEdge(newNode.id, 'exit');
+                setEdges((prevEdges) => [...prevEdges, exitEdge]);
+            }
         }
 
-        // Ensure the Exit node is present
-        const lastNodePosition = newNode
-            ? newNode.position
-            : nodes[nodes.length - 1].position; // Get the position of the last node
-        const exitNodePositionY = lastNodePosition.y + 130; // Position the Exit node below the last node
-
-        setNodes((prevNodes) => [
-            ...prevNodes,
-            {
-                id: 'exit',
-                type: 'default',
-                data: {
-                    label: (
-                        <div style={{ textAlign: 'center', lineHeight: '25px' }}>
-                            Exit
-                        </div>
-                    ),
-                },
-                position: { x: 258, y: exitNodePositionY },
-                style: {
-                    width: 35,
-                    height: 20,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                },
-            },
-        ]);
-        const lastNodeId = newNode ? newNode.id : nodes[nodes.length - 1].id;
-        const exitEdge = createNewEdge(lastNodeId, 'exit');
-
-        setEdges((prevEdges) => [...prevEdges, exitEdge]);
-
-
-        console.log('exitNodePositionY:', exitNodePositionY);
-
         setFormDrawerVisible(false); // Close the form drawer after submission
-        setFormData({ name: '', description: '' }); // Reset form data
     };
+
+
+// Your other logic follows here
+    const handleActionSelection = (action) => {
+        setSelectedActions((prevActions) => [...prevActions, action]);
+        // Set the selected action
+        setSelectedAction(action);
+        setActionDrawerVisible(false)
+        // Open the Form Drawer immediately after selecting an action
+        setFormDrawerVisible(true);
+        // setNodeCounter((prevCount) => prevCount + 1);
+    };
+
 
     const closeFormDrawer = () => {
         setFormDrawerVisible(false);
@@ -764,57 +907,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
             ...formData,
             [e.target.name]: e.target.value,
         });
-    };
-
-    const deleteAction = (event) => {
-        event.stopPropagation();
-
-        // Show confirmation alert before proceeding with delete action
-        const isConfirmed = window.confirm("Are you sure you want to delete this action?");
-
-        if (isConfirmed) {
-            const targetElement = event.target.closest("[data-id]");
-            const targetNodeId = targetElement?.getAttribute("data-id");
-
-            if (!targetNodeId) return; // If no targetNodeId is found, exit
-
-            // Remove the node from the nodes array (but never remove Node 2)
-            const updatedNodes = nodes.filter((node) => node.id !== targetNodeId || node.id === "2");
-
-            // Find the previous and next nodes (if they exist)
-            const targetNodeIndex = nodes.findIndex((node) => node.id === targetNodeId);
-            const prevNodeId = targetNodeIndex > 0 ? nodes[targetNodeIndex - 1].id : null;
-            const nextNodeId = targetNodeIndex < nodes.length - 1 ? nodes[targetNodeIndex + 1].id : null;
-
-            // If there is a previous node and a next node, create a new edge between them
-            let updatedEdges = edges.filter(
-                (edge) => edge.source !== targetNodeId && edge.target !== targetNodeId
-            );
-
-            // if (prevNodeId && nextNodeId) {
-            //     const newEdge = {
-            //         id: `e${prevNodeId}-${nextNodeId}`,
-            //         source: prevNodeId,
-            //         target: nextNodeId,
-            //         animated: false,
-            //         style: { stroke: '#d7d9e1', strokeWidth: 1 },
-            //     };
-            //     updatedEdges.push(newEdge);
-            // }
-
-            // Update Node 2's label if all action nodes are deleted
-            if (updatedNodes.length === 1 && updatedNodes[0].id === "1") {
-                const updatedNode2 = nodes.find((node) => node.id === "2");
-                updatedNode2.data.label =
-                    "Drag and drop to start building, or add a block from the connector line";
-                if (!updatedNodes.some((node) => node.id === "2")) {
-                    updatedNodes.push(updatedNode2);
-                }
-            }
-
-            setNodes(updatedNodes); // Update the nodes state
-            setEdges(updatedEdges); // Update the edges state
-        }
     };
 
     const handleActionDragStart = (event, action) => {
@@ -869,6 +961,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 // Set the selected action
                 setSelectedAction(action);
 
+                setActionDrawerVisible(false)
                 // Immediately open the form drawer after setting the action
                 setFormDrawerVisible(true);
 
@@ -882,7 +975,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
     const handleActionDragOver  = (event) => {
-        event.preventDefault(); // Allow dropping
+        event.preventDefault();
     };
 
     return (
@@ -893,7 +986,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 onNodeClick={onNodeClick}
                 nodeTypes={{
                     addTrigger: (props) => (
-                        <AddTriggerNode {...props} onDelete={handleNodeDelete} />
+                        <AddTriggerNode {...props} onDelete={handleNodeDelete} selectedTriggerName={selectedTriggerName} />
                     ),
                     addAction: (props) => (
                         <AddActionNode {...props} nodes={nodes}
