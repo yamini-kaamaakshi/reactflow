@@ -463,6 +463,13 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [isFirstNodeUsed, setIsFirstNodeUsed] = useState(false);
     const [nodeCounter, setNodeCounter] = useState(nodes.length);
     console.log("edges",edges)
+    const [selectedNodeId, setSelectedNodeId] = useState(null);
+
+    const [isFormSaved, setIsFormSaved] = useState(false);
+
+    const [simpleDrawerVisible, setSimpleDrawerVisible] = useState(false);
+
+
     useEffect(() => {
         fetchTriggers();
     }, []);
@@ -496,15 +503,17 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
     const onNodeClick = (_, node) => {
-        if (node.id === "1") {
+        console.log("Node ID:", node.id); // This will log the node's ID
+        setSelectedNodeId(node.id)
+        if (node.id === selectedNodeId) {
             if (!selectedTriggerName) {
                 // Open Trigger Drawer for Node 1
                 setSelectedNode(node);
                 setDrawerVisible(true); // Trigger Drawer
                 setActionDrawerVisible(false); // Ensure Action Drawer is closed
             }
-        } else if(node.id==="2") {
-            // Node 2 logic
+        } else if (node.id === "2" || node.type === "addAction") {
+
             if (selectedTriggerName) {
                 setActionDrawerVisible(true); // Open Action Drawer
                 setDrawerVisible(false); // Ensure Trigger Drawer is closed
@@ -512,7 +521,14 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 setDrawerVisible(true); // Open Trigger Drawer
                 setActionDrawerVisible(false); // Ensure Action Drawer is closed
             }
-            setSelectedNode(node);
+
+            if (isFormSaved) {
+                // Open the new simple drawer when Node 2 is clicked after form submission
+                setActionDrawerVisible(false);
+                setSimpleDrawerVisible(true);
+            } else {
+                setSelectedNode(node);
+            }
         }
     };
 
@@ -526,7 +542,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const handleTriggerSelection = (trigger) => {
         const updatedNodes = nodes.map((node) =>
-            node.id === "1" ? { ...node, data: { label: trigger.name } } : node
+            node.id === selectedNodeId ? { ...node, data: { label: trigger.name } } : node
         );
         setNodes(updatedNodes);
         setSelectedTriggerName(trigger.name);
@@ -623,6 +639,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setIconVisible(false);
             setDrawerVisible(true);
             setIsFirstNodeUsed(false)
+            setIsFormSaved(false)
             closeActionDrawer();
         }
     };
@@ -725,7 +742,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
             // If only one 'addAction' node remains, display the default label
             if (addActionNodes.length === 1) {
-                // Update Node 2's label
+
                 const updatedNodes = nodes.map((node) =>
                     node.id === targetNodeId
                         ? {
@@ -742,25 +759,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 const updatedEdges = edges.filter(
                     (edge) => edge.source !== "exit" && edge.target !== "exit"
                 );
-                 // Add an edge from the last 'addAction' node to node '1'
-                const lastAddActionNode = addActionNodes[0];
-                console.log("lastAddActionNode",lastAddActionNode)
-                const newEdge = {
-                    id: `edge-${lastAddActionNode.id}-1`,  // Unique ID for the new edge
-                    source: lastAddActionNode.id,         // Source is the remaining 'addAction' node
-                    target: "1",                          // Target is node '1'
-                };
-
-                // Add the new edge to the edges array
-                const finalEdges = [...updatedEdges, newEdge];
 
                 setIsFirstNodeUsed(false);
                 setSelectedAction(null);
+
                 setFormData([]);
                 resetSelectedAction();
                 resetFormData();
                 setNodes(finalNodes);
-                setEdges(finalEdges);
+                setEdges(updatedEdges);
 
 
             } else {
@@ -779,7 +786,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     if (node.position.y > deletedNode.position.y) {
                         return {
                             ...node,
-                            // id: `${node.id - 1}`,
+
                             position: {
                                 ...node.position,
                                 y: node.position.y - 100, // Adjust by node height + spacing
@@ -793,7 +800,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 const exitNodeIndex = adjustedNodes.findIndex((node) => node.id === "exit");
                 if (exitNodeIndex !== -1) {
                     const lastActionNode = adjustedNodes
-                        .filter((node) => node.type === "addAction" || node.id === "2")
+                        .filter((node) => node.type === "addAction")
                         .slice(-1)[0]; // Get the last node
 
                     const exitNodePositionY = lastActionNode
@@ -848,11 +855,13 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
                 setNodes((prevNodes) => [
                     ...prevNodes.map((node) =>
-                        node.id === "2" ? { ...node, data: updatedData } : node
+                        node.id === selectedNodeId ? { ...node, data: updatedData } : node
                     ),
                     updateExitNode(exitNodePositionY),
+
                 ]);
                 setIsFirstNodeUsed(true);
+
                 setEdges((prevEdges) => [...prevEdges, createNewEdge("2", "exit")]);
             } else {
                 // Add a new node and update the Exit node
@@ -882,6 +891,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
 
             // Close the form drawer
+        setIsFormSaved(true);
             setFormDrawerVisible(false);
         };
 // Your other logic follows here
@@ -929,7 +939,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 if (selectedActions.length === 0) {
                     setNodes((prevNodes) =>
                         prevNodes.map((node) =>
-                            node.id === '2'
+                            node.id === selectedNodeId
                                 ? {
                                     ...node,
                                     data: {
@@ -975,6 +985,39 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const handleActionDragOver  = (event) => {
         event.preventDefault();
     };
+
+    const handleActionChange = (e) => {
+        const actionId = e.target.value;
+
+        const action = actions.find((action) => action.id === parseInt(actionId));
+        setSelectedAction(action); // Update selected action
+    };
+
+
+    const closeSimpleDrawer = () => setSimpleDrawerVisible(false);
+
+
+    const handleSubmit = () => {
+        const updatedLabel = `${selectedAction.name}\n${formData.dropdownOption}`;
+        console.log("")
+        setNodes((prevNodes) =>
+            prevNodes.map((node) =>
+                node.id === selectedNodeId // Assuming "2" is the targeted node's id
+                    ? {
+                        ...node,
+                        data: {
+                            ...node.data, // Keep other properties in data
+                            label: updatedLabel // Update only the label
+                        }
+                    }
+                    : node
+            )
+        );
+
+        console.log("Updated Node Label:", updatedLabel);
+        closeSimpleDrawer();
+    };
+
 
     return (
         <div style={{ height: "90vh", verticalAlign: "top" }}>
@@ -1132,6 +1175,70 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     </form>
                 </div>
             </Drawer>
+
+            {/* Simple Drawer with Editable Fields */}
+            <Drawer
+                title="Simple Drawer"
+                width={550}
+                open={simpleDrawerVisible}
+                onClose={closeSimpleDrawer}
+            >
+                <div style={{ padding: '20px' }}>
+                    {/* Editable Action Dropdown */}
+                    <div style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px' }}>Select Action</label>
+                        <select
+                            value={selectedAction?.id || ''}
+                            onChange={handleActionChange}
+                            style={{ width: '100%', padding: '8px' }}
+                        >
+                            <option value="">Choose an action</option>
+                            {actions.map((action) => (
+                                <option key={action.id} value={action.id}>
+                                    {action.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Editable Form Data */}
+                    {selectedAction && (
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px' }}>Select an Option</label>
+                            <select
+                                name="dropdownOption"
+                                value={formData.dropdownOption}
+                                onChange={handleFormChange}
+                                style={{ width: '100%', padding: '8px' }}
+                            >
+                                <option value="">Choose an option</option>
+                                <option value="Option 1">Option 1</option>
+                                <option value="Option 2">Option 2</option>
+                                <option value="Option 3">Option 3</option>
+                            </select>
+                        </div>
+                    )}
+
+                    {/* Submit Button */}
+                    <div style={{ marginTop: '20px' }}>
+                        <button
+                            onClick={handleSubmit}
+                            style={{
+                                width: '100%',
+                                padding: '10px',
+                                backgroundColor: '#4CAF50',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </Drawer>
+
         </div>
     );
 };
