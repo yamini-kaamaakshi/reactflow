@@ -97,7 +97,7 @@ const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
                   onMouseLeave={() => setIsHovered(false)}>
                 <Flex align="center" justify="center" gap="middle">
                     {!selectedTriggerName && <PlusOutlined />}
-                    <span style={{ color: "rgb(11, 47, 115)" }}>{ selectedTriggerName || data.label}</span>
+                    <span style={{ color: "rgb(11, 47, 115)" }}>{data.label}</span>
                 </Flex>
 
                 {!appliedFilters &&  selectedTriggerName && (
@@ -227,7 +227,7 @@ const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, iconVisible,}) => {
 };
 
 
-  const CustomButton = ({
+const CustomButton = ({
                           id,
                           sourceX,
                           sourceY,
@@ -238,9 +238,9 @@ const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, iconVisible,}) => {
                       }) => {
     // Edge path
     const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
-      const [, setIsHovered] = useState(false);
+    const [, setIsHovered] = useState(false);
 
-      console.log("nodes",nodes)
+    console.log("nodes",nodes)
 
     const filteredNodes = nodes.filter(node => node.type === "addAction");
     const latestNode = filteredNodes.length > 0 ? filteredNodes[filteredNodes.length - 1] : null;
@@ -369,6 +369,54 @@ const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handle
     );
 };
 
+const useTriggerStore = create(
+    persist(
+        (set, get) => ({
+            selectedTriggerName: null, // Store trigger name
+            selectedActions: [], // Store array of selected actions
+            formData: [], // Store array of form data
+            actionsHistory: [], // Store history of actions
+            formDataHistory: [], // Store history of form data
+
+            setSelectedTriggerName: (name) => set({ selectedTriggerName: name }),
+            resetTriggerName: () => set({ selectedTriggerName: null }),
+
+            setSelectedAction: (action) => {
+                const { selectedActions, actionsHistory } = get();
+                set({
+                    selectedActions: [...selectedActions, action], // Add the new action to the array
+                    actionsHistory: [...actionsHistory, action], // Store the action in history as well
+                });
+            },
+            resetSelectedAction: () => set({ selectedActions: [] }),
+
+            setFormData: (data) => {
+                const { formData, formDataHistory } = get();
+                set({
+                    formData: [...formData, data], // Add the new form data to the array
+                    formDataHistory: [...formDataHistory, data], // Store form data in history
+                });
+            },
+            resetFormData: () => set({ formData: [] }),
+
+            resetAll: () =>
+                set({
+                    selectedTriggerName: null,
+                    selectedActions: [],
+                    formData: [],
+                    actionsHistory: [],
+                    formDataHistory: [],
+                }),
+
+            // Clear history
+            clearHistory: () => set({ actionsHistory: [], formDataHistory: [] }),
+        }),
+        {
+            name: "trigger-store", // Name for localStorage
+        }
+    )
+);
+
 
 
 const initialEdges = [
@@ -394,19 +442,20 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [, setSelectedBlock] = useState(null);
     const [selectedActions, setSelectedActions] = useState([]);
 
-    // Replace Zustand state with local useState
-    const [selectedTriggerName, setSelectedTriggerName] = useState(null);
-    const [selectedAction, setSelectedAction] = useState(null);
-    const [formData, setFormData] = useState({});
 
-    // Reset functions
-    const resetSelectedAction = () => setSelectedAction(null);
-    const resetFormData = () => setFormData({});
-    const resetAll = () => {
-        setSelectedTriggerName(null);
-        setSelectedAction(null);
-        setFormData({});
-    };
+    const {
+        selectedTriggerName,
+        selectedAction,
+        formData,
+        setSelectedTriggerName,
+        setSelectedAction,
+        setFormData,
+        resetSelectedAction,
+        resetFormData,
+        resetAll,
+        actionsHistory,
+
+    } = useTriggerStore();
 
 
     const [nodes, setNodes] = useState(() => {
@@ -414,7 +463,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             {
                 id: "1",
                 type: "addTrigger",
-                data: {label:"Add Trigger"},
+                data: {label: selectedTriggerName || "Add Trigger"},
                 position: {x: 100, y: 200},
 
             },
@@ -519,12 +568,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
 
-    useEffect(() => {
-        const storedTriggerName = localStorage.getItem('selectedTriggerName');
-        if (storedTriggerName) {
-            setSelectedTriggerName(storedTriggerName);
-        }
-    }, []);
 
     const handleTriggerSelection = (trigger) => {
         const updatedNodes = nodes.map((node) =>
@@ -532,8 +575,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         );
         setNodes(updatedNodes);
         setSelectedTriggerName(trigger.name);
-        localStorage.setItem('selectedTriggerName', trigger.name);
-
         setDrawerVisible(false);
 
         setIconVisible(true);
@@ -596,8 +637,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const handleNodeDelete = (event) => {
         if (window.confirm("Are you sure you want to delete these nodes?")) {
-            localStorage.removeItem('selectedTriggerName');
-
             // Filter out all nodes and edges that were added after the trigger
             const initialNodes = ["1", "2"]; // IDs of the initial nodes (Trigger and Instruction)
 
@@ -626,7 +665,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
             // Reset other state and UI elements
             resetAll();
-            setSelectedTriggerName(null)
             setIconVisible(false);
             setDrawerVisible(true);
             setIsFirstNodeUsed(false)
@@ -813,78 +851,78 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
 
     const handleFormSubmit = (e) => {
-            e.preventDefault();
+        e.preventDefault();
 
-            const updatedData = {
-                label: `${selectedAction.name}\n ${formData.dropdownOption}\n`,
-            };
+        const updatedData = {
+            label: `${actionsHistory.name}\n ${formData.dropdownOption}\n`,
+        };
 
-            const updateExitNode = (positionY) => ({
-                id: "exit",
-                type: "default",
-                data: {
-                    label: (
-                        <div style={{ textAlign: "center", lineHeight: "25px" }}>
-                            Exit
-                        </div>
-                    ),
-                },
-                position: { x: 258, y: positionY },
-                style: {
-                    width: 35,
-                    height: 20,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                },
+        const updateExitNode = (positionY) => ({
+            id: "exit",
+            type: "default",
+            data: {
+                label: (
+                    <div style={{ textAlign: "center", lineHeight: "25px" }}>
+                        Exit
+                    </div>
+                ),
+            },
+            position: { x: 258, y: positionY },
+            style: {
+                width: 35,
+                height: 20,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+            },
+        });
+
+        if (!isFirstNodeUsed) {
+            // Update Node 1 and add the Exit node
+            const firstNode = nodes.find((node) => node.id === "2");
+            const exitNodePositionY = firstNode.position.y + 130;
+
+            setNodes((prevNodes) => [
+                ...prevNodes.map((node) =>
+                    node.id === selectedNodeId ? { ...node, data: updatedData } : node
+                ),
+                updateExitNode(exitNodePositionY),
+
+            ]);
+            setIsFirstNodeUsed(true);
+
+            setEdges((prevEdges) => [...prevEdges, createNewEdge("2", "exit")]);
+        } else {
+            // Add a new node and update the Exit node
+            const newNode = createNewNode(updatedData.label, nodes.length);
+            const lastAddActionNode = nodes
+                .filter((node) => node.type === "addAction")
+                .slice(-1)[0];
+            const newEdge = createNewEdge(lastAddActionNode.id, newNode.id);
+
+            setNodes((prevNodes) => {
+                const exitNodePositionY = newNode.position.y + 130;
+                return [
+                    ...prevNodes.filter((node) => node.id !== "exit"),
+                    newNode,
+                    updateExitNode(exitNodePositionY),
+                ];
             });
 
-            if (!isFirstNodeUsed) {
-                // Update Node 1 and add the Exit node
-                const firstNode = nodes.find((node) => node.id === "2");
-                const exitNodePositionY = firstNode.position.y + 130;
+            setEdges((prevEdges) => {
+                const exitEdgeExists = prevEdges.some(
+                    (edge) => edge.source === newNode.id && edge.target === "exit"
+                );
+                return exitEdgeExists
+                    ? [...prevEdges, newEdge]
+                    : [...prevEdges, newEdge, createNewEdge(newNode.id, "exit")];
+            });
+        }
 
-                setNodes((prevNodes) => [
-                    ...prevNodes.map((node) =>
-                        node.id === selectedNodeId ? { ...node, data: updatedData } : node
-                    ),
-                    updateExitNode(exitNodePositionY),
-
-                ]);
-                setIsFirstNodeUsed(true);
-
-                setEdges((prevEdges) => [...prevEdges, createNewEdge("2", "exit")]);
-            } else {
-                // Add a new node and update the Exit node
-                const newNode = createNewNode(updatedData.label, nodes.length);
-                const lastAddActionNode = nodes
-                    .filter((node) => node.type === "addAction")
-                    .slice(-1)[0];
-                const newEdge = createNewEdge(lastAddActionNode.id, newNode.id);
-
-                setNodes((prevNodes) => {
-                    const exitNodePositionY = newNode.position.y + 130;
-                    return [
-                        ...prevNodes.filter((node) => node.id !== "exit"),
-                        newNode,
-                        updateExitNode(exitNodePositionY),
-                    ];
-                });
-
-                setEdges((prevEdges) => {
-                    const exitEdgeExists = prevEdges.some(
-                        (edge) => edge.source === newNode.id && edge.target === "exit"
-                    );
-                    return exitEdgeExists
-                        ? [...prevEdges, newEdge]
-                        : [...prevEdges, newEdge, createNewEdge(newNode.id, "exit")];
-                });
-            }
-
-            // Close the form drawer
+        // Close the form drawer
         setIsFormSaved(true);
-            setFormDrawerVisible(false);
-        };
+        setFormDrawerVisible(false);
+    };
 // Your other logic follows here
     const handleActionSelection = (action) => {
         setSelectedActions((prevActions) => [...prevActions, action]);
