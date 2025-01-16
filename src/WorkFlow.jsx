@@ -503,17 +503,18 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
     const onNodeClick = (_, node) => {
-        console.log("Node ID:", node.id); // This will log the node's ID
-        setSelectedNodeId(node.id)
-        if (node.id === selectedNodeId) {
+        console.log("Node ID:", node.id); // Log the node's ID for debugging
+        setSelectedNodeId(node.id); // Store the clicked node's ID
+        setSelectedNode(node); // Store the clicked node
+        if (node.id === "1") {
             if (!selectedTriggerName) {
                 // Open Trigger Drawer for Node 1
                 setSelectedNode(node);
                 setDrawerVisible(true); // Trigger Drawer
                 setActionDrawerVisible(false); // Ensure Action Drawer is closed
             }
-        } else if (node.id === "2" || node.type === "addAction") {
-
+        } else if (node.id === "2"|| node.type === "addAction") {
+            // Node 2 logic
             if (selectedTriggerName) {
                 setActionDrawerVisible(true); // Open Action Drawer
                 setDrawerVisible(false); // Ensure Trigger Drawer is closed
@@ -531,6 +532,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
         }
     };
+
 
     const closeDrawer = () => {
         setDrawerVisible(false);
