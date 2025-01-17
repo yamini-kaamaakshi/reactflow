@@ -303,7 +303,7 @@ const CustomButton = ({
 
 
 
-const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handleActionDragOver,node}) => {
+const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handleActionDragOver}) => {
     const [isHovered, setIsHovered] = useState(false);
 
 
@@ -1069,7 +1069,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                         />
                     )
                 }}
-                onDrop={handleActionDrop}
+                onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 edgeTypes={{
                     custom: (props) => (
