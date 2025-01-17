@@ -227,7 +227,7 @@ const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, iconVisible,}) => {
 };
 
 
-  const CustomButton = ({
+const CustomButton = ({
                           id,
                           sourceX,
                           sourceY,
@@ -238,9 +238,9 @@ const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, iconVisible,}) => {
                       }) => {
     // Edge path
     const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
-      const [, setIsHovered] = useState(false);
+    const [, setIsHovered] = useState(false);
 
-      console.log("nodes",nodes)
+    console.log("nodes",nodes)
 
     const filteredNodes = nodes.filter(node => node.type === "addAction");
     const latestNode = filteredNodes.length > 0 ? filteredNodes[filteredNodes.length - 1] : null;
@@ -303,8 +303,27 @@ const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, iconVisible,}) => {
 
 
 
-const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handleActionDragOver}) => {
+const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handleActionDragOver,node}) => {
     const [isHovered, setIsHovered] = useState(false);
+
+
+
+    const [storedAction, setStoredAction] = useState({ selectedAction: null, formData: null });
+
+    useEffect(() => {
+        const savedActionData = localStorage.getItem("savedActionData");
+        if (savedActionData) {
+            const savedData = JSON.parse(savedActionData);
+            if (savedData.length > 0) {
+                const lastSavedAction = savedData[savedData.length - 1];
+                setStoredAction({
+                    selectedAction: lastSavedAction.selectedAction, // Set the stored selected action
+                    formData: lastSavedAction.formData, // Set the stored form data
+                });
+            }
+        }
+    }, []);
+
 
     return (
         <>
@@ -345,8 +364,13 @@ const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handle
             >
                 <div>
                     <Handle type="target" position="top" />
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                        <span style={{ fontSize: "14px", color: "#888888" }}>{data.label}</span>
+                    <div style={{display: "flex", alignItems: "center", justifyContent: "center", gap: "10px"}}>
+
+
+                        <span style={{fontSize: "14px", color: "#888888"}}>
+                             {storedAction?.selectedAction?.name || data.label}
+                            {storedAction?.formData?.dropdownOption }
+                        </span>
                     </div>
                     {selectedAction && isHovered && (
                         <Button
@@ -597,7 +621,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const handleNodeDelete = (event) => {
         if (window.confirm("Are you sure you want to delete these nodes?")) {
             localStorage.removeItem('selectedTriggerName');
-
+            localStorage.removeItem('savedActionData');
             // Filter out all nodes and edges that were added after the trigger
             const initialNodes = ["1", "2"]; // IDs of the initial nodes (Trigger and Instruction)
 
@@ -811,80 +835,91 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     };
 
-
     const handleFormSubmit = (e) => {
-            e.preventDefault();
+        e.preventDefault();
 
-            const updatedData = {
-                label: `${selectedAction.name}\n ${formData.dropdownOption}\n`,
-            };
+        const updatedData = {
+            label: `${selectedAction.name}\n ${formData.dropdownOption}\n`,
+        };
 
-            const updateExitNode = (positionY) => ({
-                id: "exit",
-                type: "default",
-                data: {
-                    label: (
-                        <div style={{ textAlign: "center", lineHeight: "25px" }}>
-                            Exit
-                        </div>
-                    ),
-                },
-                position: { x: 258, y: positionY },
-                style: {
-                    width: 35,
-                    height: 20,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                },
+        const updateExitNode = (positionY) => ({
+            id: "exit",
+            type: "default",
+            data: {
+                label: (
+                    <div style={{ textAlign: "center", lineHeight: "25px" }}>
+                        Exit
+                    </div>
+                ),
+            },
+            position: { x: 258, y: positionY },
+            style: {
+                width: 35,
+                height: 20,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+            },
+        });
+
+        let newNode; // Define newNode at the top
+
+        if (!isFirstNodeUsed) {
+            // Update the first node and add the Exit node
+            const firstNode = nodes.find((node) => node.id === "2");
+            const exitNodePositionY = firstNode.position.y + 130;
+
+            setNodes((prevNodes) => [
+                ...prevNodes.map((node) =>
+                    node.id === selectedNodeId ? { ...node, data: updatedData } : node
+                ),
+                updateExitNode(exitNodePositionY),
+            ]);
+            setIsFirstNodeUsed(true);
+
+            setEdges((prevEdges) => [...prevEdges, createNewEdge("2", "exit")]);
+        } else {
+            // Create the new node and ensure it is always defined
+            newNode = createNewNode(updatedData.label, nodes.length); // Ensure this is inside the else block
+
+            const lastAddActionNode = nodes
+                .filter((node) => node.type === "addAction")
+                .slice(-1)[0];
+            const newEdge = createNewEdge(lastAddActionNode.id, newNode.id);
+
+            setNodes((prevNodes) => {
+                const exitNodePositionY = newNode.position.y + 130;
+                return [
+                    ...prevNodes.filter((node) => node.id !== "exit"),
+                    newNode,
+                    updateExitNode(exitNodePositionY),
+                ];
             });
 
-            if (!isFirstNodeUsed) {
-                // Update Node 1 and add the Exit node
-                const firstNode = nodes.find((node) => node.id === "2");
-                const exitNodePositionY = firstNode.position.y + 130;
+            setEdges((prevEdges) => {
+                const exitEdgeExists = prevEdges.some(
+                    (edge) => edge.source === newNode.id && edge.target === "exit"
+                );
+                return exitEdgeExists
+                    ? [...prevEdges, newEdge]
+                    : [...prevEdges, newEdge, createNewEdge(newNode.id, "exit")];
+            });
+        }
 
-                setNodes((prevNodes) => [
-                    ...prevNodes.map((node) =>
-                        node.id === selectedNodeId ? { ...node, data: updatedData } : node
-                    ),
-                    updateExitNode(exitNodePositionY),
+        // Save all actions to localStorage
+        const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+        const updatedActions = [
+            ...existingData,
+            { selectedAction, formData, node: newNode }, // Ensure newNode is defined here
+        ];
 
-                ]);
-                setIsFirstNodeUsed(true);
+        localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
 
-                setEdges((prevEdges) => [...prevEdges, createNewEdge("2", "exit")]);
-            } else {
-                // Add a new node and update the Exit node
-                const newNode = createNewNode(updatedData.label, nodes.length);
-                const lastAddActionNode = nodes
-                    .filter((node) => node.type === "addAction")
-                    .slice(-1)[0];
-                const newEdge = createNewEdge(lastAddActionNode.id, newNode.id);
-
-                setNodes((prevNodes) => {
-                    const exitNodePositionY = newNode.position.y + 130;
-                    return [
-                        ...prevNodes.filter((node) => node.id !== "exit"),
-                        newNode,
-                        updateExitNode(exitNodePositionY),
-                    ];
-                });
-
-                setEdges((prevEdges) => {
-                    const exitEdgeExists = prevEdges.some(
-                        (edge) => edge.source === newNode.id && edge.target === "exit"
-                    );
-                    return exitEdgeExists
-                        ? [...prevEdges, newEdge]
-                        : [...prevEdges, newEdge, createNewEdge(newNode.id, "exit")];
-                });
-            }
-
-            // Close the form drawer
+        // Close the form drawer
         setIsFormSaved(true);
-            setFormDrawerVisible(false);
-        };
+        setFormDrawerVisible(false);
+    };
+
 // Your other logic follows here
     const handleActionSelection = (action) => {
         setSelectedActions((prevActions) => [...prevActions, action]);
@@ -913,7 +948,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         event.dataTransfer.setData("text/plain", JSON.stringify(action)); // Set the dragged trigger data
         console.log("Dragging started!", action);
     };
-
     const handleActionDrop = (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -1030,10 +1064,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                        deleteAction={deleteAction}
                                        handleActionDrop={handleActionDrop}
                                        handleActionDragOver={handleActionDragOver}
+                                       selectedActions={selectedActions}
+                                       node={nodes}
                         />
                     )
                 }}
-                onDrop={handleDrop}
+                onDrop={handleActionDrop}
                 onDragOver={handleDragOver}
                 edgeTypes={{
                     custom: (props) => (
