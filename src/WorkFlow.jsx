@@ -382,31 +382,6 @@ const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handle
         </>
     );
 };
-//
-// // Zustand store for trigger name, selected action, and form data persistence
-// const useTriggerStore = create(
-//     persist(
-//         (set) => ({
-//             selectedTriggerName: null, // Store trigger name
-//             selectedAction: null, // Store selected action
-//             formData: {}, // Store form data
-//
-//             setSelectedTriggerName: (name) => set({ selectedTriggerName: name }),
-//             resetTriggerName: () => set({ selectedTriggerName: null }),
-//
-//             setSelectedAction: (action) => set({ selectedAction: action }),
-//             resetSelectedAction: () => set({ selectedAction: null }),
-//
-//             setFormData: (data) => set({ formData: data }),
-//             resetFormData: () => set({ formData: {} }),
-//
-//             resetAll: () => set({ selectedTriggerName: null, selectedAction: null, formData: {} })
-//         }),
-//         {
-//             name: "trigger-store",
-//         }
-//     )
-// );
 
 const initialEdges = [
     {
