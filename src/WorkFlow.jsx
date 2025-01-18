@@ -97,7 +97,7 @@ const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
                   onMouseLeave={() => setIsHovered(false)}>
                 <Flex align="center" justify="center" gap="middle">
                     {!selectedTriggerName && <PlusOutlined />}
-                    <span style={{ color: "rgb(11, 47, 115)" }}>{ selectedTriggerName || data.label}</span>
+                    <span style={{ color: "rgb(11, 47, 115)" }}>{selectedTriggerName || data.label}</span>
                 </Flex>
 
                 {!appliedFilters &&  selectedTriggerName && (
@@ -317,7 +317,6 @@ const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handle
         }
     }, [targetNodeId]);
 
-
     return (
         <>
             <span>
@@ -357,17 +356,15 @@ const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handle
             >
                 <div>
                     <Handle type="target" position="top" />
-                    <div style={{display: "flex", alignItems: "center", justifyContent: "center", gap: "10px"}}>
-
-
-                        <span style={{fontSize: "14px", color: "#888888"}}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+                        <span style={{ fontSize: "14px", color: "#888888" }}>
                              {storedAction?.selectedAction?.name || data.label}
                             {storedAction?.formData?.dropdownOption }
                         </span>
                     </div>
                     {selectedAction && isHovered && (
                         <Button
-                            onClick={() => deleteAction(targetNodeId)}
+                            onClick={deleteAction}
                             style={{
                                 backgroundColor: "white",
                                 border: "none",
@@ -385,8 +382,31 @@ const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handle
         </>
     );
 };
-
-
+//
+// // Zustand store for trigger name, selected action, and form data persistence
+// const useTriggerStore = create(
+//     persist(
+//         (set) => ({
+//             selectedTriggerName: null, // Store trigger name
+//             selectedAction: null, // Store selected action
+//             formData: {}, // Store form data
+//
+//             setSelectedTriggerName: (name) => set({ selectedTriggerName: name }),
+//             resetTriggerName: () => set({ selectedTriggerName: null }),
+//
+//             setSelectedAction: (action) => set({ selectedAction: action }),
+//             resetSelectedAction: () => set({ selectedAction: null }),
+//
+//             setFormData: (data) => set({ formData: data }),
+//             resetFormData: () => set({ formData: {} }),
+//
+//             resetAll: () => set({ selectedTriggerName: null, selectedAction: null, formData: {} })
+//         }),
+//         {
+//             name: "trigger-store",
+//         }
+//     )
+// );
 
 const initialEdges = [
     {
@@ -411,6 +431,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [, setSelectedBlock] = useState(null);
     const [selectedActions, setSelectedActions] = useState([]);
 
+
     // Replace Zustand state with local useState
     const [selectedTriggerName, setSelectedTriggerName] = useState(null);
     const [selectedAction, setSelectedAction] = useState(null);
@@ -425,13 +446,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setFormData({});
     };
 
-
     const [nodes, setNodes] = useState(() => {
         const initialNodes = [
             {
                 id: "1",
                 type: "addTrigger",
-                data: {label:"Add Trigger"},
+                data: {label: selectedTriggerName || "Add Trigger"},
                 position: {x: 100, y: 200},
 
             },
@@ -497,6 +517,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     };
 
+
     const onNodeClick = (_, node) => {
         console.log("Node ID:", node.id); // Log the node's ID for debugging
         setSelectedNodeId(node.id); // Store the clicked node's ID
@@ -528,6 +549,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
 
+
     const closeDrawer = () => {
         setDrawerVisible(false);
         setSelectedNode(null);
@@ -542,12 +564,14 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     }, []);
 
+
     const handleTriggerSelection = (trigger) => {
         const updatedNodes = nodes.map((node) =>
             node.id === selectedNodeId ? { ...node, data: { label: trigger.name } } : node
         );
         setNodes(updatedNodes);
         setSelectedTriggerName(trigger.name);
+
         localStorage.setItem('selectedTriggerName', trigger.name);
 
         setDrawerVisible(false);
@@ -642,7 +666,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
             // Reset other state and UI elements
             resetAll();
-            setSelectedTriggerName(null)
             setIconVisible(false);
             setDrawerVisible(true);
             setIsFirstNodeUsed(false)
@@ -827,8 +850,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     };
 
+
     const handleFormSubmit = (e) => {
         e.preventDefault();
+
 
         const updatedData = {
             label: `${selectedAction.name}\n ${formData.dropdownOption}\n`,
@@ -898,7 +923,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             });
         }
 
-        // Save all actions to localStorage
+        // Ensure that `newNode` is always defined
         const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
         const updatedActions = [
             ...existingData,
@@ -911,7 +936,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setIsFormSaved(true);
         setFormDrawerVisible(false);
     };
-
 // Your other logic follows here
     const handleActionSelection = (action) => {
         setSelectedActions((prevActions) => [...prevActions, action]);
@@ -940,6 +964,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         event.dataTransfer.setData("text/plain", JSON.stringify(action)); // Set the dragged trigger data
         console.log("Dragging started!", action);
     };
+
     const handleActionDrop = (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -1058,7 +1083,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                        handleActionDragOver={handleActionDragOver}
                                        selectedActions={selectedActions}
                                        targetNodeId={props.id}
-
                         />
                     )
                 }}
