@@ -362,7 +362,7 @@ const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handle
                             {storedAction?.formData?.dropdownOption }
                         </span>
                     </div>
-                    {selectedAction && isHovered && (
+                    {storedAction?.selectedAction?.name && isHovered && (
                         <Button
                             onClick={deleteAction}
                             style={{
@@ -721,6 +721,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             style: { stroke: '#d7d9e1', strokeWidth: 1 },
         };
     };
+
     const deleteAction = (event) => {
         event.stopPropagation();
 
@@ -730,98 +731,93 @@ const WorkFlow = ({apiServer, apiKey}) => {
         const targetElement = event.target.closest("[data-id]");
         const targetNodeId = targetElement?.getAttribute("data-id");
         if (!targetNodeId) return;
+
         // Filter nodes of type 'addAction'
         const addActionNodes = nodes.filter((node) => node.type === "addAction");
-        console.log("addActionNodes", addActionNodes)
+        console.log("addActionNodes", addActionNodes);
 
-
-        if (isConfirmed) {
-            const targetElement = event.target.closest("[data-id]");
-            const targetNodeId = targetElement?.getAttribute("data-id");
-
-            if (!targetNodeId) return; // Exit if no targetNodeId is found
-
-            // Filter nodes of type 'addAction'
-            const addActionNodes = nodes.filter((node) => node.type === "addAction");
-            console.log("addActionNodes", addActionNodes)
-
-            // If only one 'addAction' node remains, display the default label
-            if (addActionNodes.length === 1) {
-
-                const updatedNodes = nodes.map((node) =>
-                    node.id === targetNodeId
-                        ? {
-                            ...node,
-                            data: {...node.data, label: "Add a trigger to start building"},
-                        }
-                        : node
-                );
-
-                // Remove the "Exit" node since this is the last action node being deleted
-                const finalNodes = updatedNodes.filter((node) => node.id !== "exit");
-
-                // Remove edges connected to the Exit node
-                const updatedEdges = edges.filter(
-                    (edge) => edge.source !== "exit" && edge.target !== "exit"
-                );
-
-                setIsFirstNodeUsed(false);
-                setSelectedAction(null);
-
-                setFormData([]);
-                resetSelectedAction();
-                resetFormData();
-                setNodes(finalNodes);
-                setEdges(updatedEdges);
-
-
-            } else {
-
-                const deletedNode = nodes.find((node) => node.id === targetNodeId);
-                if (!deletedNode) return;
-
-                // Remove the deleted node and its edges
-                const updatedNodes = nodes.filter((node) => node.id !== targetNodeId);
-                const updatedEdges = edges.filter(
-                    (edge) => edge.source !== targetNodeId && edge.target !== targetNodeId
-                );
-
-                // Adjust positions of nodes below the deleted node
-                const adjustedNodes = updatedNodes.map((node) => {
-                    if (node.position.y > deletedNode.position.y) {
-                        return {
-                            ...node,
-
-                            position: {
-                                ...node.position,
-                                y: node.position.y - 100, // Adjust by node height + spacing
-                            },
-                        };
+        // If only one 'addAction' node remains, display the default label
+        if (addActionNodes.length === 1) {
+            const updatedNodes = nodes.map((node) =>
+                node.id === targetNodeId
+                    ? {
+                        ...node,
+                        data: { ...node.data, label: "Add a trigger to start building" },
                     }
-                    return node;
-                });
+                    : node
+            );
 
-                // Update the position of the existing "Exit" node
-                const exitNodeIndex = adjustedNodes.findIndex((node) => node.id === "exit");
-                if (exitNodeIndex !== -1) {
-                    const lastActionNode = adjustedNodes
-                        .filter((node) => node.type === "addAction")
-                        .slice(-1)[0]; // Get the last node
+            // Remove the "Exit" node since this is the last action node being deleted
+            const finalNodes = updatedNodes.filter((node) => node.id !== "exit");
 
-                    const exitNodePositionY = lastActionNode
-                        ? lastActionNode.position.y + 130
-                        : 130; // Default position if no action node exists
+            // Remove edges connected to the Exit node
+            const updatedEdges = edges.filter(
+                (edge) => edge.source !== "exit" && edge.target !== "exit"
+            );
 
-                    adjustedNodes[exitNodeIndex] = {
-                        ...adjustedNodes[exitNodeIndex],
-                        position: {...adjustedNodes[exitNodeIndex].position, y: exitNodePositionY},
+            setIsFirstNodeUsed(false);
+            setSelectedAction(null);
+            setFormData([]);
+            resetSelectedAction();
+            resetFormData();
+            setNodes(finalNodes);
+            setEdges(updatedEdges);
+
+            // Update localStorage with the new nodes and edges
+            const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+            const updatedData = savedData.filter((item) => item.node.id !== targetNodeId); // Remove deleted action data
+            localStorage.setItem("savedActionData", JSON.stringify(updatedData));
+
+        } else {
+            // If there are more than one 'addAction' node, remove the target node
+            const deletedNode = nodes.find((node) => node.id === targetNodeId);
+            if (!deletedNode) return;
+
+            // Remove the deleted node and its edges
+            const updatedNodes = nodes.filter((node) => node.id !== targetNodeId);
+            const updatedEdges = edges.filter(
+                (edge) => edge.source !== targetNodeId && edge.target !== targetNodeId
+            );
+
+            // Adjust positions of nodes below the deleted node
+            const adjustedNodes = updatedNodes.map((node) => {
+                if (node.position.y > deletedNode.position.y) {
+                    return {
+                        ...node,
+                        position: {
+                            ...node.position,
+                            y: node.position.y - 100, // Adjust by node height + spacing
+                        },
                     };
                 }
+                return node;
+            });
 
-                // Update the state
-                setNodes(adjustedNodes);
-                setEdges(updatedEdges);
+            // Update the position of the existing "Exit" node
+            const exitNodeIndex = adjustedNodes.findIndex((node) => node.id === "exit");
+            if (exitNodeIndex !== -1) {
+                const lastActionNode = adjustedNodes
+                    .filter((node) => node.type === "addAction")
+                    .slice(-1)[0]; // Get the last node
+
+                const exitNodePositionY = lastActionNode
+                    ? lastActionNode.position.y + 130
+                    : 130; // Default position if no action node exists
+
+                adjustedNodes[exitNodeIndex] = {
+                    ...adjustedNodes[exitNodeIndex],
+                    position: { ...adjustedNodes[exitNodeIndex].position, y: exitNodePositionY },
+                };
             }
+
+            // Update the state
+            setNodes(adjustedNodes);
+            setEdges(updatedEdges);
+
+            // Update localStorage with the new nodes and edges
+            const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+            const updatedData = savedData.filter((item) => item.node.id !== targetNodeId); // Remove deleted action data
+            localStorage.setItem("savedActionData", JSON.stringify(updatedData));
         }
     };
 
@@ -1013,13 +1009,13 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const closeSimpleDrawer = () => setSimpleDrawerVisible(false);
 
-
     const handleSubmit = () => {
         const updatedLabel = `${selectedAction.name}\n${formData.dropdownOption}`;
-        console.log("")
+
+        // Update only the selected node's label
         setNodes((prevNodes) =>
             prevNodes.map((node) =>
-                node.id === selectedNodeId // Assuming "2" is the targeted node's id
+                node.id === selectedNodeId // Ensure you update only the node with selectedNodeId
                     ? {
                         ...node,
                         data: {
@@ -1031,7 +1027,24 @@ const WorkFlow = ({apiServer, apiKey}) => {
             )
         );
 
+        // Update localStorage for the specific selectedNodeId, along with selectedAction and formData
+        const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+        const updatedActions = existingData.map((action) =>
+            action.node.id === selectedNodeId
+                ? {
+                    ...action,
+                    label: updatedLabel, // Update the label
+                    selectedAction, // Update selectedAction
+                    formData // Update formData
+                }
+                : action
+        );
+        // Save updated data in localStorage
+        localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
+
         console.log("Updated Node Label:", updatedLabel);
+        console.log("Updated Actions Stored in LocalStorage:", updatedActions);
+
         closeSimpleDrawer();
     };
 
