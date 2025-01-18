@@ -303,26 +303,19 @@ const CustomButton = ({
 
 
 
-const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handleActionDragOver}) => {
+const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handleActionDragOver,targetNodeId}) => {
     const [isHovered, setIsHovered] = useState(false);
-
-
-
     const [storedAction, setStoredAction] = useState({ selectedAction: null, formData: null });
-
     useEffect(() => {
-        const savedActionData = localStorage.getItem("savedActionData");
-        if (savedActionData) {
-            const savedData = JSON.parse(savedActionData);
-            if (savedData.length > 0) {
-                const lastSavedAction = savedData[savedData.length - 1];
-                setStoredAction({
-                    selectedAction: lastSavedAction.selectedAction, // Set the stored selected action
-                    formData: lastSavedAction.formData, // Set the stored form data
-                });
-            }
+        const savedActionData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+        const nodeActionData = savedActionData.find(action => action.node.id === targetNodeId);
+        if (nodeActionData) {
+            setStoredAction({
+                selectedAction: nodeActionData.selectedAction,
+                formData: nodeActionData.formData,
+            });
         }
-    }, []);
+    }, [targetNodeId]);
 
 
     return (
@@ -374,7 +367,7 @@ const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handle
                     </div>
                     {selectedAction && isHovered && (
                         <Button
-                            onClick={deleteAction}
+                            onClick={() => deleteAction(targetNodeId)}
                             style={{
                                 backgroundColor: "white",
                                 border: "none",
@@ -507,7 +500,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const onNodeClick = (_, node) => {
         console.log("Node ID:", node.id); // Log the node's ID for debugging
         setSelectedNodeId(node.id); // Store the clicked node's ID
-        setSelectedNode(node); // Store the clicked node
         if (node.id === "1") {
             if (!selectedTriggerName) {
                 // Open Trigger Drawer for Node 1
@@ -910,7 +902,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
         const updatedActions = [
             ...existingData,
-            { selectedAction, formData, node: newNode }, // Ensure newNode is defined here
+            { selectedAction, formData, node: newNode || { id: selectedNodeId } }, // Ensure newNode is defined here
         ];
 
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
@@ -1065,7 +1057,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                        handleActionDrop={handleActionDrop}
                                        handleActionDragOver={handleActionDragOver}
                                        selectedActions={selectedActions}
-                                       node={nodes}
+                                       targetNodeId={props.id}
+
                         />
                     )
                 }}
