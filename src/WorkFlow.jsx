@@ -303,7 +303,7 @@ const CustomButton = ({
 
 
 
-const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handleActionDragOver,targetNodeId}) => {
+const AddActionNode = ({data,deleteAction,handleActionDrop,handleActionDragOver,targetNodeId}) => {
     const [isHovered, setIsHovered] = useState(false);
     const [storedAction, setStoredAction] = useState({ selectedAction: null, formData: null });
     useEffect(() => {
@@ -356,11 +356,13 @@ const AddActionNode = ({data,deleteAction,selectedAction,handleActionDrop,handle
             >
                 <div>
                     <Handle type="target" position="top" />
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-                        <span style={{ fontSize: "14px", color: "#888888" }}>
-                             {storedAction?.selectedAction?.name || data.label}
-                            {storedAction?.formData?.dropdownOption }
-                        </span>
+                    <div style={{display: "flex", alignItems: "center", justifyContent: "center", gap: "10px"}}>
+                          <span style={{fontSize: "14px", color: "#888888"}}>
+                          {storedAction?.selectedAction?.name || data.label}
+                          <span style={{marginLeft: "8px", display: "inline-block"}}>
+                             {storedAction?.formData?.dropdownOption}
+                          </span>
+                           </span>
                     </div>
                     {storedAction?.selectedAction?.name && isHovered && (
                         <Button
@@ -686,9 +688,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     // Sample action data for the Action Drawer
     const actions = [
-        { id: 1, name: 'Send Email' },
-        { id: 2, name: 'Create Task' },
-        { id: 3, name: 'Update CRM' },
+        { id: 1, name: 'Send a webhook notification' },
+        { id: 2, name: 'Send an email to concerned the users' },
+        { id: 3, name: 'Send an email to the job owner' },
     ];
 
 
