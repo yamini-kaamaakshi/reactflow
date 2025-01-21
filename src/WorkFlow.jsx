@@ -201,9 +201,9 @@ const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
 };
 
 
-const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, iconVisible,}) => {
+const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, selectedTriggerName}) => {
     const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
-
+    // console.log("iconVisible",iconVisible)
     // Position the icon in the middle of the edge
     const iconX = (sourceX + targetX) / 2 - 12;
     const iconY = (sourceY + targetY) / 2 - 12;
@@ -217,7 +217,7 @@ const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, iconVisible,}) => {
                 d={edgePath}
                 style={{ stroke: "#000", strokeWidth: 2 }}
             />
-            {iconVisible && (
+            {selectedTriggerName && (
                 <foreignObject x={iconX} y={iconY} width="24" height="24">
                     <BsFunnelFill style={{ fontSize: "24px", color: iconColor }} />
                 </foreignObject>
@@ -429,7 +429,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [selectedActions, setSelectedActions] = useState([]);
 
 
-    // Replace Zustand state with local useState
+
     const [selectedTriggerName, setSelectedTriggerName] = useState(null);
     const [selectedAction, setSelectedAction] = useState(null);
     const [formData, setFormData] = useState({});
@@ -454,7 +454,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         return savedEdges ? JSON.parse(savedEdges) : initialEdges;
     });
     useEffect(() => {
-        // Save data to localStorage whenever nodes, edges, selectedAction, formData or nodeCounter change
+
         localStorage.setItem('nodes', JSON.stringify(nodes));
         localStorage.setItem('edges', JSON.stringify(edges));
     }, [nodes, edges]);
@@ -464,12 +464,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [iconVisible, setIconVisible] = useState(!!selectedTriggerName);
     const [isFirstNodeUsed, setIsFirstNodeUsed] = useState(false);
     const [nodeCounter, setNodeCounter] = useState(nodes.length);
-    console.log("edges",edges)
     const [selectedNodeId, setSelectedNodeId] = useState(null);
-
-    const [isFormSaved, setIsFormSaved] = useState(false);
-
-    const [simpleDrawerVisible, setSimpleDrawerVisible] = useState(false);
 
 
     useEffect(() => {
@@ -505,9 +500,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
 
+
     const onNodeClick = (_, node) => {
-        console.log("Node ID:", node.id); // Log the node's ID for debugging
-        setSelectedNodeId(node.id); // Store the clicked node's ID
+        setSelectedNodeId(node.id);
         if (node.id === "1") {
             if (!selectedTriggerName) {
                 // Open Trigger Drawer for Node 1
@@ -515,7 +510,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 setDrawerVisible(true); // Trigger Drawer
                 setActionDrawerVisible(false); // Ensure Action Drawer is closed
             }
-        } else if (node.id === "2"|| node.type === "addAction") {
+        } else if(node.id==="2" || node.type === "addAction") {
             // Node 2 logic
             if (selectedTriggerName) {
                 setActionDrawerVisible(true); // Open Action Drawer
@@ -524,17 +519,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 setDrawerVisible(true); // Open Trigger Drawer
                 setActionDrawerVisible(false); // Ensure Action Drawer is closed
             }
-
-            if (isFormSaved) {
-                // Open the new simple drawer when Node 2 is clicked after form submission
-                setActionDrawerVisible(false);
-                setSimpleDrawerVisible(true);
-            } else {
-                setSelectedNode(node);
-            }
+            setSelectedNode(node);
         }
     };
-
 
 
     const closeDrawer = () => {
@@ -562,7 +549,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         localStorage.setItem('selectedTriggerName', trigger.name);
 
         setDrawerVisible(false);
-
         setIconVisible(true);
     };
 
@@ -633,7 +619,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setIconVisible(false);
             setDrawerVisible(true);
             setIsFirstNodeUsed(false);
-            setIsFormSaved(false);
+
             closeActionDrawer();
         }
     };
@@ -771,8 +757,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
             { selectedAction, formData, node: newNode || { id: selectedNodeId } },
         ];
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
-
-        setIsFormSaved(true);
         setFormDrawerVisible(false);
     };
     const deleteAction = (event) => {
@@ -787,26 +771,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         // Find all 'addAction' nodes
         const addActionNodes = nodes.filter((node) => node.type === "addAction");
-
         if (addActionNodes.length === 1) {
-            // If only one 'addAction' node remains, reset to default label and remove "Exit" node
-            const updatedNodes = nodes.map((node) =>
-                node.id === targetNodeId
-                    ? {
-                        ...node,
-                        data: {
-                            ...node.data,
-                            label: "Add a trigger to start building",
-                            icon: null // Remove icon here
-                        }
-                    }
-                    : node
-            ).filter((node) => node.id !== "exit"); // Remove exit node
-
-            // Remove edges related to the exit node
-            const updatedEdges = edges.filter(
-                (edge) => edge.source !== "exit" && edge.target !== "exit"
-            );
+            const updatedNodes = nodes.map((node) => {
+                if (node.type === "addAction") {
+                    // Specifically reset to node 2's state from initialNodes
+                    const initialNode = initialNodes.find((n) => n.id === "2"); // We want to reset to node with id: 2
+                    return initialNode ? { ...initialNode } : node;
+                }
+                return node;
+            }).filter((node) => node.id !== "exit"); // Remove the exit node
 
             setIsFirstNodeUsed(false);
             setSelectedAction(null);
@@ -814,7 +787,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             resetSelectedAction();
             resetFormData();
             setNodes(updatedNodes);
-            setEdges(updatedEdges);
+            setEdges(initialEdges);
 
         } else {
             // Find the deleted node and remove it
@@ -993,56 +966,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         event.preventDefault();
     };
 
-    const handleActionChange = (e) => {
-        const actionId = e.target.value;
-
-        const action = actions.find((action) => action.id === parseInt(actionId));
-        setSelectedAction(action); // Update selected action
-    };
-
-
-    const closeSimpleDrawer = () => setSimpleDrawerVisible(false);
-
-    const handleSubmit = () => {
-        const updatedLabel = `${selectedAction.name}\n${formData.dropdownOption}`;
-
-        // Update only the selected node's label
-        setNodes((prevNodes) =>
-            prevNodes.map((node) =>
-                node.id === selectedNodeId // Ensure you update only the node with selectedNodeId
-                    ? {
-                        ...node,
-                        data: {
-                            ...node.data, // Keep other properties in data
-                            label: updatedLabel // Update only the label
-                        }
-                    }
-                    : node
-            )
-        );
-
-        // Update localStorage for the specific selectedNodeId, along with selectedAction and formData
-        const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
-        const updatedActions = existingData.map((action) =>
-            action.node.id === selectedNodeId
-                ? {
-                    ...action,
-                    label: updatedLabel, // Update the label
-                    selectedAction, // Update selectedAction
-                    formData // Update formData
-                }
-                : action
-        );
-        // Save updated data in localStorage
-        localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
-
-        console.log("Updated Node Label:", updatedLabel);
-        console.log("Updated Actions Stored in LocalStorage:", updatedActions);
-
-        closeSimpleDrawer();
-    };
-
-
     return (
         <div style={{ height: "90vh", verticalAlign: "top" }}>
             <ReactFlow
@@ -1072,7 +995,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 onDragOver={handleDragOver}
                 edgeTypes={{
                     custom: (props) => (
-                        <CustomEdge {...props} iconVisible={iconVisible} />
+                        <CustomEdge {...props} iconVisible={iconVisible} selectedTriggerName={selectedTriggerName} />
                     ),
                     button: (props) => (
                         <CustomButton {...props} setActionDrawerVisible={setActionDrawerVisible} nodes={nodes} />
@@ -1202,68 +1125,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 </div>
             </Drawer>
 
-            {/* Simple Drawer with Editable Fields */}
-            <Drawer
-                title="Simple Drawer"
-                width={550}
-                open={simpleDrawerVisible}
-                onClose={closeSimpleDrawer}
-            >
-                <div style={{ padding: '20px' }}>
-                    {/* Editable Action Dropdown */}
-                    <div style={{ marginBottom: '15px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px' }}>Select Action</label>
-                        <select
-                            value={selectedAction?.id || ''}
-                            onChange={handleActionChange}
-                            style={{ width: '100%', padding: '8px' }}
-                        >
-                            <option value="">Choose an action</option>
-                            {actions.map((action) => (
-                                <option key={action.id} value={action.id}>
-                                    {action.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
 
-                    {/* Editable Form Data */}
-                    {selectedAction && (
-                        <div style={{ marginBottom: '15px' }}>
-                            <label style={{ display: 'block', marginBottom: '5px' }}>Select an Option</label>
-                            <select
-                                name="dropdownOption"
-                                value={formData.dropdownOption}
-                                onChange={handleFormChange}
-                                style={{ width: '100%', padding: '8px' }}
-                            >
-                                <option value="">Choose an option</option>
-                                <option value="Option 1">Option 1</option>
-                                <option value="Option 2">Option 2</option>
-                                <option value="Option 3">Option 3</option>
-                            </select>
-                        </div>
-                    )}
-
-                    {/* Submit Button */}
-                    <div style={{ marginTop: '20px' }}>
-                        <button
-                            onClick={handleSubmit}
-                            style={{
-                                width: '100%',
-                                padding: '10px',
-                                backgroundColor: '#4CAF50',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            Submit
-                        </button>
-                    </div>
-                </div>
-            </Drawer>
 
         </div>
     );
