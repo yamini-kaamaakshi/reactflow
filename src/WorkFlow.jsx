@@ -304,6 +304,7 @@ const CustomButton = ({
 
 
 const AddActionNode = ({data,deleteAction,handleActionDrop,handleActionDragOver,targetNodeId}) => {
+
     const [isHovered, setIsHovered] = useState(false);
     const [storedAction, setStoredAction] = useState({ selectedAction: null, formData: null });
     useEffect(() => {
@@ -423,12 +424,38 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setFormData({});
     };
 
+    // const [nodes, setNodes] = useState(() => {
+    //     const initialNodes = [
+    //         {
+    //             id: "1",
+    //             type: "addTrigger",
+    //             data: {label: selectedTriggerName || "Add Trigger"},
+    //             position: {x: 100, y: 200},
+    //
+    //         },
+    //         {
+    //             id: "2",
+    //             type: "addAction",
+    //             data: {
+    //                 label:
+    //                     "Add a trigger to start building",
+    //             },
+    //             position: {x: 100, y: 350},
+    //         },
+    //
+    //     ];
+    //     return initialNodes;
+    //
+    // });
+
+    // const [edges, setEdges] = useState(initialEdges);
     const [nodes, setNodes] = useState(() => {
-        const initialNodes = [
+        const savedNodes = localStorage.getItem('nodes');
+        return savedNodes ? JSON.parse(savedNodes) : [
             {
                 id: "1",
                 type: "addTrigger",
-                data: {label: selectedTriggerName || "Add Trigger"},
+                data: {label: "Add Trigger"},
                 position: {x: 100, y: 200},
 
             },
@@ -443,15 +470,21 @@ const WorkFlow = ({apiServer, apiKey}) => {
             },
 
         ];
-        return initialNodes;
-
     });
 
+    const [edges, setEdges] = useState(() => {
+        const savedEdges = localStorage.getItem('edges');
+        return savedEdges ? JSON.parse(savedEdges) : initialEdges;
+    });
+    useEffect(() => {
+        // Save data to localStorage whenever nodes, edges, selectedAction, formData or nodeCounter change
+        localStorage.setItem('nodes', JSON.stringify(nodes));
+        localStorage.setItem('edges', JSON.stringify(edges));
+    }, [nodes, edges]);
 
     const [selectFilter, setSelectFilter] = useState("All");
     const [, setDroppedItem] = useState(null);
     const [iconVisible, setIconVisible] = useState(!!selectedTriggerName);
-    const [edges, setEdges] = useState(initialEdges);
     const [isFirstNodeUsed, setIsFirstNodeUsed] = useState(false);
     const [nodeCounter, setNodeCounter] = useState(nodes.length);
     console.log("edges",edges)
@@ -723,6 +756,62 @@ const WorkFlow = ({apiServer, apiKey}) => {
             style: { stroke: '#d7d9e1', strokeWidth: 1 },
         };
     };
+    const handleFormSubmit = (e) => {
+        e.preventDefault();
+
+        const updatedData = {
+            label: `${selectedAction.name}\n ${formData.dropdownOption}\n`,
+        };
+
+        let newNode;
+        if (!isFirstNodeUsed) {
+            const firstNode = nodes.find((node) => node.id === "2");
+            const exitNodePositionY = firstNode.position.y + 130;
+
+            setNodes((prevNodes) => [
+                ...prevNodes.map((node) =>
+                    node.id === selectedNodeId ? { ...node, data: updatedData } : node
+                ),
+                { id: "exit", type: "default", data: { label: "Exit" }, position: { x: 258, y: exitNodePositionY } },
+            ]);
+            setIsFirstNodeUsed(true);
+
+            setEdges((prevEdges) => [
+                ...prevEdges.filter((edge) => edge.target !== "exit"), // Remove all edges connected to "exit"
+                createNewEdge("2", "exit"),
+            ]);
+        } else {
+            newNode = createNewNode(updatedData.label, nodes.length);
+
+            const lastAddActionNode = nodes
+                .filter((node) => node.type === "addAction")
+                .slice(-1)[0];
+
+            const newEdge = createNewEdge(lastAddActionNode.id, newNode.id);
+
+            setNodes((prevNodes) => [
+                ...prevNodes.filter((node) => node.id !== "exit"), // Remove the old "exit" node
+                newNode,
+                { id: "exit", type: "default", data: { label: "Exit" }, position: { x: 258, y: newNode.position.y + 130 } },
+            ]);
+
+            setEdges((prevEdges) => [
+                ...prevEdges.filter((edge) => edge.target !== "exit"), // Remove all edges connected to "exit"
+                newEdge,
+                createNewEdge(newNode.id, "exit"),
+            ]);
+        }
+
+        const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+        const updatedActions = [
+            ...existingData,
+            { selectedAction, formData, node: newNode || { id: selectedNodeId } },
+        ];
+        localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
+
+        setIsFormSaved(true);
+        setFormDrawerVisible(false);
+    };
 
     const deleteAction = (event) => {
         event.stopPropagation();
@@ -823,92 +912,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     };
 
-
-    const handleFormSubmit = (e) => {
-        e.preventDefault();
-
-
-        const updatedData = {
-            label: `${selectedAction.name}\n ${formData.dropdownOption}\n`,
-        };
-
-        const updateExitNode = (positionY) => ({
-            id: "exit",
-            type: "default",
-            data: {
-                label: (
-                    <div style={{ textAlign: "center", lineHeight: "25px" }}>
-                        Exit
-                    </div>
-                ),
-            },
-            position: { x: 258, y: positionY },
-            style: {
-                width: 35,
-                height: 20,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-            },
-        });
-
-        let newNode; // Define newNode at the top
-
-        if (!isFirstNodeUsed) {
-            // Update the first node and add the Exit node
-            const firstNode = nodes.find((node) => node.id === "2");
-            const exitNodePositionY = firstNode.position.y + 130;
-
-            setNodes((prevNodes) => [
-                ...prevNodes.map((node) =>
-                    node.id === selectedNodeId ? { ...node, data: updatedData } : node
-                ),
-                updateExitNode(exitNodePositionY),
-            ]);
-            setIsFirstNodeUsed(true);
-
-            setEdges((prevEdges) => [...prevEdges, createNewEdge("2", "exit")]);
-        } else {
-            // Create the new node and ensure it is always defined
-            newNode = createNewNode(updatedData.label, nodes.length); // Ensure this is inside the else block
-
-            const lastAddActionNode = nodes
-                .filter((node) => node.type === "addAction")
-                .slice(-1)[0];
-            const newEdge = createNewEdge(lastAddActionNode.id, newNode.id);
-
-            setNodes((prevNodes) => {
-                const exitNodePositionY = newNode.position.y + 130;
-                return [
-                    ...prevNodes.filter((node) => node.id !== "exit"),
-                    newNode,
-                    updateExitNode(exitNodePositionY),
-                ];
-            });
-
-            setEdges((prevEdges) => {
-                const exitEdgeExists = prevEdges.some(
-                    (edge) => edge.source === newNode.id && edge.target === "exit"
-                );
-                return exitEdgeExists
-                    ? [...prevEdges, newEdge]
-                    : [...prevEdges, newEdge, createNewEdge(newNode.id, "exit")];
-            });
-        }
-
-        // Ensure that `newNode` is always defined
-        const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
-        const updatedActions = [
-            ...existingData,
-            { selectedAction, formData, node: newNode || { id: selectedNodeId } }, // Ensure newNode is defined here
-        ];
-
-        localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
-
-        // Close the form drawer
-        setIsFormSaved(true);
-        setFormDrawerVisible(false);
-    };
 // Your other logic follows here
     const handleActionSelection = (action) => {
         setSelectedActions((prevActions) => [...prevActions, action]);
