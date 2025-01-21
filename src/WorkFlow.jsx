@@ -760,26 +760,36 @@ const WorkFlow = ({apiServer, apiKey}) => {
         e.preventDefault();
 
         const updatedData = {
-            label: `${selectedAction.name}\n ${formData.dropdownOption}\n`,
+            label: `${selectedAction.name}\n${formData.dropdownOption}\n`,
         };
 
         let newNode;
         if (!isFirstNodeUsed) {
             const firstNode = nodes.find((node) => node.id === "2");
-            const exitNodePositionY = firstNode.position.y + 130;
+            const exitNodeExists = nodes.some((node) => node.id === "exit");
 
-            setNodes((prevNodes) => [
-                ...prevNodes.map((node) =>
+            // Update node label
+            setNodes((prevNodes) =>
+                prevNodes.map((node) =>
                     node.id === selectedNodeId ? { ...node, data: updatedData } : node
-                ),
-                { id: "exit", type: "default", data: { label: "Exit" }, position: { x: 258, y: exitNodePositionY } },
-            ]);
+                )
+            );
+
+            // Add "Exit" node if it doesn't exist already
+            if (!exitNodeExists) {
+                setNodes((prevNodes) => [
+                    ...prevNodes,
+                    { id: "exit", type: "default", data: { label: "Exit" }, position: { x: 200, y: firstNode.position.y + 130 } },
+                ]);
+
+                setEdges((prevEdges) => [
+                    ...prevEdges.filter((edge) => edge.target !== "exit"),
+                    createNewEdge("2", "exit"),
+                ]);
+            }
+
             setIsFirstNodeUsed(true);
 
-            setEdges((prevEdges) => [
-                ...prevEdges.filter((edge) => edge.target !== "exit"), // Remove all edges connected to "exit"
-                createNewEdge("2", "exit"),
-            ]);
         } else {
             newNode = createNewNode(updatedData.label, nodes.length);
 
@@ -787,24 +797,23 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 .filter((node) => node.type === "addAction")
                 .slice(-1)[0];
 
-            const newEdge = createNewEdge(lastAddActionNode.id, newNode.id);
-
             setNodes((prevNodes) => [
-                ...prevNodes.filter((node) => node.id !== "exit"), // Remove the old "exit" node
+                ...prevNodes.filter((node) => node.id !== "exit"), // Remove existing exit node
                 newNode,
-                { id: "exit", type: "default", data: { label: "Exit" }, position: { x: 258, y: newNode.position.y + 130 } },
+                { id: "exit", type: "default", data: { label: "Exit" }, position: { x: 200, y: newNode.position.y + 130 } },
             ]);
 
             setEdges((prevEdges) => [
-                ...prevEdges.filter((edge) => edge.target !== "exit"), // Remove all edges connected to "exit"
-                newEdge,
+                ...prevEdges.filter((edge) => edge.target !== "exit"), // Remove all exit edges
+                createNewEdge(lastAddActionNode.id, newNode.id),
                 createNewEdge(newNode.id, "exit"),
             ]);
         }
 
+        // Store updated nodes in localStorage
         const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
         const updatedActions = [
-            ...existingData,
+            ...existingData.filter((action) => action.node.id !== (newNode?.id || selectedNodeId)),
             { selectedAction, formData, node: newNode || { id: selectedNodeId } },
         ];
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
@@ -812,7 +821,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setIsFormSaved(true);
         setFormDrawerVisible(false);
     };
-
     const deleteAction = (event) => {
         event.stopPropagation();
 
@@ -864,15 +872,56 @@ const WorkFlow = ({apiServer, apiKey}) => {
             const deletedNode = nodes.find((node) => node.id === targetNodeId);
             if (!deletedNode) return;
 
-            // Remove the deleted node and its edges
-            const updatedNodes = nodes.filter((node) => node.id !== targetNodeId);
-            const updatedEdges = edges.filter(
-                (edge) => edge.source !== targetNodeId && edge.target !== targetNodeId
+// Find the target node
+            const targetNode = nodes.find((node) => node.id === targetNodeId);
+            if (!targetNode) return;
+
+// Find edges that involve the target node
+            const relatedEdges = edges.filter(
+                (edge) => edge.source === targetNodeId || edge.target === targetNodeId
             );
 
-            // Adjust positions of nodes below the deleted node
+// Find the previous and next nodes
+            let previousNode = null;
+            let nextNode = null;
+
+            relatedEdges.forEach((edge) => {
+                if (edge.source === targetNodeId) {
+                    // If the target node is the source, the next node is the one at the target
+                    nextNode = nodes.find((node) => node.id === edge.target);
+                }
+                if (edge.target === targetNodeId) {
+                    // If the target node is the target, the previous node is the one at the source
+                    previousNode = nodes.find((node) => node.id === edge.source);
+                }
+            });
+
+// Create a new edge between the previous and next nodes if they exist
+            let newEdges = [...edges];  // Copy existing edges
+
+            if (previousNode && nextNode) {
+                newEdges = newEdges.filter(
+                    (edge) => edge.source !== targetNodeId && edge.target !== targetNodeId // Remove edges related to the deleted node
+                );
+
+                // Add a new edge between the previous and next nodes
+                newEdges.push({
+                    id: `edge-${previousNode.id}-${nextNode.id}`,
+                    source: previousNode.id,
+                    target: nextNode.id,
+                    type: "button", // Use custom button type
+
+                    style: { stroke: '#d7d9e1', strokeWidth: 1 },
+                });
+            }
+
+          // Remove the target node and its related edges
+            const updatedNodes = nodes.filter((node) => node.id !== targetNodeId);
+            const updatedEdges = newEdges;
+
+// Adjust positions of nodes below the deleted node
             const adjustedNodes = updatedNodes.map((node) => {
-                if (node.position.y > deletedNode.position.y) {
+                if (node.position.y > targetNode.position.y) {
                     return {
                         ...node,
                         position: {
@@ -884,7 +933,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 return node;
             });
 
-            // Update the position of the existing "Exit" node
+// Update the position of the existing "Exit" node
             const exitNodeIndex = adjustedNodes.findIndex((node) => node.id === "exit");
             if (exitNodeIndex !== -1) {
                 const lastActionNode = adjustedNodes
@@ -901,7 +950,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 };
             }
 
-            // Update the state
+// Update the state
             setNodes(adjustedNodes);
             setEdges(updatedEdges);
 
