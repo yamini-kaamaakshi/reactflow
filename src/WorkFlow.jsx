@@ -393,10 +393,29 @@ const initialEdges = [
         target: "2",
         animated: false,
         type: "custom",
-        label: "Edge with Icon",
+
+    },
+];
+const initialNodes = [
+    {
+        id: "1",
+        type: "addTrigger",
+        data: {label: "Add Trigger"},
+        position: {x: 100, y: 200},
+
+    },
+    {
+        id: "2",
+        type: "addAction",
+        data: {
+            label:
+                "Add a trigger to start building",
+        },
+        position: {x: 100, y: 350},
     },
 
 ];
+
 
 
 const WorkFlow = ({apiServer, apiKey}) => {
@@ -424,52 +443,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setFormData({});
     };
 
-    // const [nodes, setNodes] = useState(() => {
-    //     const initialNodes = [
-    //         {
-    //             id: "1",
-    //             type: "addTrigger",
-    //             data: {label: selectedTriggerName || "Add Trigger"},
-    //             position: {x: 100, y: 200},
-    //
-    //         },
-    //         {
-    //             id: "2",
-    //             type: "addAction",
-    //             data: {
-    //                 label:
-    //                     "Add a trigger to start building",
-    //             },
-    //             position: {x: 100, y: 350},
-    //         },
-    //
-    //     ];
-    //     return initialNodes;
-    //
-    // });
 
-    // const [edges, setEdges] = useState(initialEdges);
     const [nodes, setNodes] = useState(() => {
         const savedNodes = localStorage.getItem('nodes');
-        return savedNodes ? JSON.parse(savedNodes) : [
-            {
-                id: "1",
-                type: "addTrigger",
-                data: {label: "Add Trigger"},
-                position: {x: 100, y: 200},
-
-            },
-            {
-                id: "2",
-                type: "addAction",
-                data: {
-                    label:
-                        "Add a trigger to start building",
-                },
-                position: {x: 100, y: 350},
-            },
-
-        ];
+        return savedNodes ? JSON.parse(savedNodes) : initialNodes
     });
 
     const [edges, setEdges] = useState(() => {
@@ -648,38 +625,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
         if (window.confirm("Are you sure you want to delete these nodes?")) {
             localStorage.removeItem('selectedTriggerName');
             localStorage.removeItem('savedActionData');
-            // Filter out all nodes and edges that were added after the trigger
-            const initialNodes = ["1", "2"]; // IDs of the initial nodes (Trigger and Instruction)
 
-            // Keep only the initial nodes, and reset their data
-            const updatedNodes = nodes.filter((node) => initialNodes.includes(node.id)).map((node) => {
-                if (node.id === "1") {
-                    return { ...node, data: { label: "Add Trigger" } };
-                } else if (node.id === "2") {
-                    return {
-                        ...node,
-                        data: { label: "Add a trigger to start building" }
-                    };
-                } else {
-                    return node;
-                }
-            });
+           setNodes(initialNodes);
+           setEdges(initialEdges)
 
-            // Remove edges that are connected to non-initial nodes
-            const updatedEdges = edges.filter(
-                (edge) => initialNodes.includes(edge.source) && initialNodes.includes(edge.target)
-            );
-
-            // Update state with filtered nodes and edges
-            setNodes(updatedNodes);
-            setEdges(updatedEdges);
-
-            // Reset other state and UI elements
             resetAll();
             setIconVisible(false);
             setDrawerVisible(true);
-            setIsFirstNodeUsed(false)
-            setIsFormSaved(false)
+            setIsFirstNodeUsed(false);
+            setIsFormSaved(false);
             closeActionDrawer();
         }
     };
@@ -831,25 +785,25 @@ const WorkFlow = ({apiServer, apiKey}) => {
         const targetNodeId = targetElement?.getAttribute("data-id");
         if (!targetNodeId) return;
 
-        // Filter nodes of type 'addAction'
+        // Find all 'addAction' nodes
         const addActionNodes = nodes.filter((node) => node.type === "addAction");
-        console.log("addActionNodes", addActionNodes);
 
-        // If only one 'addAction' node remains, display the default label
         if (addActionNodes.length === 1) {
+            // If only one 'addAction' node remains, reset to default label and remove "Exit" node
             const updatedNodes = nodes.map((node) =>
                 node.id === targetNodeId
                     ? {
                         ...node,
-                        data: { ...node.data, label: "Add a trigger to start building" },
+                        data: {
+                            ...node.data,
+                            label: "Add a trigger to start building",
+                            icon: null // Remove icon here
+                        }
                     }
                     : node
-            );
+            ).filter((node) => node.id !== "exit"); // Remove exit node
 
-            // Remove the "Exit" node since this is the last action node being deleted
-            const finalNodes = updatedNodes.filter((node) => node.id !== "exit");
-
-            // Remove edges connected to the Exit node
+            // Remove edges related to the exit node
             const updatedEdges = edges.filter(
                 (edge) => edge.source !== "exit" && edge.target !== "exit"
             );
@@ -859,69 +813,56 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setFormData([]);
             resetSelectedAction();
             resetFormData();
-            setNodes(finalNodes);
+            setNodes(updatedNodes);
             setEdges(updatedEdges);
 
-            // Update localStorage with the new nodes and edges
-            const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
-            const updatedData = savedData.filter((item) => item.node.id !== targetNodeId); // Remove deleted action data
-            localStorage.setItem("savedActionData", JSON.stringify(updatedData));
-
         } else {
-            // If there are more than one 'addAction' node, remove the target node
+            // Find the deleted node and remove it
             const deletedNode = nodes.find((node) => node.id === targetNodeId);
             if (!deletedNode) return;
 
-// Find the target node
-            const targetNode = nodes.find((node) => node.id === targetNodeId);
-            if (!targetNode) return;
+            // Find edges connected to the deleted node
+            const incomingEdge = edges.find((edge) => edge.target === targetNodeId);
+            const outgoingEdge = edges.find((edge) => edge.source === targetNodeId);
 
-// Find edges that involve the target node
-            const relatedEdges = edges.filter(
-                (edge) => edge.source === targetNodeId || edge.target === targetNodeId
+            const updatedNodes = nodes.filter((node) => node.id !== targetNodeId);
+
+            let updatedEdges = edges.filter(
+                (edge) => edge.source !== targetNodeId && edge.target !== targetNodeId
             );
 
-// Find the previous and next nodes
-            let previousNode = null;
-            let nextNode = null;
+            // Reconnect the previous node to the exit node or custom edge handling
+            if (incomingEdge && outgoingEdge) {
 
-            relatedEdges.forEach((edge) => {
-                if (edge.source === targetNodeId) {
-                    // If the target node is the source, the next node is the one at the target
-                    nextNode = nodes.find((node) => node.id === edge.target);
+                let newEdge;
+
+                // Check if the source node has ID "1" (custom edge condition)
+                if (incomingEdge.source === "1") {
+                    newEdge = {
+                        id: `custom-edge-${incomingEdge.source}-${outgoingEdge.target}`,
+                        source: incomingEdge.source,
+                        target: outgoingEdge.target,
+                        type: "custom",  // Custom edge for source node 1
+
+                    };
                 }
-                if (edge.target === targetNodeId) {
-                    // If the target node is the target, the previous node is the one at the source
-                    previousNode = nodes.find((node) => node.id === edge.source);
+                // All other edges will use the "button" type
+                else {
+                    newEdge = {
+                        id: `button-edge-${incomingEdge.source}-${outgoingEdge.target}`,
+                        source: incomingEdge.source,
+                        target: outgoingEdge.target,
+                        type: "button",  // Default edge type for all other nodes
+
+                    };
                 }
-            });
 
-// Create a new edge between the previous and next nodes if they exist
-            let newEdges = [...edges];  // Copy existing edges
-
-            if (previousNode && nextNode) {
-                newEdges = newEdges.filter(
-                    (edge) => edge.source !== targetNodeId && edge.target !== targetNodeId // Remove edges related to the deleted node
-                );
-
-                // Add a new edge between the previous and next nodes
-                newEdges.push({
-                    id: `edge-${previousNode.id}-${nextNode.id}`,
-                    source: previousNode.id,
-                    target: nextNode.id,
-                    type: "button", // Use custom button type
-
-                    style: { stroke: '#d7d9e1', strokeWidth: 1 },
-                });
+                updatedEdges.push(newEdge);
             }
 
-          // Remove the target node and its related edges
-            const updatedNodes = nodes.filter((node) => node.id !== targetNodeId);
-            const updatedEdges = newEdges;
-
-// Adjust positions of nodes below the deleted node
+            // Adjust positions of nodes below the deleted node
             const adjustedNodes = updatedNodes.map((node) => {
-                if (node.position.y > targetNode.position.y) {
+                if (node.position.y > deletedNode.position.y) {
                     return {
                         ...node,
                         position: {
@@ -933,7 +874,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 return node;
             });
 
-// Update the position of the existing "Exit" node
+            // Update the position of the "Exit" node
             const exitNodeIndex = adjustedNodes.findIndex((node) => node.id === "exit");
             if (exitNodeIndex !== -1) {
                 const lastActionNode = adjustedNodes
@@ -950,17 +891,16 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 };
             }
 
-// Update the state
+            // Update the state
             setNodes(adjustedNodes);
             setEdges(updatedEdges);
-
-            // Update localStorage with the new nodes and edges
-            const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
-            const updatedData = savedData.filter((item) => item.node.id !== targetNodeId); // Remove deleted action data
-            localStorage.setItem("savedActionData", JSON.stringify(updatedData));
         }
-    };
 
+        // Update localStorage
+        const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+        const updatedData = savedData.filter((item) => item.node.id !== targetNodeId);
+        localStorage.setItem("savedActionData", JSON.stringify(updatedData));
+    };
 // Your other logic follows here
     const handleActionSelection = (action) => {
         setSelectedActions((prevActions) => [...prevActions, action]);
