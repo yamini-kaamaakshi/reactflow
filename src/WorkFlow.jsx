@@ -250,6 +250,7 @@ const CustomButton = ({
     const iconX =((sourceX + targetX) / 2 - 15 / 2);
     const iconY =latestNode.position.y+98
 
+
     return (
         <g   onMouseEnter={() => setIsHovered(true)} // Show button on hover
              onMouseLeave={() => setIsHovered(false)} >
@@ -269,7 +270,6 @@ const CustomButton = ({
             >
                 <button
                     style={{
-                        all: "unset",
                         cursor: "pointer",
                         display: "flex",
                         justifyContent: "center",
@@ -300,8 +300,6 @@ const CustomButton = ({
         </g>
     );
 };
-
-
 
 const AddActionNode = ({data,deleteAction,handleActionDrop,handleActionDragOver,targetNodeId}) => {
 
@@ -840,7 +838,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                         ...node,
                         position: {
                             ...node.position,
-                            y: node.position.y - 100, // Adjust by node height + spacing
+                            y: node.position.y - 100, 
                         },
                     };
                 }
