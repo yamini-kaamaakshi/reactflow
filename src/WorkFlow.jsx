@@ -757,15 +757,27 @@ const WorkFlow = ({apiServer, apiKey}) => {
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
         setFormDrawerVisible(false);
     };
+
+    const updateData = (targetNodeId) => {
+        const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+        const actionData = savedData.find((action) => action.node.id === targetNodeId);
+        if (actionData) {
+            console.log(`Data for Target Node ID ${targetNodeId}:`, actionData);
+        } else {
+            console.log(`No data found for Target Node ID ${targetNodeId}`);
+        }
+    };
+
+
     const deleteAction = (event) => {
         event.stopPropagation();
-
         const isConfirmed = window.confirm("Are you sure you want to delete this action?");
         if (!isConfirmed) return;
 
         const targetElement = event.target.closest("[data-id]");
         const targetNodeId = targetElement?.getAttribute("data-id");
         if (!targetNodeId) return;
+        updateData(targetNodeId);
 
         // Find all 'addAction' nodes
         const addActionNodes = nodes.filter((node) => node.type === "addAction");
@@ -773,7 +785,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             const updatedNodes = nodes.map((node) => {
                 if (node.type === "addAction") {
                     // Specifically reset to node 2's state from initialNodes
-                    const initialNode = initialNodes.find((n) => n.id === "2"); // We want to reset to node with id: 2
+                    const initialNode = initialNodes.find((n) => n.id === "2");
                     return initialNode ? { ...initialNode } : node;
                 }
                 return node;
