@@ -629,6 +629,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             localStorage.removeItem('selectedTriggerName');
             localStorage.removeItem('savedActionData');
             localStorage.removeItem('droppedTrigger');
+            localStorage.removeItem('isFirstNodeUsed');
             setNodes(initialNodes);
             setEdges(initialEdges)
 
@@ -715,12 +716,19 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
     const handleFormSubmit = (e) => {
         e.preventDefault();
+        console.log("Form Data:", formData);
+        console.log("Selected Action:", selectedAction);
 
         const updatedData = {
             label: `${selectedAction.name}\n${formData.dropdownOption}\n`,
         };
 
         let newNode;
+
+        // Check if the first node is used from localStorage
+        let isFirstNodeUsed = JSON.parse(localStorage.getItem('isFirstNodeUsed')) || false;
+        console.log("isFirstNodeUsed:", isFirstNodeUsed);
+
         if (!isFirstNodeUsed) {
             const firstNode = nodes.find((node) => node.id === "2");
             const exitNodeExists = nodes.some((node) => node.id === "exit");
@@ -745,10 +753,14 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 ]);
             }
 
+            // Update isFirstNodeUsed in state and localStorage
             setIsFirstNodeUsed(true);
+            localStorage.setItem('isFirstNodeUsed', JSON.stringify(true));
 
         } else {
+            // Create new node for subsequent actions
             newNode = createNewNode(updatedData.label, nodes.length);
+            console.log("New Node Created:", newNode); // Log the newly created node
 
             const lastAddActionNode = nodes
                 .filter((node) => node.type === "addAction")
@@ -774,47 +786,39 @@ const WorkFlow = ({apiServer, apiKey}) => {
             { selectedAction, formData, node: newNode || { id: selectedNodeId } },
         ];
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
+
+        // Close form drawers
         setFormDrawerVisible(false);
     };
 
-    const updateData = (targetNodeId) => {
-        const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
-        const actionEditData = savedData.find((action) => action.node.id === targetNodeId);
-
-        console.log("updateData - selectedActionData",selectedActionData)
-        if (actionEditData) {
-
-            console.log(`Data for Target Node ID ${targetNodeId}:`, actionEditData);
-            return actionEditData;
-        } else {
-            console.log(`No data found for Target Node ID ${targetNodeId}`);
-            return null;
-        }
-    };
-
-
     const deleteAction = (event) => {
         event.stopPropagation();
+
         const isConfirmed = window.confirm("Are you sure you want to delete this action?");
         if (!isConfirmed) return;
 
         const targetElement = event.target.closest("[data-id]");
         const targetNodeId = targetElement?.getAttribute("data-id");
         if (!targetNodeId) return;
-        updateData(targetNodeId);
 
         // Find all 'addAction' nodes
         const addActionNodes = nodes.filter((node) => node.type === "addAction");
+
         if (addActionNodes.length === 1) {
+            // If there's only one action node, reset to the initial state
             const updatedNodes = nodes.map((node) => {
                 if (node.type === "addAction") {
-                    // Specifically reset to node 2's state from initialNodes
+                    // Reset to node 2's state from initialNodes
                     const initialNode = initialNodes.find((n) => n.id === "2");
                     return initialNode ? { ...initialNode } : node;
                 }
                 return node;
             }).filter((node) => node.id !== "exit"); // Remove the exit node
 
+            // Remove `isFirstNodeUsed` from localStorage
+            localStorage.setItem('isFirstNodeUsed', JSON.stringify(false));
+
+            // Reset state after deletion
             setIsFirstNodeUsed(false);
             setSelectedAction(null);
             setFormData([]);
@@ -840,30 +844,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
             // Reconnect the previous node to the exit node or custom edge handling
             if (incomingEdge && outgoingEdge) {
-
-                let newEdge;
-
-                // Check if the source node has ID "1" (custom edge condition)
-                if (incomingEdge.source === "1") {
-                    newEdge = {
-                        id: `custom-edge-${incomingEdge.source}-${outgoingEdge.target}`,
-                        source: incomingEdge.source,
-                        target: outgoingEdge.target,
-                        type: "custom",  // Custom edge for source node 1
-
-                    };
-                }
-                // All other edges will use the "button" type
-                else {
-                    newEdge = {
-                        id: `button-edge-${incomingEdge.source}-${outgoingEdge.target}`,
-                        source: incomingEdge.source,
-                        target: outgoingEdge.target,
-                        type: "button",  // Default edge type for all other nodes
-
-                    };
-                }
-
+                const newEdge = {
+                    id: `${incomingEdge.source}-${outgoingEdge.target}`,
+                    source: incomingEdge.source,
+                    target: outgoingEdge.target,
+                    type: incomingEdge.source === "1" ? "custom" : "button", // Conditional edge type
+                };
                 updatedEdges.push(newEdge);
             }
 
@@ -901,13 +887,20 @@ const WorkFlow = ({apiServer, apiKey}) => {
             // Update the state
             setNodes(adjustedNodes);
             setEdges(updatedEdges);
+
+            // Update `isFirstNodeUsed` in localStorage and state
+            const remainingActions = adjustedNodes.filter((node) => node.type === "addAction");
+            const isFirstNodeUsed = remainingActions.length > 0;
+            localStorage.setItem('isFirstNodeUsed', JSON.stringify(isFirstNodeUsed));
+            setIsFirstNodeUsed(isFirstNodeUsed);
         }
 
-        // Update localStorage
+        // Update localStorage for saved actions
         const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
         const updatedData = savedData.filter((item) => item.node.id !== targetNodeId);
         localStorage.setItem("savedActionData", JSON.stringify(updatedData));
     };
+
 // Your other logic follows here
     const handleActionSelection = (action) => {
         setSelectedActions((prevActions) => [...prevActions, action]);
