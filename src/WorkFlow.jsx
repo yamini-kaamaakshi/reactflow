@@ -991,26 +991,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const handleActionDragOver  = (event) => {
         event.preventDefault();
     };
-    // Handle change for the selected action (from the action Select)
-    const handleEditActionChange = (value) => {
-        const selectedAction = actions.find(action => action.id === value);
-        setSelectedActionData(prevState => ({
-            ...prevState,
-            selectedAction: selectedAction,
-        }));
-    };
 
-    // Handle change for the dropdown option (from the dropdown select)
-    const handleDropdownChange = (e) => {
-        const { name, value } = e.target;
-        setSelectedActionData(prevState => ({
-            ...prevState,
-            formData: {
-                ...prevState.formData,
-                [name]: value,
-            },
-        }));
-    };
 
     const handleEditForm = () => {
         console.log("handleEditForm called");
