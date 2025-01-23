@@ -580,7 +580,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setIconVisible(true);
         setDrawerVisible(false);
 
-
         if (data) {
             try {
                 const draggedTrigger = JSON.parse(data);
@@ -593,6 +592,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     console.error("No target node ID found in drop event.");
                     return;
                 }
+
+                // Update nodes state with new trigger
                 const updatedNodes = nodes.map((node) => {
                     if (node.id === targetNodeId) {
                         return {
@@ -603,11 +604,13 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     return node;
                 });
 
-                setNodes(updatedNodes); // Update the nodes state
-                setDroppedItem(draggedTrigger.name); // Optionally, update the dropped item display text
-                setSelectedTriggerName(draggedTrigger.name)
+                setNodes(updatedNodes);
+                setDroppedItem(draggedTrigger.name);
+                setSelectedTriggerName(draggedTrigger.name);
 
-                // addNewActionNode(draggedTrigger.name)
+                // Store trigger data in localStorage
+                localStorage.setItem("droppedTrigger", JSON.stringify(draggedTrigger));
+
                 console.log(draggedTrigger, "Dropped and updated!");
             } catch (error) {
                 console.error("Error parsing the dropped data:", error);
@@ -616,7 +619,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
             console.error("No data found in drop event.");
         }
     };
-
 
     const handleDragOver = (event) => {
         event.preventDefault(); // Allow dropping
