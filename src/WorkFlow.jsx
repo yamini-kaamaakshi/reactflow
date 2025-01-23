@@ -358,7 +358,7 @@ const AddActionNode = ({data,deleteAction,handleActionDrop,handleActionDragOver,
                     <div style={{display: "flex", alignItems: "center", justifyContent: "center", gap: "10px"}}>
                           <span style={{fontSize: "14px", color: "#888888"}}>
                           {storedAction?.selectedAction?.name || data.label}
-                          <span style={{marginLeft: "8px", display: "inline-block"}}>
+                              <span style={{marginLeft: "8px", display: "inline-block"}}>
                              {storedAction?.formData?.dropdownOption}
                           </span>
                            </span>
@@ -463,8 +463,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [isFirstNodeUsed, setIsFirstNodeUsed] = useState(false);
     const [nodeCounter, setNodeCounter] = useState(nodes.length);
     const [selectedNodeId, setSelectedNodeId] = useState(null);
-
-
+    const [editDrawerVisible, setEditDrawerVisible] = useState(false);
+    const [selectedActionData, setSelectedActionData] = useState(null); // Add this state if not already defined
     useEffect(() => {
         fetchTriggers();
     }, []);
@@ -497,10 +497,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     };
 
-
-
     const onNodeClick = (_, node) => {
         setSelectedNodeId(node.id);
+
+        // Fetch action data for the selected node
+        const actionData = updateData(node.id);  // Use the correct node ID
+
         if (node.id === "1") {
             if (!selectedTriggerName) {
                 // Open Trigger Drawer for Node 1
@@ -508,17 +510,24 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 setDrawerVisible(true); // Trigger Drawer
                 setActionDrawerVisible(false); // Ensure Action Drawer is closed
             }
-        } else if(node.id==="2" || node.type === "addAction") {
-            // Node 2 logic
-            if (selectedTriggerName) {
-                setActionDrawerVisible(true); // Open Action Drawer
+        } else if (node.id === "2" || node.type === "addAction") {
+            if (actionData) {
+                // Update selectedActionData before opening the drawer
+                setSelectedActionData(actionData);  // Set the new action data
+                setSelectedNode(node);  // Store the clicked node as selected
+                setEditDrawerVisible(true);  // Open Edit Drawer for action data
+            } else if (selectedTriggerName) {
+                setActionDrawerVisible(true);  // Open Action Drawer
                 setDrawerVisible(false); // Ensure Trigger Drawer is closed
             } else {
                 setDrawerVisible(true); // Open Trigger Drawer
                 setActionDrawerVisible(false); // Ensure Action Drawer is closed
             }
-            setSelectedNode(node);
         }
+    };
+
+    const closeEditDrawer = () => {
+        setEditDrawerVisible(false);  // Close the drawer
     };
 
 
@@ -610,8 +619,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
             localStorage.removeItem('selectedTriggerName');
             localStorage.removeItem('savedActionData');
 
-           setNodes(initialNodes);
-           setEdges(initialEdges)
+            setNodes(initialNodes);
+            setEdges(initialEdges)
 
             resetAll();
             setIconVisible(false);
@@ -760,11 +769,16 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const updateData = (targetNodeId) => {
         const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
-        const actionData = savedData.find((action) => action.node.id === targetNodeId);
-        if (actionData) {
-            console.log(`Data for Target Node ID ${targetNodeId}:`, actionData);
+        const actionEditData = savedData.find((action) => action.node.id === targetNodeId);
+
+        console.log("updateData - selectedActionData",selectedActionData)
+        if (actionEditData) {
+
+            console.log(`Data for Target Node ID ${targetNodeId}:`, actionEditData);
+            return actionEditData;
         } else {
             console.log(`No data found for Target Node ID ${targetNodeId}`);
+            return null;
         }
     };
 
@@ -850,7 +864,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                         ...node,
                         position: {
                             ...node.position,
-                            y: node.position.y - 100, 
+                            y: node.position.y - 100,
                         },
                     };
                 }
@@ -959,6 +973,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 // Set the selected action
                 setSelectedAction(action);
 
+
                 setActionDrawerVisible(false)
                 // Immediately open the form drawer after setting the action
                 setFormDrawerVisible(true);
@@ -974,6 +989,72 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const handleActionDragOver  = (event) => {
         event.preventDefault();
+    };
+    // Handle change for the selected action (from the action Select)
+    const handleEditActionChange = (value) => {
+        const selectedAction = actions.find(action => action.id === value);
+        setSelectedActionData(prevState => ({
+            ...prevState,
+            selectedAction: selectedAction,
+        }));
+    };
+
+    // Handle change for the dropdown option (from the dropdown select)
+    const handleDropdownChange = (e) => {
+        const { name, value } = e.target;
+        setSelectedActionData(prevState => ({
+            ...prevState,
+            formData: {
+                ...prevState.formData,
+                [name]: value,
+            },
+        }));
+    };
+
+    const handleEditForm = () => {
+        // Construct the updated label with selected action and option
+        const updatedLabel = `${selectedActionData.selectedAction.name}\n${selectedActionData.formData.dropdownOption}`;
+
+        // Log before the update
+        console.log("Selected Node ID:", selectedNodeId);
+        console.log("Updated Label:", updatedLabel);
+
+        // Update the selected node's label based on selectedNodeId
+        setNodes((prevNodes) =>
+            prevNodes.map((node) =>
+                node.id === selectedNodeId
+                    ? {
+                        ...node,
+                        data: {
+                            ...node.data, // Keep other properties
+                            label: updatedLabel, // Update the label
+                        }
+
+                    }
+                    : node
+            )
+        );
+
+        // Update localStorage for the specific selectedNodeId, along with selectedAction and formData
+        const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+        const updatedActions = existingData.map((action) =>
+            action.node.id === selectedNodeId
+                ? {
+                    ...action,
+                    label: updatedLabel, // Update the label
+                    selectedAction, // Update selectedAction
+                    formData // Update formData
+                }
+                : action
+        );
+        // Save updated data in localStorage
+        localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
+
+
+        // Log after the update
+        console.log("Node label updated:", updatedLabel);
+        // Close the drawer after submitting
+        closeEditDrawer();
     };
 
     return (
@@ -1135,6 +1216,78 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 </div>
             </Drawer>
 
+            {/*<Drawer*/}
+            {/*    title="Action Data"*/}
+            {/*    open={editDrawerVisible}*/}
+            {/*    onClose={closeEditDrawer}  // Close the drawer on close*/}
+            {/*    width={400}  // Adjust the width as needed*/}
+            {/*>*/}
+            {/*    {selectedActionData ? (*/}
+            {/*        <div>*/}
+            {/*            <h4>{selectedActionData.selectedAction.name}</h4>*/}
+            {/*            <p>{selectedActionData.formData.dropdownOption}</p>*/}
+            {/*        </div>*/}
+            {/*    ) : (*/}
+            {/*        <p>No data available</p>*/}
+            {/*    )}*/}
+            {/*</Drawer>*/}
+
+
+            <Drawer
+                title="Action Data"
+                open={editDrawerVisible}
+                onClose={closeEditDrawer}
+                width={400}
+            >
+                <div>
+                    <h4>Select Action</h4>
+                    <Select
+                        value={selectedActionData?.selectedAction.name} // Bind to selected action's ID
+                        onChange={handleEditActionChange}
+                        placeholder="Select an action"
+                        style={{ width: '100%' }}
+                    >
+                        {actions.map((action) => (
+                            <Option key={action.id} value={action.id}>
+                                {action.name}
+                            </Option>
+                        ))}
+                    </Select>
+                </div>
+
+                <div style={{ marginTop: '20px' }}>
+                    <h4>Select Option</h4>
+                    <select
+                        name="dropdownOption"
+                        value={selectedActionData?.formData.dropdownOption} // Bind to dropdown option state
+                        onChange={handleDropdownChange} // Handle dropdown option change
+                        style={{ width: '100%', padding: '8px' }}
+                    >
+                        <option value="">Choose an option</option>
+                        <option value="Option 1">Option 1</option>
+                        <option value="Option 2">Option 2</option>
+                        <option value="Option 3">Option 3</option>
+                    </select>
+                </div>
+
+                {/* Submit Button */}
+                <div style={{ marginTop: '20px' }}>
+                    <button
+                        onClick={handleEditForm}
+                        style={{
+                            width: '100%',
+                            padding: '10px',
+                            backgroundColor: '#4CAF50',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        Submit
+                    </button>
+                </div>
+            </Drawer>
 
 
         </div>
