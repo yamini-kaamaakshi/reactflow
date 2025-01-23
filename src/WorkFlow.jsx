@@ -538,14 +538,21 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setActionDrawerVisible(false)
     };
 
-
     useEffect(() => {
-        const storedTriggerName = localStorage.getItem('selectedTriggerName');
-        if (storedTriggerName) {
+        // Retrieve stored trigger data from localStorage
+        const savedTrigger = localStorage.getItem("droppedTrigger");
+        const storedTriggerName = localStorage.getItem("selectedTriggerName");
+
+        if (savedTrigger) {
+            const parsedTrigger = JSON.parse(savedTrigger);
+            setSelectedTriggerName(parsedTrigger.name);
+            setDroppedItem(parsedTrigger.name);
+            console.log("Restored trigger from localStorage:", parsedTrigger);
+        } else if (storedTriggerName) {
             setSelectedTriggerName(storedTriggerName);
+            console.log("Restored selected trigger name from localStorage:", storedTriggerName);
         }
     }, []);
-
 
     const handleTriggerSelection = (trigger) => {
         const updatedNodes = nodes.map((node) =>
@@ -619,7 +626,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         if (window.confirm("Are you sure you want to delete these nodes?")) {
             localStorage.removeItem('selectedTriggerName');
             localStorage.removeItem('savedActionData');
-
+            localStorage.removeItem('droppedTrigger');
             setNodes(initialNodes);
             setEdges(initialEdges)
 
@@ -931,62 +938,52 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const handleActionDrop = (event) => {
         event.preventDefault();
         event.stopPropagation();
+        // Get the target node's ID from the `data-id` attribute of the event target
+        const targetElement = event.target.closest("[data-id]");
+        const targetNodeId = targetElement?.getAttribute("data-id");
+
         setActionDrawerVisible(true);
-        console.log("event", event);
+
         const data = event.dataTransfer.getData("text/plain");
-        console.log("data", data);
-
-        if (data) {
-            try {
-                const action = JSON.parse(data);
-
-                // If it's the first action, update Node 2's label
-                if (selectedActions.length === 0) {
-                    setNodes((prevNodes) =>
-                        prevNodes.map((node) =>
-                            node.id === selectedNodeId
-                                ? {
-                                    ...node,
-                                    data: {
-                                        ...node.data,
-                                        label: `${action.name}`,
-                                    },
-                                }
-                                : node
-                        )
-                    );
-                } else {
-                    // Use the utility function to create a new node for subsequent actions
-                    const newNode = createNewNode(action, nodes.length);
-
-                    // Add the new node to the nodes array
-                    setNodes((prevNodes) => [...prevNodes, newNode]);
-
-                    // If there is a previous node, create an edge to the new node
-                    const lastNodeId = nodes[nodes.length - 1].id;
-                    const newEdge = createNewEdge(lastNodeId, newNode.id);
-                    setEdges((prevEdges) => [...prevEdges, newEdge]);
-                }
-
-                // Add the action to the selected actions array
-                setSelectedActions((prevActions) => [...prevActions, action]);
-
-                // Set the selected action
-                setSelectedAction(action);
-
-
-                setActionDrawerVisible(false)
-                // Immediately open the form drawer after setting the action
-                setFormDrawerVisible(true);
-
-                console.log("Dropped action and updated node:", action);
-            } catch (error) {
-                console.error("Error parsing the dropped data:", error);
-            }
-        } else {
+        if (!data) {
             console.error("No data found in drop event.");
+            return;
+        }
+
+        try {
+            const action = JSON.parse(data); // Parse the dropped action
+            console.log("Dropped action:", action);
+
+            // Update Node 2's label if no actions have been selected yet
+            if (selectedActions.length === 0) {
+                setNodes((prevNodes) =>
+                    prevNodes.map((node) =>
+                        node.id === targetNodeId // Target Node 2 specifically
+                            ? {
+                                ...node,
+                                data: {
+                                    ...node.data,
+                                },
+                            }
+                            : node // Leave other nodes unchanged
+                    )
+                );
+            }
+
+            // Add the action to the selected actions array
+            setSelectedActions((prevActions) => [...prevActions, action]);
+
+            // Set the selected action and open the form drawer
+            setSelectedAction(action);
+            setActionDrawerVisible(false);
+            setFormDrawerVisible(true);
+
+            console.log("Updated workflow with dropped action.");
+        } catch (error) {
+            console.error("Error processing dropped action:", error);
         }
     };
+
 
     const handleActionDragOver  = (event) => {
         event.preventDefault();
