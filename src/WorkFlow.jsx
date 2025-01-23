@@ -501,8 +501,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setSelectedNodeId(node.id);
 
         // Fetch action data for the selected node
-        const actionData = updateData(node.id);  // Use the correct node ID
-
         if (node.id === "1") {
             if (!selectedTriggerName) {
                 // Open Trigger Drawer for Node 1
@@ -511,6 +509,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 setActionDrawerVisible(false); // Ensure Action Drawer is closed
             }
         } else if (node.id === "2" || node.type === "addAction") {
+            const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+            const actionData = savedData.find((action) => action.node.id === node.id);
+            console.log("actionData", actionData);
             if (actionData) {
                 // Update selectedActionData before opening the drawer
                 setSelectedActionData(actionData);  // Set the new action data
@@ -1012,50 +1013,52 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
     const handleEditForm = () => {
-        // Construct the updated label with selected action and option
-        const updatedLabel = `${selectedActionData.selectedAction.name}\n${selectedActionData.formData.dropdownOption}`;
-
-        // Log before the update
+        console.log("handleEditForm called");
         console.log("Selected Node ID:", selectedNodeId);
+        console.log("Selected Action Data:", selectedActionData);
+
+        const updatedLabel = `${selectedActionData.selectedAction.name}\n${selectedActionData.formData.dropdownOption}`;
         console.log("Updated Label:", updatedLabel);
 
-        // Update the selected node's label based on selectedNodeId
         setNodes((prevNodes) =>
             prevNodes.map((node) =>
                 node.id === selectedNodeId
                     ? {
                         ...node,
                         data: {
-                            ...node.data, // Keep other properties
-                            label: updatedLabel, // Update the label
-                        }
+                            ...node.data,
+                            label: updatedLabel,
+                        },
 
                     }
+
                     : node
             )
-        );
 
-        // Update localStorage for the specific selectedNodeId, along with selectedAction and formData
-        const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
-        const updatedActions = existingData.map((action) =>
-            action.node.id === selectedNodeId
-                ? {
-                    ...action,
-                    label: updatedLabel, // Update the label
-                    selectedAction, // Update selectedAction
-                    formData // Update formData
-                }
-                : action
         );
-        // Save updated data in localStorage
+        const updatedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+
+        // Remove the old action data with the same node ID
+        const updatedActions = updatedData.filter((action) => action.node.id !== selectedNodeId);
+
+        // Add the updated node data
+        updatedActions.push({
+            selectedAction: selectedActionData.selectedAction,
+            formData: selectedActionData.formData,
+            node: {
+                id: selectedNodeId,
+                label: updatedLabel,  // Update the label in local storage
+            },
+        });
+
+        // Save the updated actions to localStorage
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
 
 
-        // Log after the update
-        console.log("Node label updated:", updatedLabel);
-        // Close the drawer after submitting
+        console.log("Nodes updated successfully.");
         closeEditDrawer();
     };
+
 
     return (
         <div style={{ height: "90vh", verticalAlign: "top" }}>
@@ -1216,22 +1219,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 </div>
             </Drawer>
 
-            {/*<Drawer*/}
-            {/*    title="Action Data"*/}
-            {/*    open={editDrawerVisible}*/}
-            {/*    onClose={closeEditDrawer}  // Close the drawer on close*/}
-            {/*    width={400}  // Adjust the width as needed*/}
-            {/*>*/}
-            {/*    {selectedActionData ? (*/}
-            {/*        <div>*/}
-            {/*            <h4>{selectedActionData.selectedAction.name}</h4>*/}
-            {/*            <p>{selectedActionData.formData.dropdownOption}</p>*/}
-            {/*        </div>*/}
-            {/*    ) : (*/}
-            {/*        <p>No data available</p>*/}
-            {/*    )}*/}
-            {/*</Drawer>*/}
-
 
             <Drawer
                 title="Action Data"
@@ -1240,52 +1227,69 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 width={400}
             >
                 <div>
-                    <h4>Select Action</h4>
-                    <Select
-                        value={selectedActionData?.selectedAction.name} // Bind to selected action's ID
-                        onChange={handleEditActionChange}
-                        placeholder="Select an action"
-                        style={{ width: '100%' }}
-                    >
-                        {actions.map((action) => (
-                            <Option key={action.id} value={action.id}>
-                                {action.name}
-                            </Option>
-                        ))}
-                    </Select>
-                </div>
+                    <h3>Select Action</h3>
+                    <form>
+                        {/* Dropdown with mapped actions and formData */}
+                        <label style={{ display: 'block', marginBottom: '8px' }}>Select Action:</label>
+                        <select
+                            name="selectedAction"
+                            value={selectedActionData?.selectedAction?.id || ''}
+                            onChange={(e) => {
+                                const selectedId = e.target.value;
+                                const selected = actions.find((action) => action.id === parseInt(selectedId, 10));
+                                setSelectedActionData((prev) => ({
+                                    ...prev,
+                                    selectedAction: selected,
+                                }));
+                            }}
 
-                <div style={{ marginTop: '20px' }}>
-                    <h4>Select Option</h4>
-                    <select
-                        name="dropdownOption"
-                        value={selectedActionData?.formData.dropdownOption} // Bind to dropdown option state
-                        onChange={handleDropdownChange} // Handle dropdown option change
-                        style={{ width: '100%', padding: '8px' }}
-                    >
-                        <option value="">Choose an option</option>
-                        <option value="Option 1">Option 1</option>
-                        <option value="Option 2">Option 2</option>
-                        <option value="Option 3">Option 3</option>
-                    </select>
-                </div>
+                            style={{ width: '100%', padding: '8px', marginBottom: '15px' }}
+                        >
+                            <option value="">Choose an action</option>
+                            {actions.map((action) => (
+                                <option key={action.id} value={action.id}>
+                                    {action.name}
+                                </option>
+                            ))}
+                        </select>
 
-                {/* Submit Button */}
-                <div style={{ marginTop: '20px' }}>
-                    <button
-                        onClick={handleEditForm}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            backgroundColor: '#4CAF50',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        Submit
-                    </button>
+                        {/* Dropdown for form data options */}
+                        <label style={{ display: 'block', marginBottom: '8px' }}>Select Data:</label>
+                        <select
+                            name="formData"
+                            value={selectedActionData?.formData?.dropdownOption || ''}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setSelectedActionData((prev) => ({
+                                    ...prev,
+                                    formData: { dropdownOption: value },
+                                }));
+                            }}
+
+                            style={{ width: '100%', padding: '8px' }}
+                        >
+                            <option value="">Choose data</option>
+                            <option value="Option 1">Option 1</option>
+                            <option value="Option 2">Option 2</option>
+                            <option value="Option 3">Option 3</option>
+                        </select>
+
+                        <button
+                            type="button"
+                            onClick={handleEditForm}
+                            style={{
+                                marginTop: '15px',
+                                backgroundColor: 'rgb(11, 47, 115)',
+                                color: '#fff',
+                                padding: '10px 20px',
+                                border: 'none',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Submit
+                        </button>
+                    </form>
                 </div>
             </Drawer>
 
