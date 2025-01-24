@@ -427,7 +427,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [selectedActions, setSelectedActions] = useState([]);
 
 
-
     const [selectedTriggerName, setSelectedTriggerName] = useState(null);
     const [selectedAction, setSelectedAction] = useState(null);
     const [formData, setFormData] = useState({});
@@ -457,6 +456,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         localStorage.setItem('edges', JSON.stringify(edges));
     }, [nodes, edges]);
 
+
     const [selectFilter, setSelectFilter] = useState("All");
     const [, setDroppedItem] = useState(null);
     const [iconVisible, setIconVisible] = useState(!!selectedTriggerName);
@@ -468,6 +468,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
     useEffect(() => {
         fetchTriggers();
     }, []);
+
+    useEffect(() => {
+        if (selectedAction) {
+            setFormData({ dropdownOption: "" }); // Reset form data when selected action changes
+        }
+    }, [selectedAction]);
 
     const fetchTriggers = async () => {
         try {
@@ -786,7 +792,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             { selectedAction, formData, node: newNode || { id: selectedNodeId } },
         ];
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
-
+        setFormData({ dropdownOption: "" });
         // Close form drawers
         setFormDrawerVisible(false);
     };
