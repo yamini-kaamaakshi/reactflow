@@ -460,11 +460,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [selectFilter, setSelectFilter] = useState("All");
     const [, setDroppedItem] = useState(null);
     const [iconVisible, setIconVisible] = useState(!!selectedTriggerName);
-    const [isFirstNodeUsed, setIsFirstNodeUsed] = useState(false);
+    const [, setIsFirstNodeUsed] = useState(false);
     const [nodeCounter, setNodeCounter] = useState(nodes.length);
     const [selectedNodeId, setSelectedNodeId] = useState(null);
     const [editDrawerVisible, setEditDrawerVisible] = useState(false);
     const [selectedActionData, setSelectedActionData] = useState(null); // Add this state if not already defined
+
     useEffect(() => {
         fetchTriggers();
     }, []);
@@ -558,6 +559,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setSelectedTriggerName(storedTriggerName);
             console.log("Restored selected trigger name from localStorage:", storedTriggerName);
         }
+
     }, []);
 
     const handleTriggerSelection = (trigger) => {
@@ -792,8 +794,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
             { selectedAction, formData, node: newNode || { id: selectedNodeId } },
         ];
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
-        setFormData({ dropdownOption: "" });
-        // Close form drawers
         setFormDrawerVisible(false);
     };
 
@@ -935,14 +935,22 @@ const WorkFlow = ({apiServer, apiKey}) => {
         event.dataTransfer.setData("text/plain", JSON.stringify(action)); // Set the dragged trigger data
         console.log("Dragging started!", action);
     };
-
     const handleActionDrop = (event) => {
         event.preventDefault();
         event.stopPropagation();
-        // Get the target node's ID from the `data-id` attribute of the event target
+
+        // Get the target node's ID from the data-id attribute of the event target
         const targetElement = event.target.closest("[data-id]");
         const targetNodeId = targetElement?.getAttribute("data-id");
 
+        // Check if addTrigger is empty, if so don't allow the drop
+        if (!selectedTriggerName) {
+            console.log("No trigger added yet, action drop is disabled.");
+            alert("Please add a trigger first before dropping actions.");
+            console.log("selectedAction",selectedAction)
+            return; // Don't process the drop if no trigger is added
+        }
+        // Allow the action drop since a trigger is added
         setActionDrawerVisible(true);
 
         const data = event.dataTransfer.getData("text/plain");
