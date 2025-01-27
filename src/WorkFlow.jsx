@@ -12,8 +12,6 @@ import { BsFunnelFill } from "react-icons/bs";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-
-
 const useFilterStore = create(
     persist(
         (set) => ({
@@ -52,7 +50,6 @@ const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
     };
 
     const handleFilterSubmit = () => {
-        console.log(formData);
         setAppliedFilters(formData);
         setIsFilterDrawerVisible(false);
         setIconColor("green");
@@ -203,8 +200,6 @@ const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
 
 const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, selectedTriggerName}) => {
     const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
-    // console.log("iconVisible",iconVisible)
-    // Position the icon in the middle of the edge
     const iconX = (sourceX + targetX) / 2 - 12;
     const iconY = (sourceY + targetY) / 2 - 12;
     const { iconColor } = useFilterStore();
@@ -239,9 +234,6 @@ const CustomButton = ({
     // Edge path
     const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
     const [, setIsHovered] = useState(false);
-
-    console.log("nodes",nodes)
-
     const filteredNodes = nodes.filter(node => node.type === "addAction");
     const latestNode = filteredNodes.length > 0 ? filteredNodes[filteredNodes.length - 1] : null;
 
@@ -249,8 +241,6 @@ const CustomButton = ({
     // Calculate the button's position (middle of the edge)
     const iconX =((sourceX + targetX) / 2 - 15 / 2);
     const iconY =latestNode.position.y+98
-
-
     return (
         <g   onMouseEnter={() => setIsHovered(true)} // Show button on hover
              onMouseLeave={() => setIsHovered(false)} >
@@ -425,8 +415,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [actionDrawerVisible, setActionDrawerVisible] = useState(false); // For Action Drawer
     const [, setSelectedBlock] = useState(null);
     const [selectedActions, setSelectedActions] = useState([]);
-
-
     const [selectedTriggerName, setSelectedTriggerName] = useState(null);
     const [selectedAction, setSelectedAction] = useState(null);
     const [formData, setFormData] = useState({});
@@ -506,36 +494,32 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const onNodeClick = (_, node) => {
         setSelectedNodeId(node.id);
-
         // Fetch action data for the selected node
         if (node.id === "1") {
             if (!selectedTriggerName) {
-                // Open Trigger Drawer for Node 1
                 setSelectedNode(node);
-                setDrawerVisible(true); // Trigger Drawer
-                setActionDrawerVisible(false); // Ensure Action Drawer is closed
+                setDrawerVisible(true);
+                setActionDrawerVisible(false);
             }
         } else if (node.id === "2" || node.type === "addAction") {
             const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
             const actionData = savedData.find((action) => action.node.id === node.id);
-            console.log("actionData", actionData);
             if (actionData) {
-                // Update selectedActionData before opening the drawer
-                setSelectedActionData(actionData);  // Set the new action data
-                setSelectedNode(node);  // Store the clicked node as selected
-                setEditDrawerVisible(true);  // Open Edit Drawer for action data
+                setSelectedActionData(actionData);
+                setSelectedNode(node);
+                setEditDrawerVisible(true);
             } else if (selectedTriggerName) {
-                setActionDrawerVisible(true);  // Open Action Drawer
-                setDrawerVisible(false); // Ensure Trigger Drawer is closed
+                setActionDrawerVisible(true);
+                setDrawerVisible(false);
             } else {
-                setDrawerVisible(true); // Open Trigger Drawer
-                setActionDrawerVisible(false); // Ensure Action Drawer is closed
+                setDrawerVisible(true);
+                setActionDrawerVisible(false);
             }
         }
     };
 
     const closeEditDrawer = () => {
-        setEditDrawerVisible(false);  // Close the drawer
+        setEditDrawerVisible(false);
     };
 
 
@@ -554,17 +538,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
             const parsedTrigger = JSON.parse(savedTrigger);
             setSelectedTriggerName(parsedTrigger.name);
             setDroppedItem(parsedTrigger.name);
-            console.log("Restored trigger from localStorage:", parsedTrigger);
         } else if (storedTriggerName) {
             setSelectedTriggerName(storedTriggerName);
-            console.log("Restored selected trigger name from localStorage:", storedTriggerName);
         }
 
     }, []);
 
     const handleTriggerSelection = (trigger) => {
         const updatedNodes = nodes.map((node) =>
-            node.id === selectedNodeId ? { ...node, data: { label: trigger.name } } : node
+            node.id === "1" ? { ...node, data: { label: trigger.name } } : node
         );
         setNodes(updatedNodes);
         setSelectedTriggerName(trigger.name);
@@ -577,8 +559,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const handleDragStart = (event, trigger) => {
         closeDrawer();
-        event.dataTransfer.setData("text/plain", JSON.stringify(trigger)); // Set the dragged trigger data
-        console.log("Dragging started!", trigger);
+        event.dataTransfer.setData("text/plain", JSON.stringify(trigger));
     };
 
     const handleDrop = (event) => {
@@ -603,7 +584,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
                 // Update nodes state with new trigger
                 const updatedNodes = nodes.map((node) => {
-                    if (node.id === targetNodeId) {
+                    if (node.id === "1") {
                         return {
                             ...node,
                             data: { label: draggedTrigger.name },
@@ -618,8 +599,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
                 // Store trigger data in localStorage
                 localStorage.setItem("droppedTrigger", JSON.stringify(draggedTrigger));
-
-                console.log(draggedTrigger, "Dropped and updated!");
             } catch (error) {
                 console.error("Error parsing the dropped data:", error);
             }
@@ -629,7 +608,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
     const handleDragOver = (event) => {
-        event.preventDefault(); // Allow dropping
+        event.preventDefault();
     };
 
     const handleNodeDelete = (event) => {
@@ -694,15 +673,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
 
     const createNewNode = (label, nodesLength) => {
-        console.log("nodecounter",nodeCounter)
+
         const newNodeId = `${nodeCounter + 1}`; // Create a new unique ID for each new node
         setNodeCounter((prevCounter)=>prevCounter+1)
         let newNodePositionY = 100;
         let increments = Math.ceil(nodesLength / 2);
-        console.log("increments", increments);
+
         // Add a unique offset for each new node
         newNodePositionY = 250 + (nodesLength - 1) * 100;
-        console.log("newNodePositionY", newNodePositionY);
+
 
         return {
             id: newNodeId,
@@ -724,18 +703,18 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
     const handleFormSubmit = (e) => {
         e.preventDefault();
-        console.log("Form Data:", formData);
-        console.log("Selected Action:", selectedAction);
+
 
         const updatedData = {
             label: `${selectedAction.name}\n${formData.dropdownOption}\n`,
         };
 
         let newNode;
+        // Get the target node's ID from the data-id attribute of the event target
 
         // Check if the first node is used from localStorage
         let isFirstNodeUsed = JSON.parse(localStorage.getItem('isFirstNodeUsed')) || false;
-        console.log("isFirstNodeUsed:", isFirstNodeUsed);
+
 
         if (!isFirstNodeUsed) {
             const firstNode = nodes.find((node) => node.id === "2");
@@ -768,7 +747,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         } else {
             // Create new node for subsequent actions
             newNode = createNewNode(updatedData.label, nodes.length);
-            console.log("New Node Created:", newNode); // Log the newly created node
 
             const lastAddActionNode = nodes
                 .filter((node) => node.type === "addAction")
@@ -910,12 +888,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
 // Your other logic follows here
     const handleActionSelection = (action) => {
         setSelectedActions((prevActions) => [...prevActions, action]);
-        // Set the selected action
         setSelectedAction(action);
         setActionDrawerVisible(false)
-        // Open the Form Drawer immediately after selecting an action
         setFormDrawerVisible(true);
-        // setNodeCounter((prevCount) => prevCount + 1);
     };
 
 
@@ -931,9 +906,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
     const handleActionDragStart = (event, action) => {
-        closeActionDrawer(); // Close the drawer when dragging starts
+        closeActionDrawer();
         event.dataTransfer.setData("text/plain", JSON.stringify(action)); // Set the dragged trigger data
-        console.log("Dragging started!", action);
+
     };
     const handleActionDrop = (event) => {
         event.preventDefault();
@@ -945,9 +920,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         // Check if addTrigger is empty, if so don't allow the drop
         if (!selectedTriggerName) {
-            console.log("No trigger added yet, action drop is disabled.");
             alert("Please add a trigger first before dropping actions.");
-            console.log("selectedAction",selectedAction)
             return; // Don't process the drop if no trigger is added
         }
         // Allow the action drop since a trigger is added
@@ -961,7 +934,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         try {
             const action = JSON.parse(data); // Parse the dropped action
-            console.log("Dropped action:", action);
+
 
             // Update Node 2's label if no actions have been selected yet
             if (selectedActions.length === 0) {
@@ -987,7 +960,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setActionDrawerVisible(false);
             setFormDrawerVisible(true);
 
-            console.log("Updated workflow with dropped action.");
+
         } catch (error) {
             console.error("Error processing dropped action:", error);
         }
@@ -1000,13 +973,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
 
     const handleEditForm = () => {
-        console.log("handleEditForm called");
-        console.log("Selected Node ID:", selectedNodeId);
-        console.log("Selected Action Data:", selectedActionData);
-
         const updatedLabel = `${selectedActionData.selectedAction.name}\n${selectedActionData.formData.dropdownOption}`;
-        console.log("Updated Label:", updatedLabel);
-
         setNodes((prevNodes) =>
             prevNodes.map((node) =>
                 node.id === selectedNodeId
@@ -1040,9 +1007,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         // Save the updated actions to localStorage
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
-
-
-        console.log("Nodes updated successfully.");
         closeEditDrawer();
     };
 
