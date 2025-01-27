@@ -469,7 +469,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [selectedNodeId, setSelectedNodeId] = useState(null);
     const [editDrawerVisible, setEditDrawerVisible] = useState(false);
     const [selectedActionData, setSelectedActionData] = useState(null); // Add this state if not already defined
-
+    const [actions, setActions] = useState([]);
     useEffect(() => {
         fetchTriggers();
     }, []);
@@ -507,7 +507,46 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setIsLoading(false);
         }
     };
+    useEffect(() => {
+        fetchActions();
+    }, []);
+    const fetchActions = async (triggerCode) => {
+        try {
+            if (!triggerCode) {
+                console.error("Trigger code is required to fetch actions.");
+                return;
+            }
 
+            setIsLoading(true);
+
+            const response = await fetch(
+                `${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log("Fetched actions: ", result);
+
+            if (result && result.data) {
+                setActions(result.data);  // Store actions in state
+            } else {
+                setActions([]);
+            }
+        } catch (error) {
+            console.error("Error fetching actions: ", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
     const onNodeClick = (_, node) => {
         setSelectedNodeId(node.id);
         // Fetch action data for the selected node
@@ -572,6 +611,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setDrawerVisible(false);
         setIsFilterDrawerVisible(true)
         setIconVisible(true);
+        fetchActions(trigger.code)
     };
 
     const handleDragStart = (event, trigger) => {
@@ -679,14 +719,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setSelectedBlock(null);
     };
 
-
-
-    // Sample action data for the Action Drawer
-    const actions = [
-        { id: 1, name: 'Send a webhook notification' },
-        { id: 2, name: 'Send an email to concerned the users' },
-        { id: 3, name: 'Send an email to the job owner' },
-    ];
 
 
     const createNewNode = (label, nodesLength) => {
