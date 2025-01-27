@@ -16,8 +16,9 @@ const useFilterStore = create(
     persist(
         (set) => ({
             appliedFilters: null,
+            isFilterDrawerVisible: false,  // Add filterDrawerVisible state
             setAppliedFilters: (filters) => set({ appliedFilters: filters }),
-
+            setIsFilterDrawerVisible: (isVisible) => set({ isFilterDrawerVisible: isVisible }), // Method to update filterDrawerVisible
             setIconColor: (color) => set({ iconColor: color }),
         }),
         {
@@ -25,37 +26,38 @@ const useFilterStore = create(
         }
     )
 );
-
-
-const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
-    const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
-    const [, setIsTriggerDrawerVisible] = useState(false);
+const AddTriggerNode = ({ data, onDelete, selectedTriggerName }) => {
     const [formData, setFormData] = useState({ jobStatus: "" });
 
-    const { appliedFilters, setAppliedFilters, setIconColor } = useFilterStore()
+    const { appliedFilters, setAppliedFilters, setIconColor,isFilterDrawerVisible,setIsFilterDrawerVisible } = useFilterStore();
     const [isHovered, setIsHovered] = useState(false);
 
+    // Open Filter Drawer
     const handleFilterDrawerOpen = () => {
         setIsFilterDrawerVisible(true);
-        setIsTriggerDrawerVisible(false);
     };
 
+    // Close Filter Drawer
     const closeDrawer = () => {
         setIsFilterDrawerVisible(false);
-        setIsTriggerDrawerVisible(false);
     };
 
+    // Handle changes in the filter form
     const handleFilterChange = (value, field) => {
         setFormData({ ...formData, [field]: value });
     };
 
+    // Handle form submission
     const handleFilterSubmit = () => {
+        console.log("Submitting Filters:", formData);
         setAppliedFilters(formData);
         setIsFilterDrawerVisible(false);
         setIconColor("green");
     };
 
+    // Handle Delete Button Click
     const handleDelete = () => {
+        console.log("Deleting Filters");
         setAppliedFilters(null);
         setIconColor("black");
         onDelete();
@@ -63,7 +65,8 @@ const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
 
     return (
         <>
-      <span>
+            {/* Trigger Label */}
+            <span>
         <div
             style={{
                 backgroundColor: "rgb(199, 220, 252)",
@@ -90,14 +93,25 @@ const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
           </Flex>
         </div>
       </span>
-            <Card style={{ width: 350, padding: 0 }} hoverable size={"small"} onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}>
+
+            {/* Card Component */}
+            <Card
+                style={{ width: 350, padding: 0 }}
+                hoverable
+                size="small"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+            >
+                {/* Display Trigger Name or Label */}
                 <Flex align="center" justify="center" gap="middle">
                     {!selectedTriggerName && <PlusOutlined />}
-                    <span style={{ color: "rgb(11, 47, 115)" }}>{selectedTriggerName || data.label}</span>
+                    <span style={{ color: "rgb(11, 47, 115)" }}>
+            {selectedTriggerName || data.label}
+          </span>
                 </Flex>
 
-                {!appliedFilters &&  selectedTriggerName && (
+                {/* Filters Button */}
+                {selectedTriggerName && (
                     <div
                         style={{
                             marginTop: 10,
@@ -123,6 +137,7 @@ const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
                     </div>
                 )}
 
+                {/* Delete Button */}
                 {selectedTriggerName && isHovered && (
                     <Button
                         onClick={handleDelete}
@@ -137,7 +152,8 @@ const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
                         icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
                     />
                 )}
-                {/* Applied filters display */}
+
+                {/* Applied Filters Display */}
                 {appliedFilters && (
                     <div
                         style={{
@@ -157,8 +173,9 @@ const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
                 <Handle type="source" position={Position.Bottom} />
             </Card>
 
+            {/* Filter Drawer */}
             <Drawer
-                title={ "Select a Filter"}
+                title="Select a Filter"
                 width={550}
                 open={isFilterDrawerVisible}
                 onClose={closeDrawer}
@@ -181,9 +198,8 @@ const AddTriggerNode = ({ data, onDelete,selectedTriggerName }) => {
                             onChange={(value) => handleFilterChange(value, "jobStatus")}
                             placeholder="Select Job Status"
                         >
-                            <Select.Option value="Open">Send </Select.Option>
+                            <Select.Option value="Open">Open</Select.Option>
                             <Select.Option value="On Hold">On Hold</Select.Option>
-
                         </Select>
                     </Form.Item>
                     <Form.Item>
@@ -418,7 +434,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [selectedTriggerName, setSelectedTriggerName] = useState(null);
     const [selectedAction, setSelectedAction] = useState(null);
     const [formData, setFormData] = useState({});
-
+    const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
     // Reset functions
     const resetSelectedAction = () => setSelectedAction(null);
     const resetFormData = () => setFormData({});
@@ -554,6 +570,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         localStorage.setItem('selectedTriggerName', trigger.name);
 
         setDrawerVisible(false);
+        setIsFilterDrawerVisible(true)
         setIconVisible(true);
     };
 
@@ -723,7 +740,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             // Update node label
             setNodes((prevNodes) =>
                 prevNodes.map((node) =>
-                    node.id === selectedNodeId ? { ...node, data: updatedData } : node
+                    node.id === "2" ? { ...node, data: updatedData } : node
                 )
             );
 
@@ -1019,7 +1036,11 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 onNodeClick={onNodeClick}
                 nodeTypes={{
                     addTrigger: (props) => (
-                        <AddTriggerNode {...props} onDelete={handleNodeDelete} selectedTriggerName={selectedTriggerName} />
+                        <AddTriggerNode {...props} onDelete={handleNodeDelete}
+                                        selectedTriggerName={selectedTriggerName}
+                                        isFilterDrawerVisible={isFilterDrawerVisible}
+                                        setIsFilterDrawerVisible={setIsFilterDrawerVisible}
+                        />
                     ),
                     addAction: (props) => (
                         <AddActionNode {...props} nodes={nodes}
