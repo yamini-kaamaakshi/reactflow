@@ -1,5 +1,5 @@
 import React from "react";
-import WorkFlow from "./Flow";
+import WorkFlow from "./WorkFlow";
 
 const App = ({
   apiServer = "https://api.edge.recruitly.io",

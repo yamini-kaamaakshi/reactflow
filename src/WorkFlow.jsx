@@ -11,6 +11,8 @@ import { GrTrigger } from "react-icons/gr";
 import { BsFunnelFill } from "react-icons/bs";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import JobIsAboutToExpire from "./Forms/JobIsAboutToExpire.jsx";
+import PlacementIscreated from "./Forms/PlacementIscreated.jsx";
 
 const useFilterStore = create(
     persist(
@@ -470,6 +472,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [editDrawerVisible, setEditDrawerVisible] = useState(false);
     const [selectedActionData, setSelectedActionData] = useState(null); // Add this state if not already defined
     const [actions, setActions] = useState([]);
+    const [sendAs, setSendAs] = useState("DEFAULT"); // Default value is "DEFAULT"
+    const [triggerCode, setTriggerCode] = useState(null);
+    const [actionCode, setActionCode] = useState(null);
+
     useEffect(() => {
         fetchTriggers();
     }, []);
@@ -512,11 +518,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     }, []);
     const fetchActions = async (triggerCode) => {
         try {
-            if (!triggerCode) {
-                console.error("Trigger code is required to fetch actions.");
-                return;
-            }
-
             setIsLoading(true);
 
             const response = await fetch(
@@ -547,6 +548,42 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setIsLoading(false);
         }
     };
+
+
+    const renderForm = () => {
+        console.log("actionCode - workflow",actionCode)
+        let ActionForm;
+        switch (triggerCode) {
+            case 'ATS_JOB_ABOUT_EXPIRE':
+                ActionForm = JobIsAboutToExpire;
+                break;
+            case 'ATS_PLACEMENT_CREATED':
+                ActionForm = PlacementIscreated;
+                break;
+            default:
+                return <div>Invalid Action code.</div>;
+        }
+
+        return (
+            <ActionForm
+                handleFormSubmit={handleFormSubmit}
+                sendAs={sendAs}
+                setSendAs={setSendAs}
+                actionCode={actionCode}
+                formData={formData}
+                triggerCode={triggerCode} // Pass triggerCode here
+            />
+        );
+    };
+
+    // Fetch actions whenever the selected trigger changes
+    useEffect(() => {
+
+        fetchActions(); // Fetch actions using the trigger code
+
+    }, []);
+
+
     const onNodeClick = (_, node) => {
         setSelectedNodeId(node.id);
         // Fetch action data for the selected node
@@ -611,7 +648,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setDrawerVisible(false);
         setIsFilterDrawerVisible(true)
         setIconVisible(true);
-        fetchActions(trigger.code)
+        fetchActions(trigger.code);
+        const code = trigger.code
+        setTriggerCode(code)
     };
 
     const handleDragStart = (event, trigger) => {
@@ -940,6 +979,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setSelectedAction(action);
         setActionDrawerVisible(false)
         setFormDrawerVisible(true);
+        const code = action.code
+        setActionCode(code)
     };
 
 
@@ -1185,41 +1226,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 open={formDrawerVisible}
                 onClose={closeFormDrawer}
             >
-                <div style={{ padding: '20px' }}>
-                    <p>Fill in the details for the selected action:</p>
-                    <form onSubmit={handleFormSubmit}>
-                        {/* Dropdown 1 */}
-                        <div style={{ marginBottom: '15px' }}>
-                            <label style={{ display: 'block', marginBottom: '5px' }}>Select an Option</label>
-                            <select
-                                name="dropdownOption"
-                                value={formData.dropdownOption}
-                                onChange={handleFormChange}
-                                style={{ width: '100%', padding: '8px' }}
-                            >
-                                <option value="">
-                                    Choose an option
-                                </option>
-                                <option value="Option 1">Option 1</option>
-                                <option value="Option 2">Option 2</option>
-                                <option value="Option 3">Option 3</option>
-                            </select>
-                        </div>
-
-                        <button
-                            type="submit"
-                            style={{
-                                backgroundColor: 'rgb(11, 47, 115)',
-                                color: '#fff',
-                                padding: '10px 20px',
-                                border: 'none',
-                                borderRadius: '5px',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            Save
-                        </button>
-                    </form>
+                <div style={{marginTop: '20px'}}>
+                    {isLoading ? <Spin/> : renderForm()}
                 </div>
             </Drawer>
 
