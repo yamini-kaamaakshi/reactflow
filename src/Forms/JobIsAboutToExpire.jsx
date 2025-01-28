@@ -1,7 +1,22 @@
 import React, { useState } from "react";
 import { Form, Input, Select, Button } from "antd";
 
-const JobIsAboutToExpire = ({ handleFormSubmit, actionCode }) => {
+// DefaultFormItem now renders an Input field with the given props
+const DefaultFormItem = ({ name, rules, placeholder, type, step, min, max }) => (
+    <Form.Item label="When:" rules={rules}>
+        <div>
+        <Input
+            placeholder={placeholder}
+            type={type}
+            step={step}
+            min={min}
+            max={max}
+        />
+        <span className="input-group-text">Days Before Expiry</span>
+        </div>
+    </Form.Item>
+);
+const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
     const [selectedWebhook, setSelectedWebhook] = useState('');
 
     const handleWebhookChange = (value) => {
@@ -12,24 +27,18 @@ const JobIsAboutToExpire = ({ handleFormSubmit, actionCode }) => {
         case "JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <Form.Item
-                        label="When:"
-                        name="steps[5475e1af-5e57-4dc8-8659-bbb1856198eb[actions][hire91d671c1f45d42608c2b7f73d6c2cce3][actionData][days]]"
+                    <DefaultFormItem
+
                         rules={[{ required: true, message: "Please input the number of days!" }]}
-                    >
-                        <Input
-                            title="After Days"
-                            placeholder="1"
-                            type="number"
-                            step="1"
-                            min="0"
-                            max="1500"
-                        />
-                    </Form.Item>
+                        placeholder="1"
+                        type="number"
+                        step="1"
+                        min="0"
+                        max="150"
+                    />
 
                     <Form.Item
                         label="Webhook:"
-                        name="steps[14995897-bcaa-4721-8e5a-dce415932fc8[actions][hire2e3280a5b0d3470ca59d2b42dd3a8188][actionData][webhook]]"
                         rules={[{ required: true, message: "Please select a webhook!" }]}
                     >
                         <Select
@@ -72,6 +81,26 @@ const JobIsAboutToExpire = ({ handleFormSubmit, actionCode }) => {
                     </Form.Item>
                 </Form>
             );
+        case "JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS":
+            return (
+                <Form onFinish={handleFormSubmit}>
+                    <DefaultFormItem
+                        name="steps[5475e1af-5e57-4dc8-8659-bbb1856198eb[actions][hire91d671c1f45d42608c2b7f73d6c2cce3][actionData][days]]"
+                        rules={[{ required: true, message: "Please input the number of days!" }]}
+                        placeholder="1"
+                        type="number"
+                        step="1"
+                        min="0"
+                        max="150"
+                    />
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Form>
+            );
+
         default:
             return <div>No valid action found</div>;
     }

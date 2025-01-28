@@ -10,7 +10,6 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, sendAs, setSendAs })
                 <Form onFinish={handleFormSubmit}>
                     <Form.Item
                         label="When:"
-                        name="steps[5475e1af-5e57-4dc8-8659-bbb1856198eb[actions][hire91d671c1f45d42608c2b7f73d6c2cce3][actionData][days]]"
                         rules={[{ required: true, message: "Please input the number of days!" }]}
                     >
                         <Input type="number" placeholder="1" step="1" min="0" max="1500" />
@@ -18,7 +17,6 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, sendAs, setSendAs })
 
                     <Form.Item
                         label="Send as:"
-                        name="steps[5475e1af-5e57-4dc8-8659-bbb1856198eb[actions][hire91d671c1f45d42608c2b7f73d6c2cce3][actionData][sendAs]]"
                     >
                         <label className="text-regular">
                             <input
@@ -80,21 +78,18 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, sendAs, setSendAs })
 
                     <Form.Item
                         label="Subject:"
-                        name="steps[5475e1af-5e57-4dc8-8659-bbb1856198eb[actions][hire91d671c1f45d42608c2b7f73d6c2cce3][actionData][subject]]"
                     >
                         <Input placeholder="Subject" maxLength={128} />
                     </Form.Item>
 
                     <Form.Item
                         label="Message:"
-                        name="steps[5475e1af-5e57-4dc8-8659-bbb1856198eb[actions][hire91d671c1f45d42608c2b7f73d6c2cce3][actionData][message]]"
                     >
                         <Input.TextArea rows={5} />
                     </Form.Item>
 
                     <input
                         type="hidden"
-                        name="steps[5475e1af-5e57-4dc8-8659-bbb1856198eb[actions][hire91d671c1f45d42608c2b7f73d6c2cce3][id]]"
                         value="hire91d671c1f45d42608c2b7f73d6c2cce3"
                     />
 
@@ -111,7 +106,6 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, sendAs, setSendAs })
                 <Form onFinish={handleFormSubmit}>
                     <Form.Item
                         label="When:"
-                        name="steps[5475e1af-5e57-4dc8-8659-bbb1856198eb[actions][hire91d671c1f45d42608c2b7f73d6c2cce3][actionData][days]]"
                         rules={[{ required: true, message: "Please input the number of days!" }]}
                     >
                         <Input type="number" placeholder="1" step="1" min="0" max="1500" />

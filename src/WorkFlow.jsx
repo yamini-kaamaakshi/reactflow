@@ -513,9 +513,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setIsLoading(false);
         }
     };
+
     useEffect(() => {
-        fetchActions();
+        const savedTriggerCode = localStorage.getItem('triggerCode'); // Retrieve triggerCode from localStorage
+        if (savedTriggerCode) {
+            setTriggerCode(savedTriggerCode);
+            fetchActions(savedTriggerCode);
+        }
     }, []);
+
     const fetchActions = async (triggerCode) => {
         try {
             setIsLoading(true);
@@ -570,19 +576,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 sendAs={sendAs}
                 setSendAs={setSendAs}
                 actionCode={actionCode}
-                formData={formData}
-                triggerCode={triggerCode} // Pass triggerCode here
             />
         );
     };
-
-    // Fetch actions whenever the selected trigger changes
-    useEffect(() => {
-
-        fetchActions(); // Fetch actions using the trigger code
-
-    }, []);
-
 
     const onNodeClick = (_, node) => {
         setSelectedNodeId(node.id);
@@ -648,9 +644,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setDrawerVisible(false);
         setIsFilterDrawerVisible(true)
         setIconVisible(true);
-        fetchActions(trigger.code);
-        const code = trigger.code
-        setTriggerCode(code)
+
+        const code = trigger.code;
+        setTriggerCode(code);
+
+        localStorage.setItem('triggerCode', code); // Save triggerCode to localStorage
+        fetchActions(code);
     };
 
     const handleDragStart = (event, trigger) => {
