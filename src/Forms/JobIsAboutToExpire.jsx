@@ -82,10 +82,10 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
                 </Form>
             );
         case "JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS":
+        case "JOB_EXPIRY_SEND_EMAIL_TO_OWNER": // Or condition to handle both cases
             return (
                 <Form onFinish={handleFormSubmit}>
                     <DefaultFormItem
-                        name="steps[5475e1af-5e57-4dc8-8659-bbb1856198eb[actions][hire91d671c1f45d42608c2b7f73d6c2cce3][actionData][days]]"
                         rules={[{ required: true, message: "Please input the number of days!" }]}
                         placeholder="1"
                         type="number"
@@ -100,7 +100,6 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
                     </Form.Item>
                 </Form>
             );
-
         default:
             return <div>No valid action found</div>;
     }
