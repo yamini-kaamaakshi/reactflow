@@ -90,6 +90,8 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
             );
         case "JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS":
         case "JOB_EXPIRY_SEND_EMAIL_TO_OWNER":
+        case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
+
             return (
                 <Form onFinish={handleFormSubmit}>
                     <DefaultFormItem

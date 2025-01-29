@@ -792,6 +792,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
             case 'JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION':
             case 'JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS':
+            case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
                 label = `${selectedAction.name}\n ${values?.days} Days Before expire\n`;
                 break;
             default:
