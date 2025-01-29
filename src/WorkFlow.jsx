@@ -365,10 +365,8 @@ const AddActionNode = ({data,deleteAction,handleActionDrop,handleActionDragOver,
                     <Handle type="target" position="top" />
                     <div style={{display: "flex", alignItems: "center", justifyContent: "center", gap: "10px"}}>
                           <span style={{fontSize: "14px", color: "#888888"}}>
-                          {storedAction?.selectedAction?.name || data.label}
-                              <span style={{marginLeft: "8px", display: "inline-block"}}>
-                             {storedAction?.formData?.dropdownOption}
-                          </span>
+                          { data.label}
+
                            </span>
                     </div>
                     {storedAction?.selectedAction?.name && isHovered && (
@@ -472,7 +470,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [editDrawerVisible, setEditDrawerVisible] = useState(false);
     const [selectedActionData, setSelectedActionData] = useState(null); // Add this state if not already defined
     const [actions, setActions] = useState([]);
-    const [sendAs, setSendAs] = useState("DEFAULT"); // Default value is "DEFAULT"
+    const [sendAs, setSendAs] = useState("DEFAULT");
     const [triggerCode, setTriggerCode] = useState(null);
     const [actionCode, setActionCode] = useState(null);
 
@@ -757,8 +755,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setSelectedBlock(null);
     };
 
-
-
     const createNewNode = (label, nodesLength) => {
 
         const newNodeId = `${nodeCounter + 1}`; // Create a new unique ID for each new node
@@ -777,7 +773,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
             position: { x: 100, y: newNodePositionY }, // Dynamically position nodes
         };
     };
-
     const createNewEdge = (sourceNodeId, targetNodeId) => {
         return {
             id: `e${sourceNodeId}-${targetNodeId}`,
@@ -788,33 +783,42 @@ const WorkFlow = ({apiServer, apiKey}) => {
             style: { stroke: '#d7d9e1', strokeWidth: 1 },
         };
     };
-    const handleFormSubmit = (e) => {
-        e.preventDefault();
 
+    const generateUpdatedData = (selectedAction, values) => {
+        let label = '';
+        switch (selectedAction?.code) {
+            case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER':
+                label = `${selectedAction.name}\nAfter ${values?.day} Days\n`;
+                break;
+            case 'JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION':
+                label = `${selectedAction.name}\n ${values?.day} Days Before expire\n`;
+                break;
+            default:
+                label = `${selectedAction?.name}`;
+                break;
+        }
 
-        const updatedData = {
-            label: `${selectedAction.name}\n${formData.dropdownOption}\n`,
-        };
+        return { label };
+    };
 
+    const handleFormSubmit = (values) => {
+        console.log("formData", values);
+
+        const updatedData = generateUpdatedData(selectedAction, values);
         let newNode;
-        // Get the target node's ID from the data-id attribute of the event target
-
-        // Check if the first node is used from localStorage
         let isFirstNodeUsed = JSON.parse(localStorage.getItem('isFirstNodeUsed')) || false;
-
 
         if (!isFirstNodeUsed) {
             const firstNode = nodes.find((node) => node.id === "2");
             const exitNodeExists = nodes.some((node) => node.id === "exit");
 
-            // Update node label
+            // Update the label for the first node
             setNodes((prevNodes) =>
                 prevNodes.map((node) =>
                     node.id === "2" ? { ...node, data: updatedData } : node
                 )
             );
 
-            // Add "Exit" node if it doesn't exist already
             if (!exitNodeExists) {
                 setNodes((prevNodes) => [
                     ...prevNodes,
@@ -827,37 +831,33 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 ]);
             }
 
-            // Update isFirstNodeUsed in state and localStorage
             setIsFirstNodeUsed(true);
             localStorage.setItem('isFirstNodeUsed', JSON.stringify(true));
 
         } else {
-            // Create new node for subsequent actions
+            // For subsequent nodes
             newNode = createNewNode(updatedData.label, nodes.length);
-
-            const lastAddActionNode = nodes
-                .filter((node) => node.type === "addAction")
-                .slice(-1)[0];
+            const lastAddActionNode = nodes.filter((node) => node.type === "addAction").slice(-1)[0];
 
             setNodes((prevNodes) => [
-                ...prevNodes.filter((node) => node.id !== "exit"), // Remove existing exit node
+                ...prevNodes.filter((node) => node.id !== "exit"), // Remove exit node
                 newNode,
                 { id: "exit", type: "default", data: { label: "Exit" }, position: { x: 200, y: newNode.position.y + 130 } },
             ]);
 
             setEdges((prevEdges) => [
-                ...prevEdges.filter((edge) => edge.target !== "exit"), // Remove all exit edges
+                ...prevEdges.filter((edge) => edge.target !== "exit"),
                 createNewEdge(lastAddActionNode.id, newNode.id),
                 createNewEdge(newNode.id, "exit"),
             ]);
         }
 
-        // Store updated nodes in localStorage
         const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
         const updatedActions = [
-            ...existingData.filter((action) => action.node.id !== (newNode?.id || selectedNodeId)),
-            { selectedAction, formData, node: newNode || { id: selectedNodeId } },
+            ...existingData.filter((action) => action.node.id !== (newNode?.id || selectedNodeId || "defaultNodeId")),
+            { selectedAction, formData: values, node: newNode || { id: selectedNodeId || "defaultNodeId" } },
         ];
+
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
         setFormDrawerVisible(false);
     };
@@ -1098,6 +1098,11 @@ const WorkFlow = ({apiServer, apiKey}) => {
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
         closeEditDrawer();
     };
+    const handleChangeAction = (e) => {
+        const selectedId = e.target.value;
+        const selected = actions.find((action) => action.id === parseInt(selectedId, 10));
+        setSelectedActionData({ selectedAction: selected });
+    };
 
 
     return (
@@ -1240,20 +1245,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 <div>
                     <h3>Select Action</h3>
                     <form>
-                        {/* Dropdown with mapped actions and formData */}
+                        {/* Dropdown for selecting actions */}
                         <label style={{ display: 'block', marginBottom: '8px' }}>Select Action:</label>
                         <select
                             name="selectedAction"
                             value={selectedActionData?.selectedAction?.id || ''}
-                            onChange={(e) => {
-                                const selectedId = e.target.value;
-                                const selected = actions.find((action) => action.id === parseInt(selectedId, 10));
-                                setSelectedActionData((prev) => ({
-                                    ...prev,
-                                    selectedAction: selected,
-                                }));
-                            }}
-
+                            onChange={handleEditForm}
                             style={{ width: '100%', padding: '8px', marginBottom: '15px' }}
                         >
                             <option value="">Choose an action</option>
@@ -1264,47 +1261,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
                             ))}
                         </select>
 
-                        {/* Dropdown for form data options */}
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Select Data:</label>
-                        <select
-                            name="formData"
-                            value={selectedActionData?.formData?.dropdownOption || ''}
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                setSelectedActionData((prev) => ({
-                                    ...prev,
-                                    formData: { dropdownOption: value },
-                                }));
-                            }}
+                        {/* Render form based on selected action */}
+                        {renderForm()}
 
-                            style={{ width: '100%', padding: '8px' }}
-                        >
-                            <option value="">Choose data</option>
-                            <option value="Option 1">Option 1</option>
-                            <option value="Option 2">Option 2</option>
-                            <option value="Option 3">Option 3</option>
-                        </select>
-
-                        <button
-                            type="button"
-                            onClick={handleEditForm}
-                            style={{
-                                marginTop: '15px',
-                                backgroundColor: 'rgb(11, 47, 115)',
-                                color: '#fff',
-                                padding: '10px 20px',
-                                border: 'none',
-                                borderRadius: '5px',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            Submit
-                        </button>
                     </form>
                 </div>
             </Drawer>
-
-
         </div>
     );
 };
