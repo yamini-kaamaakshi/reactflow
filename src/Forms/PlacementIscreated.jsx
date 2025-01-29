@@ -1,19 +1,35 @@
 import {Button, Form, Input, Select} from "antd";
 
+
+
+const DefaultFormItem = () => (
+    <Form.Item
+        label="When:"
+        rules={[{ required: true, message: "Please input the number of days!" }]}
+    >
+        <div className="input-group">
+            <Input
+                type="number"
+                title="After Days"
+                placeholder="1"
+                autoComplete="off"
+                step="1"
+                min= "1"
+                max="1500"
+                addonBefore="After"
+                addonAfter="Days"
+            />
+        </div>
+    </Form.Item>
+);
+
+
 const PlacementIscreated = ({ actionCode, handleFormSubmit, sendAs, setSendAs }) => {
-
-    console.log("actionCode - form",actionCode)
-
     switch (actionCode) {
         case "ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER":
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <Form.Item
-                        label="When:"
-                        rules={[{ required: true, message: "Please input the number of days!" }]}
-                    >
-                        <Input type="number" placeholder="1" step="1" min="0" max="1500" />
-                    </Form.Item>
+                    <DefaultFormItem />
 
                     <Form.Item
                         label="Send as:"
@@ -104,12 +120,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, sendAs, setSendAs })
         case "ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <Form.Item
-                        label="When:"
-                        rules={[{ required: true, message: "Please input the number of days!" }]}
-                    >
-                        <Input type="number" placeholder="1" step="1" min="0" max="1500" />
-                    </Form.Item>
+                    <DefaultFormItem  />
 
                     <Form.Item>
                         <Button type="primary" htmlType="submit">

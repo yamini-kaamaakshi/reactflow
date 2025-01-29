@@ -2,17 +2,22 @@ import React, { useState } from "react";
 import { Form, Input, Select, Button } from "antd";
 
 // DefaultFormItem now renders an Input field with the given props
-const DefaultFormItem = ({ name, rules, placeholder, type, step, min, max }) => (
-    <Form.Item label="When:" rules={rules}>
-        <div>
-        <Input
-            placeholder={placeholder}
-            type={type}
-            step={step}
-            min={min}
-            max={max}
-        />
-        <span className="input-group-text">Days Before Expiry</span>
+const DefaultFormItem = () => (
+    <Form.Item
+        label="When:"
+        rules={[{ required: true, message: "Please input the number of days!" }]}
+    >
+        <div className="input-group">
+            <Input
+                type="number"
+                title="After Days"
+                placeholder="1"
+                autoComplete="off"
+                step="1"
+                min="1"
+                max="1500"
+                addonAfter="Days Before Expire"
+            />
         </div>
     </Form.Item>
 );
