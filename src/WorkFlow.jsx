@@ -788,10 +788,11 @@ const WorkFlow = ({apiServer, apiKey}) => {
         let label = '';
         switch (selectedAction?.code) {
             case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER':
-                label = `${selectedAction.name}\nAfter ${values?.day} Days\n`;
+                label = `${selectedAction.name}\nAfter ${values?.days} Days\n`;
                 break;
             case 'JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION':
-                label = `${selectedAction.name}\n ${values?.day} Days Before expire\n`;
+            case 'JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS':
+                label = `${selectedAction.name}\n ${values?.days} Days Before expire\n`;
                 break;
             default:
                 label = `${selectedAction?.name}`;
