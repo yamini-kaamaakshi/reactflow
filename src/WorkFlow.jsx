@@ -520,6 +520,13 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     }, []);
 
+    useEffect(() => {
+        if (selectedActionData?.selectedAction) {
+            setSelectedAction(selectedActionData.selectedAction);
+        }
+    }, [selectedActionData]);
+
+
     const fetchActions = async (triggerCode) => {
         try {
             setIsLoading(true);
@@ -552,6 +559,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setIsLoading(false);
         }
     };
+
+
+    useEffect(() => {
+        const savedActionData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+        const actionToEdit = savedActionData.find(action => action.node.id === selectedNodeId);
+        if (actionToEdit) {
+            setSelectedActionData(actionToEdit);
+        }
+    }, [selectedNodeId]);
 
 
     const renderForm = () => {
@@ -785,13 +801,16 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
     const generateUpdatedData = (selectedAction, values) => {
-        let label = '';
+        let label;
+        console.log("selectedAction",selectedAction)
         switch (selectedAction?.code) {
             case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER':
+            case 'ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION':
                 label = `${selectedAction.name}\nAfter ${values?.days} Days\n`;
                 break;
             case 'JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION':
             case 'JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS':
+            case 'JOB_EXPIRY_SEND_EMAIL_TO_OWNER':
             case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
                 label = `${selectedAction.name}\n ${values?.days} Days Before expire\n`;
                 break;
@@ -1062,44 +1081,26 @@ const WorkFlow = ({apiServer, apiKey}) => {
         event.preventDefault();
     };
 
-
-    const handleEditForm = () => {
-        const updatedLabel = `${selectedActionData.selectedAction.name}\n${selectedActionData.formData.dropdownOption}`;
-        setNodes((prevNodes) =>
-            prevNodes.map((node) =>
-                node.id === selectedNodeId
-                    ? {
-                        ...node,
-                        data: {
-                            ...node.data,
-                            label: updatedLabel,
-                        },
-
-                    }
-
-                    : node
-            )
-
-        );
-        const updatedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
-
-        // Remove the old action data with the same node ID
-        const updatedActions = updatedData.filter((action) => action.node.id !== selectedNodeId);
-
-        // Add the updated node data
-        updatedActions.push({
-            selectedAction: selectedActionData.selectedAction,
-            formData: selectedActionData.formData,
-            node: {
-                id: selectedNodeId,
-                label: updatedLabel,  // Update the label in local storage
-            },
-        });
-
-        // Save the updated actions to localStorage
-        localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
-        closeEditDrawer();
+    const handleEditForm = (e) => {
+        const { name, value } = e.target;
+        setSelectedActionData((prevData) => ({
+            ...prevData,
+            formData: {
+                ...prevData.formData,
+                [name]: value
+            }
+        }));
     };
+
+    // const handleEditForm = (value) => {
+    //     console.log("Selected Value:", value);
+    //     const selected = actions.find(action => action.id === selectedAction);
+    //     console.log("New Selected Action:", selected);
+    //     setSelectedAction(selected);
+    // };
+
+
+
     const handleChangeAction = (e) => {
         const selectedId = e.target.value;
         const selected = actions.find((action) => action.id === parseInt(selectedId, 10));
@@ -1236,8 +1237,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     {isLoading ? <Spin/> : renderForm()}
                 </div>
             </Drawer>
-
-
             <Drawer
                 title="Action Data"
                 open={editDrawerVisible}
@@ -1246,27 +1245,30 @@ const WorkFlow = ({apiServer, apiKey}) => {
             >
                 <div>
                     <h3>Select Action</h3>
-                    <form>
-                        {/* Dropdown for selecting actions */}
-                        <label style={{ display: 'block', marginBottom: '8px' }}>Select Action:</label>
-                        <select
-                            name="selectedAction"
-                            value={selectedActionData?.selectedAction?.id || ''}
-                            onChange={handleEditForm}
-                            style={{ width: '100%', padding: '8px', marginBottom: '15px' }}
-                        >
-                            <option value="">Choose an action</option>
-                            {actions.map((action) => (
-                                <option key={action.id} value={action.id}>
-                                    {action.name}
-                                </option>
-                            ))}
-                        </select>
+                    <select
+                        name="selectedAction"
+                        value={selectedActionData?.selectedAction?.name || ''}
+                        onChange={(e) => {
+                            const selectedId = e.target.value;
+                            const selected = actions.find((action) => action.id === parseInt(selectedId, 10));
+                            setSelectedActionData((prev) => ({
+                                ...prev,
+                                selectedAction: selected,
+                            }));
+                            setActionCode(selected?.code || '');
+                        }}
+                        style={{ width: '100%', padding: '8px', marginBottom: '15px' }}
+                    >
+                        <option value="">Choose an action</option>
+                        {actions.map((action) => (
+                            <option key={action.id} value={action.id}>
+                                {action.name}
+                            </option>
+                        ))}
+                    </select>
 
-                        {/* Render form based on selected action */}
-                        {renderForm()}
-
-                    </form>
+                    {/* Render the dynamic form based on selected action code */}
+                    {renderForm()}
                 </div>
             </Drawer>
         </div>
