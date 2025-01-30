@@ -34,15 +34,7 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
         case "JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <DefaultFormItem
-
-                        rules={[{ required: true, message: "Please input the number of days!" }]}
-                        placeholder="1"
-                        type="number"
-                        step="1"
-                        min="0"
-                        max="150"
-                    />
+                    <DefaultFormItem/>
 
                     <Form.Item
                         label="Webhook:"
@@ -94,14 +86,7 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
 
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <DefaultFormItem
-                        rules={[{ required: true, message: "Please input the number of days!" }]}
-                        placeholder="1"
-                        type="number"
-                        step="1"
-                        min="0"
-                        max="150"
-                    />
+                    <DefaultFormItem/>
                     <Form.Item>
                         <Button type="primary" htmlType="submit">
                             Submit
