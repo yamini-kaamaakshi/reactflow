@@ -606,11 +606,16 @@ const WorkFlow = ({apiServer, apiKey}) => {
         } else if (node.id === "2" || node.type === "addAction") {
             const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
             const actionData = savedData.find((action) => action.node.id === node.id);
+            console.log("actionData",actionData)
             if (actionData) {
-                setSelectedActionData(actionData);
                 setSelectedNode(node);
+                setSelectedActionData(actionData);
+                setActionCode(actionData.selectedAction?.code);
                 setEditDrawerVisible(true);
-            } else if (selectedTriggerName) {
+
+            }
+
+            else if (selectedTriggerName) {
                 setActionDrawerVisible(true);
                 setDrawerVisible(false);
             } else {
@@ -763,6 +768,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     }
 
 
+
     // Action node
 
 // Close Action Drawer
@@ -772,15 +778,14 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
     const createNewNode = (label, nodesLength) => {
+        // Increment the nodeCounter before using it for the new ID
+        setNodeCounter((prevCounter) => prevCounter + 1);
 
-        const newNodeId = `${nodeCounter + 1}`; // Create a new unique ID for each new node
-        setNodeCounter((prevCounter)=>prevCounter+1)
+        const newNodeId = `${nodeCounter + 1}`; // Use the updated nodeCounter for the new ID
         let newNodePositionY = 100;
-        let increments = Math.ceil(nodesLength / 2);
 
-        // Add a unique offset for each new node
+        // Calculate the new position dynamically
         newNodePositionY = 250 + (nodesLength - 1) * 100;
-
 
         return {
             id: newNodeId,
@@ -789,6 +794,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             position: { x: 100, y: newNodePositionY }, // Dynamically position nodes
         };
     };
+
     const createNewEdge = (sourceNodeId, targetNodeId) => {
         return {
             id: `e${sourceNodeId}-${targetNodeId}`,
@@ -802,7 +808,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const generateUpdatedData = (selectedAction, values) => {
         let label;
-        console.log("selectedAction",selectedAction)
+        // console.log("selectedAction",selectedAction)
         switch (selectedAction?.code) {
             case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER':
             case 'ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION':
@@ -822,17 +828,31 @@ const WorkFlow = ({apiServer, apiKey}) => {
         return { label };
     };
 
-
-    const onEdgeClick = (event, edge) => {
-        console.log("Edge clicked:", edge);
-        // Optionally clear selectedNodeId if clicking on an edge
-        setSelectedNodeId(null);  // Clear the node ID since we clicked on an edge
+    const getSelectedActionData = (selectedNodeId) => {
+        const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+        return existingData.find((action) => action.node.id === selectedNodeId);
     };
 
+// Function to handle the action change event
+    // Handle action change
+    const handleActionChange = (event) => {
+        const selectedActionId = event.target.value;
 
-    const handleFormSubmit = (values,event) => {
+        // Find the selected action data based on the selected action id
+        const selectedAction = actions.find((action) => action.id === selectedActionId);
+        const actionCode = selectedAction?.code;
+        console.log("actionCode  -  handleActionChange",actionCode)
+
+        // Update the selected action data and action code in state
+        setSelectedActionData({
+            selectedAction: selectedAction || {}
+        });
+
+        setActionCode(actionCode); // Set the actionCode based on the selected action
+    };
+
+    const handleFormSubmit = (values, event) => {
         console.log("formData", values);
-
         const updatedData = generateUpdatedData(selectedAction, values);
         let newNode;
         let isFirstNodeUsed = JSON.parse(localStorage.getItem('isFirstNodeUsed')) || false;
@@ -862,14 +882,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
             setIsFirstNodeUsed(true);
             localStorage.setItem('isFirstNodeUsed', JSON.stringify(true));
-
         } else {
-            // Check if the selected node ID exists in the nodes array
             const nodeToUpdate = nodes.find((node) => node.id === selectedNodeId);
-            console.log("nodeToUpdate",nodeToUpdate)
-
             if (nodeToUpdate) {
-                console.log("selected nodeToUpdate",nodeToUpdate)
                 // If the node exists, update it
                 setNodes((prevNodes) =>
                     prevNodes.map((node) =>
@@ -877,7 +892,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     )
                 );
             } else {
-                // If the node doesn't exist, create a new node
+                // Create new node
                 newNode = createNewNode(updatedData.label, nodes.length);
                 const lastAddActionNode = nodes.filter((node) => node.type === "addAction").slice(-1)[0];
 
@@ -895,6 +910,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
         }
 
+        // Save updated actions data to local storage
         const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
         const updatedActions = [
             ...existingData.filter((action) => action.node.id !== (newNode?.id || selectedNodeId || "defaultNodeId")),
@@ -903,9 +919,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
 
-        // Close the edit drawer after updating or creating a new node
+        // Close the edit drawer and reset the state
         setEditDrawerVisible(false);
-        setFormDrawerVisible(false)
+        setFormDrawerVisible(false);
+        setSelectedNodeId(null); // Reset the selected node ID after completing the edit
     };
 
 
@@ -1124,15 +1141,19 @@ const WorkFlow = ({apiServer, apiKey}) => {
     //     console.log("New Selected Action:", selected);
     //     setSelectedAction(selected);
     // };
-
-
-
-    const handleChangeAction = (e) => {
-        const selectedId = e.target.value;
-        const selected = actions.find((action) => action.id === parseInt(selectedId, 10));
-        setSelectedActionData({ selectedAction: selected });
-    };
-
+    //
+    // const handleActionChange = (e) => {
+    //     const selectedId = e.target.value;
+    //     const selected = actions.find((action) => action.id === parseInt(selectedId, 10));
+    //
+    //     setSelectedActionData((prev) => ({
+    //         ...prev,
+    //         selectedAction: selected,
+    //     }));
+    //
+    //     // Update actionCode dynamically based on selected action
+    //     setActionCode(selected?.code || '');
+    // };
 
     return (
         <div style={{ height: "90vh", verticalAlign: "top" }}>
@@ -1140,7 +1161,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 nodes={nodes}
                 edges={edges}
                 onNodeClick={onNodeClick}
-                onEdgeClick={onEdgeClick}
+                // onEdgeClick={onEdgeClick}
                 nodeTypes={{
                     addTrigger: (props) => (
                         <AddTriggerNode {...props} onDelete={handleNodeDelete}
@@ -1274,16 +1295,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     <h3>Select Action</h3>
                     <select
                         name="selectedAction"
-                        value={selectedActionData?.selectedAction?.name || ''}
-                        onChange={(e) => {
-                            const selectedId = e.target.value;
-                            const selected = actions.find((action) => action.id === parseInt(selectedId, 10));
-                            setSelectedActionData((prev) => ({
-                                ...prev,
-                                selectedAction: selected,
-                            }));
-                            setActionCode(selected?.code || '');
-                        }}
+                        value={selectedActionData?.selectedAction?.id || ''}
+                        onChange={handleActionChange}
                         style={{ width: '100%', padding: '8px', marginBottom: '15px' }}
                     >
                         <option value="">Choose an action</option>
@@ -1294,10 +1307,13 @@ const WorkFlow = ({apiServer, apiKey}) => {
                         ))}
                     </select>
 
-                    {/* Render the dynamic form based on selected action code */}
-                    {renderForm()}
+                    {/* Render form based on selected action's code */}
+                    <div>
+                        {renderForm()} {/* Render the form based on the selected action */}
+                    </div>
                 </div>
             </Drawer>
+
         </div>
     );
 };
