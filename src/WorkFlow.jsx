@@ -822,7 +822,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
         return { label };
     };
 
-    const handleFormSubmit = (values) => {
+
+    const onEdgeClick = (event, edge) => {
+        console.log("Edge clicked:", edge);
+        // Optionally clear selectedNodeId if clicking on an edge
+        setSelectedNodeId(null);  // Clear the node ID since we clicked on an edge
+    };
+
+
+    const handleFormSubmit = (values,event) => {
         console.log("formData", values);
 
         const updatedData = generateUpdatedData(selectedAction, values);
@@ -856,21 +864,35 @@ const WorkFlow = ({apiServer, apiKey}) => {
             localStorage.setItem('isFirstNodeUsed', JSON.stringify(true));
 
         } else {
-            // For subsequent nodes
-            newNode = createNewNode(updatedData.label, nodes.length);
-            const lastAddActionNode = nodes.filter((node) => node.type === "addAction").slice(-1)[0];
+            // Check if the selected node ID exists in the nodes array
+            const nodeToUpdate = nodes.find((node) => node.id === selectedNodeId);
+            console.log("nodeToUpdate",nodeToUpdate)
 
-            setNodes((prevNodes) => [
-                ...prevNodes.filter((node) => node.id !== "exit"), // Remove exit node
-                newNode,
-                { id: "exit", type: "default", data: { label: "Exit" }, position: { x: 200, y: newNode.position.y + 130 } },
-            ]);
+            if (nodeToUpdate) {
+                console.log("selected nodeToUpdate",nodeToUpdate)
+                // If the node exists, update it
+                setNodes((prevNodes) =>
+                    prevNodes.map((node) =>
+                        node.id === selectedNodeId ? { ...node, data: updatedData } : node
+                    )
+                );
+            } else {
+                // If the node doesn't exist, create a new node
+                newNode = createNewNode(updatedData.label, nodes.length);
+                const lastAddActionNode = nodes.filter((node) => node.type === "addAction").slice(-1)[0];
 
-            setEdges((prevEdges) => [
-                ...prevEdges.filter((edge) => edge.target !== "exit"),
-                createNewEdge(lastAddActionNode.id, newNode.id),
-                createNewEdge(newNode.id, "exit"),
-            ]);
+                setNodes((prevNodes) => [
+                    ...prevNodes.filter((node) => node.id !== "exit"), // Remove exit node
+                    newNode,
+                    { id: "exit", type: "default", data: { label: "Exit" }, position: { x: 200, y: newNode.position.y + 130 } },
+                ]);
+
+                setEdges((prevEdges) => [
+                    ...prevEdges.filter((edge) => edge.target !== "exit"),
+                    createNewEdge(lastAddActionNode.id, newNode.id),
+                    createNewEdge(newNode.id, "exit"),
+                ]);
+            }
         }
 
         const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
@@ -880,8 +902,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
         ];
 
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
-        setFormDrawerVisible(false);
+
+        // Close the edit drawer after updating or creating a new node
+        setEditDrawerVisible(false);
+        setFormDrawerVisible(false)
     };
+
 
     const deleteAction = (event) => {
         event.stopPropagation();
@@ -1114,6 +1140,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 nodes={nodes}
                 edges={edges}
                 onNodeClick={onNodeClick}
+                onEdgeClick={onEdgeClick}
                 nodeTypes={{
                     addTrigger: (props) => (
                         <AddTriggerNode {...props} onDelete={handleNodeDelete}
