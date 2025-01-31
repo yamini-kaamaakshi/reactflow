@@ -5,7 +5,7 @@ import { Form, Input, Select, Button } from "antd";
 const DefaultFormItem = () => (
     <Form.Item
         label="When:"
-        name="days"
+        name="when"
         rules={[{ required: true, message: "Please input the number of days!" }]}
     >
         <div className="input-group">

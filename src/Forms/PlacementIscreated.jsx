@@ -1,12 +1,10 @@
-import {Button, Form, Input, Radio, Select} from "antd";
-import {useState} from "react";
+import { Button, Form, Input, Radio, Select } from "antd";
+import { useState } from "react";
 
-
-
-const DefaultFormItem = () => (
+const DefaultFormItem = ({ formData }) => (
     <Form.Item
         label="When:"
-        name="days"
+        name="when"
         rules={[{ required: true, message: "Please input the number of days!" }]}
     >
         <div className="input-group">
@@ -16,32 +14,32 @@ const DefaultFormItem = () => (
                 placeholder="1"
                 autoComplete="off"
                 step="1"
-                min= "1"
+                min="1"
                 max="1500"
                 addonBefore="After"
                 addonAfter="Days"
+                defaultValue={formData?.when}
             />
         </div>
     </Form.Item>
 );
 
+const PlacementIscreated = ({ actionCode, handleFormSubmit, sendAs, setSendAs, formData }) => {
 
-const PlacementIscreated = ({ actionCode, handleFormSubmit, sendAs, setSendAs }) => {
-
-
-    const [sender, setSender] = useState("");
-
+    const [sender, setSender] = useState(formData?.sender || "");
 
     switch (actionCode) {
         case "ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER":
             return (
-                <Form onFinish={handleFormSubmit} initialValues={{ sendAs: "DEFAULT", sender }}>
-                    <DefaultFormItem />
+                <Form onFinish={handleFormSubmit} initialValues={{
+                    sendAs: formData?.sendAs || "DEFAULT",
+                    sender: formData?.sender || "",
+                    subject: formData?.subject || "",
+                    message: formData?.message || ""
+                }}>
+                    <DefaultFormItem formData={formData} />
 
-                    <Form.Item
-                        label="Send as:"
-                        name="sendAs"
-                    >
+                    <Form.Item label="Send as:" name="sendAs">
                         <Radio.Group
                             onChange={(e) => setSendAs(e.target.value)}
                             value={sendAs}
@@ -60,7 +58,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, sendAs, setSendAs })
                         )}
                         {sendAs === "RECORD_OWNER" && (
                             <div className="record-owner-response-email">
-                                Emails are sent from the record owner's email account. For example, emails will be sent from <b>andy@hireoptica.com</b>
+                                Emails are sent from the record owner's email account.
                             </div>
                         )}
                         {sendAs === "EMAIL_SENDER" && (
@@ -97,10 +95,11 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, sendAs, setSendAs })
                     </Form.Item>
                 </Form>
             );
+
         case "ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <DefaultFormItem  />
+                    <DefaultFormItem formData={formData} initialValues={{ when: formData?.when }}/>
 
                     <Form.Item>
                         <Button type="primary" htmlType="submit">

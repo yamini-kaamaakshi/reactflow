@@ -477,13 +477,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     useEffect(() => {
         fetchTriggers();
     }, []);
-
-    useEffect(() => {
-        if (selectedAction) {
-            setFormData({ dropdownOption: "" }); // Reset form data when selected action changes
-        }
-    }, [selectedAction]);
-
     const fetchTriggers = async () => {
         try {
             setIsLoading(true);
@@ -523,6 +516,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
             setSelectedAction(selectedActionData.selectedAction);
+            console.log("selectedActionData",selectedActionData)
         }
     }, [selectedActionData]);
 
@@ -590,6 +584,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 sendAs={sendAs}
                 setSendAs={setSendAs}
                 actionCode={actionCode}
+                formData={selectedActionData?.formData}
+                selectedNodeId={selectedNodeId}
             />
         );
     };
@@ -626,6 +622,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
     const closeEditDrawer = () => {
+        setSelectedNodeId(null);
         setEditDrawerVisible(false);
     };
 
@@ -633,6 +630,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const closeDrawer = () => {
         setDrawerVisible(false);
         setSelectedNode(null);
+        setSelectedNodeId(null);
         setActionDrawerVisible(false)
     };
 
@@ -773,6 +771,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
 // Close Action Drawer
     const closeActionDrawer = () => {
+        setSelectedNodeId(null);
         setActionDrawerVisible(false);
         setSelectedBlock(null);
     };
@@ -812,13 +811,13 @@ const WorkFlow = ({apiServer, apiKey}) => {
         switch (selectedAction?.code) {
             case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER':
             case 'ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION':
-                label = `${selectedAction.name}\nAfter ${values?.days} Days\n`;
+                label = `${selectedAction.name}\nAfter ${values?.when} Days\n`;
                 break;
             case 'JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION':
             case 'JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS':
             case 'JOB_EXPIRY_SEND_EMAIL_TO_OWNER':
             case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
-                label = `${selectedAction.name}\n ${values?.days} Days Before expire\n`;
+                label = `${selectedAction.name}\n ${values?.when} Days Before expire\n`;
                 break;
             default:
                 label = `${selectedAction?.name}`;
@@ -828,24 +827,18 @@ const WorkFlow = ({apiServer, apiKey}) => {
         return { label };
     };
 
-
-// Function to handle the action change event
-    // Handle action change
-    const handleActionChange = (event) => {
-        const selectedActionId = event.target.value;
-
-        // Find the selected action data based on the selected action id
-        const selectedAction = actions.find((action) => action.id === selectedActionId);
-        const actionCode = selectedAction?.code;
-        console.log("actionCode  -  handleActionChange",actionCode)
-
-        // Update the selected action data and action code in state
-        setSelectedActionData({
-            selectedAction: selectedAction || {}
-        });
-
-        setActionCode(actionCode); // Set the actionCode based on the selected action
+    const handleActionChange = (e) => {
+        const selectedId = e.target.value;
+        const selectedAction = actions.find(action => action.id === selectedId);
+        if (selectedAction) {
+            setSelectedActionData({
+                ...selectedActionData,
+                selectedAction,
+                formData: selectedAction.formData || {} // Load existing form data if any
+            });
+        }
     };
+
 
     const handleFormSubmit = (values, event) => {
         // console.log("formData", values);
@@ -875,6 +868,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     createNewEdge("2", "exit"),
                 ]);
             }
+            setSelectedNodeId(null);
 
             setIsFirstNodeUsed(true);
             localStorage.setItem('isFirstNodeUsed', JSON.stringify(true));
@@ -918,7 +912,18 @@ const WorkFlow = ({apiServer, apiKey}) => {
         // Close the edit drawer and reset the state
         setEditDrawerVisible(false);
         setFormDrawerVisible(false);
-        setSelectedNodeId(null); // Reset the selected node ID after completing the edit
+        setSelectedNodeId(null);
+    };
+
+
+    const handleFormFieldChange = (field, value) => {
+        setSelectedActionData((prevState) => ({
+            ...prevState,
+            formData: {
+                ...prevState.formData,
+                [field]: value,
+            },
+        }));
     };
 
 
@@ -1044,6 +1049,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
 
     const closeFormDrawer = () => {
+        setSelectedNodeId(null);
         setFormDrawerVisible(false);
 
     };
@@ -1255,6 +1261,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     {isLoading ? <Spin/> : renderForm()}
                 </div>
             </Drawer>
+
             <Drawer
                 title="Action Data"
                 open={editDrawerVisible}
@@ -1276,13 +1283,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
                             </option>
                         ))}
                     </select>
-
-                    {/* Render form based on selected action's code */}
-                    <div>
-                        {renderForm()} {/* Render the form based on the selected action */}
-                    </div>
+                    {renderForm(selectedNodeId ? formData[selectedNodeId] : {})}
                 </div>
             </Drawer>
+
 
         </div>
     );
