@@ -1,31 +1,37 @@
 import { Button, Form, Input, Radio, Select } from "antd";
 import { useState } from "react";
 
-const DefaultFormItem = ({ formData }) => (
-    <Form.Item
-        label="When:"
-        name="when"
-        rules={[{ required: true, message: "Please input the number of days!" }]}
-    >
-        <div className="input-group">
-            <Input
-                type="number"
-                title="After Days"
-                placeholder="1"
-                autoComplete="off"
-                step="1"
-                min="1"
-                max="1500"
-                addonBefore="After"
-                addonAfter="Days"
-                defaultValue={formData?.when}
-            />
-        </div>
-    </Form.Item>
-);
+// eslint-disable-next-line react/prop-types
+const DefaultFormItem = ({ formData }) => {
+    return (
+        <Form.Item
+            label="When:"
+            name="when"
+            rules={[{ required: true, message: "Please input the number of days!" }]}
+            initialValue={formData?.when}
+        >
+            <div className="input-group">
+                <Input
+                    type="number"
+                    title="After Days"
+                    placeholder="1"
+                    autoComplete="off"
+                    step="1"
+                    min="1"
+                    max="1500"
+                    addonBefore="After"
+                    addonAfter="Days"
+                    defaultValue={formData?.when}
+                />
+            </div>
+        </Form.Item>
+    );
+};
 
+
+
+// eslint-disable-next-line react/prop-types
 const PlacementIscreated = ({ actionCode, handleFormSubmit, sendAs, setSendAs, formData }) => {
-
     const [sender, setSender] = useState(formData?.sender || "");
 
     switch (actionCode) {
