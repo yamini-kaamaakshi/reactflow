@@ -1,5 +1,5 @@
 import { Button, Form, Input, Radio, Select } from "antd";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 
 // eslint-disable-next-line react/prop-types
 const DefaultFormItem = ({ formData }) => {
@@ -31,8 +31,15 @@ const DefaultFormItem = ({ formData }) => {
 
 
 // eslint-disable-next-line react/prop-types
-const PlacementIscreated = ({ actionCode, handleFormSubmit, sendAs, setSendAs, formData }) => {
-    const [sender, setSender] = useState(formData?.sender || "");
+const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
+    const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
+    const [sender, setSender] = useState(formData?.sender );
+
+    // Log both sendAs and sender whenever they change
+    useEffect(() => {
+        console.log("Send As:", sendAs);
+        console.log("Sender:", sender);
+    }, [sendAs, sender]); // Depend on both sendAs and sender;
 
     switch (actionCode) {
         case "ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER":

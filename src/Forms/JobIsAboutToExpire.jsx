@@ -38,6 +38,7 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
 
                     <Form.Item
                         label="Webhook:"
+                        name="webhook"
                         rules={[{ required: true, message: "Please select a webhook!" }]}
                     >
                         <Select

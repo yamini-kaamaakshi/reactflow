@@ -563,6 +563,18 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     }, [selectedNodeId]);
 
+    useEffect(() => {
+        if (selectedNodeId) {
+            localStorage.setItem("selectedNodeId", selectedNodeId);
+        }
+    }, [selectedNodeId]);
+    // Load selectedNodeId from localStorage when the component mounts
+    useEffect(() => {
+        const savedNodeId = localStorage.getItem("selectedNodeId");
+        if (savedNodeId) {
+            setSelectedNodeId(savedNodeId);
+        }
+    }, []);
 
     const renderForm = () => {
         console.log("actionCode - workflow",actionCode)
@@ -915,18 +927,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setSelectedNodeId(null);
     };
 
-
-    const handleFormFieldChange = (field, value) => {
-        setSelectedActionData((prevState) => ({
-            ...prevState,
-            formData: {
-                ...prevState.formData,
-                [field]: value,
-            },
-        }));
-    };
-
-
     const deleteAction = (event) => {
         event.stopPropagation();
 
@@ -1272,18 +1272,18 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     <h3>Select Action</h3>
                     <select
                         name="selectedAction"
-                        value={selectedActionData?.selectedAction?.id || ''}
+                        value={selectedActionData?.selectedAction?._id || ''}
                         onChange={handleActionChange}
                         style={{ width: '100%', padding: '8px', marginBottom: '15px' }}
                     >
                         <option value="">Choose an action</option>
                         {actions.map((action) => (
-                            <option key={action.id} value={action.id}>
+                            <option key={action._id} value={action._id}>
                                 {action.name}
                             </option>
                         ))}
                     </select>
-                    {renderForm(selectedNodeId ? formData[selectedNodeId] : {})}
+                    {selectedNodeId && renderForm(formData[selectedNodeId] || {})}
                 </div>
             </Drawer>
 
