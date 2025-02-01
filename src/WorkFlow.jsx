@@ -1120,16 +1120,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         event.preventDefault();
     };
 
-    const handleEditForm = (e) => {
-        const { name, value } = e.target;
-        setSelectedActionData((prevData) => ({
-            ...prevData,
-            formData: {
-                ...prevData.formData,
-                [name]: value
-            }
-        }));
-    };
 
 
     return (
