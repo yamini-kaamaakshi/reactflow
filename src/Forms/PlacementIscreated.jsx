@@ -1,5 +1,5 @@
 import { Button, Form, Input, Radio, Select } from "antd";
-import {useEffect, useState} from "react";
+import { useState} from "react";
 
 // eslint-disable-next-line react/prop-types
 const DefaultFormItem = ({ formData }) => {
@@ -34,15 +34,14 @@ const DefaultFormItem = ({ formData }) => {
 const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
     const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
     const [sender, setSender] = useState(formData?.sender );
+    const [dueDate, setDueDate] = useState("0");
 
-    // Log both sendAs and sender whenever they change
-    useEffect(() => {
-        console.log("Send As:", sendAs);
-        console.log("Sender:", sender);
-    }, [sendAs, sender]); // Depend on both sendAs and sender;
-
+    const handleChange = (value) => {
+        setDueDate(value);
+    };
     switch (actionCode) {
         case "ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER":
+        case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_CANDIDATE':
             return (
                 <Form onFinish={handleFormSubmit} initialValues={{
                     sendAs: formData?.sendAs || "DEFAULT",
@@ -112,7 +111,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
         case "ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <DefaultFormItem formData={formData} initialValues={{ when: formData?.when }}/>
+                    <DefaultFormItem formData={formData} />
 
                     <Form.Item>
                         <Button type="primary" htmlType="submit">
@@ -121,7 +120,51 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
                     </Form.Item>
                 </Form>
             );
+        case "ATS_PLACEMENT_CREATED_ADD_TASK_CONCERNED_USERS":
+        case 'ATS_PLACEMENT_CREATED_ADD_TASK_TO_OWNER':
+            return (
+                <Form onFinish={handleFormSubmit}>
+                    <DefaultFormItem formData={formData} />
+                    <Form.Item label="Due Date:" name="dueDate">
+                        <Select
+                            className="form-control"
+                            value={dueDate}
+                            onChange={handleChange}
+                        >
+                            <Select.Option value="0">Same Day</Select.Option>
+                            <Select.Option value="1">After 1 Day</Select.Option>
+                            <Select.Option value="2">After 2 Days</Select.Option>
+                            <Select.Option value="3">After 3 Days</Select.Option>
+                            <Select.Option value="4">After 4 Days</Select.Option>
+                            <Select.Option value="5">After 5 Days</Select.Option>
+                            <Select.Option value="7">After 1 Week</Select.Option>
+                            <Select.Option value="14">After 2 Weeks</Select.Option>
+                            <Select.Option value="30">After 1 Month</Select.Option>
+                        </Select>
+                    </Form.Item>
 
+                    <Form.Item
+                        label="Message:"
+                        name="message"
+                        initialValue={"Placement added for job ${jobRef}."}
+                    >
+                        <Input.TextArea
+                            rows={5}
+                            placeholder="Message"
+                            style={{
+                                borderTopLeftRadius: 0,
+                                borderTopRightRadius: 0,
+                            }}
+                        />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Submit
+                        </Button>
+                    </Form.Item>
+                </Form>
+            );
         default:
             return <div>Invalid Action Code.</div>;
     }

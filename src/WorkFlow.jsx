@@ -470,7 +470,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [editDrawerVisible, setEditDrawerVisible] = useState(false);
     const [selectedActionData, setSelectedActionData] = useState(null); // Add this state if not already defined
     const [actions, setActions] = useState([]);
-    const [sendAs, setSendAs] = useState("DEFAULT");
     const [triggerCode, setTriggerCode] = useState(null);
     const [actionCode, setActionCode] = useState(null);
 
@@ -593,8 +592,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         return (
             <ActionForm
                 handleFormSubmit={handleFormSubmit}
-                sendAs={sendAs}
-                setSendAs={setSendAs}
                 actionCode={actionCode}
                 formData={selectedActionData?.formData}
                 selectedNodeId={selectedNodeId}
@@ -823,6 +820,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
         switch (selectedAction?.code) {
             case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER':
             case 'ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION':
+            case 'ATS_PLACEMENT_CREATED_ADD_TASK_CONCERNED_USERS':
+            case 'ATS_PLACEMENT_CREATED_ADD_TASK_TO_OWNER':
                 label = `${selectedAction.name}\nAfter ${values?.when} Days\n`;
                 break;
             case 'JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION':
@@ -838,21 +837,20 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         return { label };
     };
-
     const handleActionChange = (e) => {
         const selectedId = e.target.value;
-        const selectedAction = actions.find(action => action.id === selectedId);
+        const selectedAction = actions.find(action => action._id === selectedId);
+
         if (selectedAction) {
             setSelectedActionData({
-                ...selectedActionData,
                 selectedAction,
-                formData: selectedAction.formData || {} // Load existing form data if any
+                formData: selectedAction.formData || {}
             });
+
+            setActionCode(selectedAction.code || "");
         }
     };
-
-
-    const handleFormSubmit = (values, event) => {
+    const handleFormSubmit = (values) => {
         // console.log("formData", values);
         const updatedData = generateUpdatedData(selectedAction, values);
         let newNode;
