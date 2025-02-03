@@ -433,8 +433,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [selectedActions, setSelectedActions] = useState([]);
     const [selectedTriggerName, setSelectedTriggerName] = useState(null);
     const [selectedAction, setSelectedAction] = useState(null);
-    const [formData, setFormData] = useState({});
     const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
+    const [formData, setFormData] = useState({});
+
     // Reset functions
     const resetSelectedAction = () => setSelectedAction(null);
     const resetFormData = () => setFormData({});
@@ -576,7 +577,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     }, []);
 
     const renderForm = () => {
-        console.log("actionCode - workflow",actionCode)
         let ActionForm;
         switch (triggerCode) {
             case 'ATS_JOB_ABOUT_EXPIRE':
@@ -732,12 +732,14 @@ const WorkFlow = ({apiServer, apiKey}) => {
         event.preventDefault();
     };
 
-    const handleNodeDelete = (event) => {
+    const handleNodeDelete = () => {
         if (window.confirm("Are you sure you want to delete these nodes?")) {
             localStorage.removeItem('selectedTriggerName');
             localStorage.removeItem('savedActionData');
             localStorage.removeItem('droppedTrigger');
             localStorage.removeItem('isFirstNodeUsed');
+            localStorage.removeItem('selectedNodeId');
+            localStorage.removeItem('triggerCode');
             setNodes(initialNodes);
             setEdges(initialEdges)
 
@@ -847,7 +849,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 formData: selectedAction.formData || {}
             });
 
-            setActionCode(selectedAction.code || "");
+            setActionCode(selectedAction.code);
         }
     };
     const handleFormSubmit = (values) => {
@@ -919,10 +921,18 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
 
+        setSelectedActionData({
+            selectedAction: null,
+            formData: {},
+
+        });
+
+        setActionCode("");
         // Close the edit drawer and reset the state
         setEditDrawerVisible(false);
         setFormDrawerVisible(false);
         setSelectedNodeId(null);
+
     };
 
     const deleteAction = (event) => {
@@ -1264,7 +1274,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
                         onChange={handleActionChange}
                         style={{ width: '100%', padding: '8px', marginBottom: '15px' }}
                     >
-                        <option value="">Choose an action</option>
                         {actions.map((action) => (
                             <option key={action._id} value={action._id}>
                                 {action.name}
