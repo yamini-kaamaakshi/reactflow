@@ -1,7 +1,6 @@
 import { Button, Form, Input, Radio, Select } from "antd";
 import { useState} from "react";
 
-// eslint-disable-next-line react/prop-types
 const DefaultFormItem = ({ formData }) => {
     return (
         <Form.Item
@@ -166,7 +165,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
                 </Form>
             );
         default:
-            return <div>Invalid Action Code.</div>;
+            return ;
     }
 };
 

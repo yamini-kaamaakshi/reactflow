@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import ReactFlow, {Background, Controls, Handle, Position} from "react-flow-renderer";
+import  { useEffect, useState } from "react";
+import ReactFlow, {Background, Handle, Position} from "react-flow-renderer";
 import { Drawer, Segmented, Spin } from "antd";
 import {  PlusOutlined } from "@ant-design/icons";
 import { Card, Flex } from "antd";
@@ -28,6 +28,7 @@ const useFilterStore = create(
         }
     )
 );
+// eslint-disable-next-line react/prop-types
 const AddTriggerNode = ({ data, onDelete, selectedTriggerName }) => {
     const [formData, setFormData] = useState({ jobStatus: "" });
 
@@ -216,6 +217,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName }) => {
 };
 
 
+// eslint-disable-next-line react/prop-types
 const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, selectedTriggerName}) => {
     const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
     const iconX = (sourceX + targetX) / 2 - 12;
@@ -240,18 +242,13 @@ const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, selectedTriggerName
 };
 
 
-const CustomButton = ({
-                          id,
-                          sourceX,
-                          sourceY,
-                          targetX,
-                          targetY,
-                          setActionDrawerVisible,
-                          nodes
+// eslint-disable-next-line react/prop-types
+const CustomButton = ({id, sourceX, sourceY, targetX, targetY, setActionDrawerVisible, nodes
                       }) => {
     // Edge path
     const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
     const [, setIsHovered] = useState(false);
+    // eslint-disable-next-line react/prop-types
     const filteredNodes = nodes.filter(node => node.type === "addAction");
     const latestNode = filteredNodes.length > 0 ? filteredNodes[filteredNodes.length - 1] : null;
 
@@ -309,6 +306,7 @@ const CustomButton = ({
     );
 };
 
+// eslint-disable-next-line react/prop-types
 const AddActionNode = ({data,deleteAction,handleActionDrop,handleActionDragOver,targetNodeId}) => {
 
     const [isHovered, setIsHovered] = useState(false);
@@ -422,6 +420,7 @@ const initialNodes = [
 
 
 
+// eslint-disable-next-line react/prop-types
 const WorkFlow = ({apiServer, apiKey}) => {
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [, setSelectedNode] = useState(null);
@@ -473,6 +472,48 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [actions, setActions] = useState([]);
     const [triggerCode, setTriggerCode] = useState(null);
     const [actionCode, setActionCode] = useState(null);
+    useEffect(() => {
+        if (selectedActionData?.selectedAction) {
+            setSelectedAction(selectedActionData.selectedAction);
+            console.log("selectedActionData",selectedActionData)
+        }
+    }, [selectedActionData]);
+    useEffect(() => {
+        const savedActionData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+        const actionToEdit = savedActionData.find(action => action.node.id === selectedNodeId);
+        if (actionToEdit) {
+            setSelectedActionData(actionToEdit);
+        }
+    }, [selectedNodeId]);
+
+    useEffect(() => {
+        if (selectedNodeId) {
+            localStorage.setItem("selectedNodeId", selectedNodeId);
+        }
+    }, [selectedNodeId]);
+    // Load selectedNodeId from localStorage when the component mounts
+    useEffect(() => {
+        const savedNodeId = localStorage.getItem("selectedNodeId");
+        if (savedNodeId) {
+            setSelectedNodeId(savedNodeId);
+        }
+    }, []);
+
+    useEffect(() => {
+        // Retrieve stored trigger data from localStorage
+        const savedTrigger = localStorage.getItem("droppedTrigger");
+        const storedTriggerName = localStorage.getItem("selectedTriggerName");
+
+        if (savedTrigger) {
+            const parsedTrigger = JSON.parse(savedTrigger);
+            setSelectedTriggerName(parsedTrigger.name);
+            setDroppedItem(parsedTrigger.name);
+        } else if (storedTriggerName) {
+            setSelectedTriggerName(storedTriggerName);
+        }
+
+    }, []);
+
 
     useEffect(() => {
         fetchTriggers();
@@ -505,6 +546,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     };
 
+
+
     useEffect(() => {
         const savedTriggerCode = localStorage.getItem('triggerCode'); // Retrieve triggerCode from localStorage
         if (savedTriggerCode) {
@@ -512,13 +555,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
             fetchActions(savedTriggerCode);
         }
     }, []);
-
-    useEffect(() => {
-        if (selectedActionData?.selectedAction) {
-            setSelectedAction(selectedActionData.selectedAction);
-            console.log("selectedActionData",selectedActionData)
-        }
-    }, [selectedActionData]);
 
 
     const fetchActions = async (triggerCode) => {
@@ -554,28 +590,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     };
 
-
-    useEffect(() => {
-        const savedActionData = JSON.parse(localStorage.getItem("savedActionData")) || [];
-        const actionToEdit = savedActionData.find(action => action.node.id === selectedNodeId);
-        if (actionToEdit) {
-            setSelectedActionData(actionToEdit);
-        }
-    }, [selectedNodeId]);
-
-    useEffect(() => {
-        if (selectedNodeId) {
-            localStorage.setItem("selectedNodeId", selectedNodeId);
-        }
-    }, [selectedNodeId]);
-    // Load selectedNodeId from localStorage when the component mounts
-    useEffect(() => {
-        const savedNodeId = localStorage.getItem("selectedNodeId");
-        if (savedNodeId) {
-            setSelectedNodeId(savedNodeId);
-        }
-    }, []);
-
     const renderForm = () => {
         let ActionForm;
         switch (triggerCode) {
@@ -600,8 +614,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
     const onNodeClick = (_, node) => {
+        if (node.id === "exit") return;
         setSelectedNodeId(node.id);
-        // Fetch action data for the selected node
         if (node.id === "1") {
             if (!selectedTriggerName) {
                 setSelectedNode(node);
@@ -630,34 +644,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     };
 
-    const closeEditDrawer = () => {
-        setSelectedNodeId(null);
-        setEditDrawerVisible(false);
-    };
-
-
-    const closeDrawer = () => {
-        setDrawerVisible(false);
-        setSelectedNode(null);
-        setSelectedNodeId(null);
-        setActionDrawerVisible(false)
-    };
-
-    useEffect(() => {
-        // Retrieve stored trigger data from localStorage
-        const savedTrigger = localStorage.getItem("droppedTrigger");
-        const storedTriggerName = localStorage.getItem("selectedTriggerName");
-
-        if (savedTrigger) {
-            const parsedTrigger = JSON.parse(savedTrigger);
-            setSelectedTriggerName(parsedTrigger.name);
-            setDroppedItem(parsedTrigger.name);
-        } else if (storedTriggerName) {
-            setSelectedTriggerName(storedTriggerName);
-        }
-
-    }, []);
-
     const handleTriggerSelection = (trigger) => {
         const updatedNodes = nodes.map((node) =>
             node.id === "1" ? { ...node, data: { label: trigger.name } } : node
@@ -676,6 +662,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         localStorage.setItem('triggerCode', code); // Save triggerCode to localStorage
         fetchActions(code);
+    };
+
+
+
+    const closeDrawer = () => {
+        setDrawerVisible(false);
+        setSelectedNode(null);
+        setSelectedNodeId(null);
+        setActionDrawerVisible(false)
     };
 
     const handleDragStart = (event, trigger) => {
@@ -777,10 +772,109 @@ const WorkFlow = ({apiServer, apiKey}) => {
     }
 
 
+    //Actions
 
-    // Action node
+// Your other logic follows here
+    const handleActionSelection = (action) => {
+        setSelectedActions((prevActions) => [...prevActions, action]);
+        setSelectedAction(action);
+        setActionDrawerVisible(false)
+        setFormDrawerVisible(true);
+        const code = action.code
+        setActionCode(code)
+    };
 
-// Close Action Drawer
+
+    const handleActionDragStart = (event, action) => {
+        closeActionDrawer();
+        event.dataTransfer.setData("text/plain", JSON.stringify(action)); // Set the dragged trigger data
+
+    };
+    const handleActionDrop = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        // Get the target node's ID from the data-id attribute of the event target
+        const targetElement = event.target.closest("[data-id]");
+        const targetNodeId = targetElement?.getAttribute("data-id");
+
+        // Check if addTrigger is empty, if so don't allow the drop
+        if (!selectedTriggerName) {
+            alert("Please add a trigger first before dropping actions.");
+            return; // Don't process the drop if no trigger is added
+        }
+        // Allow the action drop since a trigger is added
+        setActionDrawerVisible(true);
+
+        const data = event.dataTransfer.getData("text/plain");
+        if (!data) {
+            console.error("No data found in drop event.");
+            return;
+        }
+
+        try {
+            const action = JSON.parse(data); // Parse the dropped action
+
+
+            // Update Node 2's label if no actions have been selected yet
+            if (selectedActions.length === 0) {
+                setNodes((prevNodes) =>
+                    prevNodes.map((node) =>
+                        node.id === targetNodeId // Target Node 2 specifically
+                            ? {
+                                ...node,
+                                data: {
+                                    ...node.data,
+                                },
+                            }
+                            : node // Leave other nodes unchanged
+                    )
+                );
+            }
+
+            // Add the action to the selected actions array
+            setSelectedActions((prevActions) => [...prevActions, action]);
+
+            // Set the selected action and open the form drawer
+            setSelectedAction(action);
+            setActionDrawerVisible(false);
+            setFormDrawerVisible(true);
+
+
+        } catch (error) {
+            console.error("Error processing dropped action:", error);
+        }
+    };
+
+
+    const handleActionDragOver  = (event) => {
+        event.preventDefault();
+    };
+
+    const generateUpdatedData = (selectedAction, values) => {
+        let label;
+        // console.log("selectedAction",selectedAction)
+        switch (selectedAction?.code) {
+            case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER':
+            case 'ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION':
+            case 'ATS_PLACEMENT_CREATED_ADD_TASK_CONCERNED_USERS':
+            case 'ATS_PLACEMENT_CREATED_ADD_TASK_TO_OWNER':
+                label = `${selectedAction.name}\nAfter ${values?.when} Days\n`;
+                break;
+            case 'JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION':
+            case 'JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS':
+            case 'JOB_EXPIRY_SEND_EMAIL_TO_OWNER':
+            case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
+                label = `${selectedAction.name}\n ${values?.when} Days Before expire\n`;
+                break;
+            default:
+                label = `${selectedAction?.name}`;
+                break;
+        }
+
+        return { label };
+    };
+
     const closeActionDrawer = () => {
         setSelectedNodeId(null);
         setActionDrawerVisible(false);
@@ -814,43 +908,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
             style: { stroke: '#d7d9e1', strokeWidth: 1 },
         };
-    };
-
-    const generateUpdatedData = (selectedAction, values) => {
-        let label;
-        // console.log("selectedAction",selectedAction)
-        switch (selectedAction?.code) {
-            case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER':
-            case 'ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION':
-            case 'ATS_PLACEMENT_CREATED_ADD_TASK_CONCERNED_USERS':
-            case 'ATS_PLACEMENT_CREATED_ADD_TASK_TO_OWNER':
-                label = `${selectedAction.name}\nAfter ${values?.when} Days\n`;
-                break;
-            case 'JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION':
-            case 'JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS':
-            case 'JOB_EXPIRY_SEND_EMAIL_TO_OWNER':
-            case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
-                label = `${selectedAction.name}\n ${values?.when} Days Before expire\n`;
-                break;
-            default:
-                label = `${selectedAction?.name}`;
-                break;
-        }
-
-        return { label };
-    };
-    const handleActionChange = (e) => {
-        const selectedId = e.target.value;
-        const selectedAction = actions.find(action => action._id === selectedId);
-
-        if (selectedAction) {
-            setSelectedActionData({
-                selectedAction,
-                formData: selectedAction.formData || {}
-            });
-
-            setActionCode(selectedAction.code);
-        }
     };
     const handleFormSubmit = (values) => {
         // console.log("formData", values);
@@ -912,15 +969,22 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
         }
 
-        // Save updated actions data to local storage
         const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
-        const updatedActions = [
-            ...existingData.filter((action) => action.node.id !== (newNode?.id || selectedNodeId || "defaultNodeId")),
-            { selectedAction, formData: values, node: newNode || { id: selectedNodeId || "defaultNodeId" } },
-        ];
+        const updatedActions = existingData.map((action) =>
+            action.node.id === (newNode?.id || selectedNodeId)
+                ? { ...action, selectedAction, formData: values } // Update existing node action
+                : action
+        );
+        if (!updatedActions.some(action => action.node.id === (newNode?.id || selectedNodeId))) {
+            updatedActions.push({
+                selectedAction,
+                formData: values,
+                node: newNode || { id: selectedNodeId },
+            });
+        }
+
 
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
-
         setSelectedActionData({
             selectedAction: null,
             formData: {},
@@ -928,11 +992,36 @@ const WorkFlow = ({apiServer, apiKey}) => {
         });
 
         setActionCode("");
-        // Close the edit drawer and reset the state
         setEditDrawerVisible(false);
         setFormDrawerVisible(false);
         setSelectedNodeId(null);
 
+    };
+
+
+    const closeFormDrawer = () => {
+        setSelectedNodeId(null);
+        setFormDrawerVisible(false);
+
+    };
+
+    const handleActionChange = (e) => {
+        const selectedId = e.target.value;
+        const selectedAction = actions.find(action => action._id === selectedId);
+
+        if (selectedAction) {
+            setSelectedActionData({
+                selectedAction,
+                formData: selectedAction.formData || {}
+            });
+
+            setActionCode(selectedAction.code);
+        }
+    };
+
+    const closeEditDrawer = () => {
+        setSelectedNodeId(null);
+        setEditDrawerVisible(false);
     };
 
     const deleteAction = (event) => {
@@ -1044,90 +1133,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         const updatedData = savedData.filter((item) => item.node.id !== targetNodeId);
         localStorage.setItem("savedActionData", JSON.stringify(updatedData));
     };
-
-// Your other logic follows here
-    const handleActionSelection = (action) => {
-        setSelectedActions((prevActions) => [...prevActions, action]);
-        setSelectedAction(action);
-        setActionDrawerVisible(false)
-        setFormDrawerVisible(true);
-        const code = action.code
-        setActionCode(code)
-    };
-
-
-    const closeFormDrawer = () => {
-        setSelectedNodeId(null);
-        setFormDrawerVisible(false);
-
-    };
-
-    const handleActionDragStart = (event, action) => {
-        closeActionDrawer();
-        event.dataTransfer.setData("text/plain", JSON.stringify(action)); // Set the dragged trigger data
-
-    };
-    const handleActionDrop = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        // Get the target node's ID from the data-id attribute of the event target
-        const targetElement = event.target.closest("[data-id]");
-        const targetNodeId = targetElement?.getAttribute("data-id");
-
-        // Check if addTrigger is empty, if so don't allow the drop
-        if (!selectedTriggerName) {
-            alert("Please add a trigger first before dropping actions.");
-            return; // Don't process the drop if no trigger is added
-        }
-        // Allow the action drop since a trigger is added
-        setActionDrawerVisible(true);
-
-        const data = event.dataTransfer.getData("text/plain");
-        if (!data) {
-            console.error("No data found in drop event.");
-            return;
-        }
-
-        try {
-            const action = JSON.parse(data); // Parse the dropped action
-
-
-            // Update Node 2's label if no actions have been selected yet
-            if (selectedActions.length === 0) {
-                setNodes((prevNodes) =>
-                    prevNodes.map((node) =>
-                        node.id === targetNodeId // Target Node 2 specifically
-                            ? {
-                                ...node,
-                                data: {
-                                    ...node.data,
-                                },
-                            }
-                            : node // Leave other nodes unchanged
-                    )
-                );
-            }
-
-            // Add the action to the selected actions array
-            setSelectedActions((prevActions) => [...prevActions, action]);
-
-            // Set the selected action and open the form drawer
-            setSelectedAction(action);
-            setActionDrawerVisible(false);
-            setFormDrawerVisible(true);
-
-
-        } catch (error) {
-            console.error("Error processing dropped action:", error);
-        }
-    };
-
-
-    const handleActionDragOver  = (event) => {
-        event.preventDefault();
-    };
-
 
 
     return (
