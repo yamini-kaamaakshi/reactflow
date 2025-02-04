@@ -10,7 +10,6 @@ const DefaultFormItem = () => (
     >
         <div className="input-group">
             <Input
-
                 type="number"
                 title="After Days"
                 placeholder="1"
@@ -24,11 +23,8 @@ const DefaultFormItem = () => (
     </Form.Item>
 );
 const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
-    const [selectedWebhook, setSelectedWebhook] = useState('');
 
-    const handleWebhookChange = (value) => {
-        setSelectedWebhook(value);
-    };
+
 
     switch (actionCode) {
         case "JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION":
@@ -43,8 +39,8 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
                     >
                         <Select
                             placeholder="Select Webhook"
-                            value={selectedWebhook}
-                            onChange={handleWebhookChange}
+                            name="selectedWebhook"
+                            // onChange={handleWebhookChange}
                             className="form-control"
                         >
                             <Select.Option value="486e9141-3c86-4f59-9dfb-8b54e747d8ab">
@@ -81,6 +77,7 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
                     </Form.Item>
                 </Form>
             );
+
         case "JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS":
         case "JOB_EXPIRY_SEND_EMAIL_TO_OWNER":
         case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
@@ -96,7 +93,7 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
                 </Form>
             );
         default:
-            return <div>No valid action found</div>;
+            return ;
     }
 };
 

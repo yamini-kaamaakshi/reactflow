@@ -13,13 +13,13 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import JobIsAboutToExpire from "./Forms/JobIsAboutToExpire.jsx";
 import PlacementIscreated from "./Forms/PlacementIscreated.jsx";
+import JobStatusForm from "./Filters/PlacementIsCreated.jsx"
+
 
 const useFilterStore = create(
     persist(
         (set) => ({
-            appliedFilters: null,
             isFilterDrawerVisible: false,  // Add filterDrawerVisible state
-            setAppliedFilters: (filters) => set({ appliedFilters: filters }),
             setIsFilterDrawerVisible: (isVisible) => set({ isFilterDrawerVisible: isVisible }), // Method to update filterDrawerVisible
             setIconColor: (color) => set({ iconColor: color }),
         }),
@@ -29,39 +29,65 @@ const useFilterStore = create(
     )
 );
 // eslint-disable-next-line react/prop-types
-const AddTriggerNode = ({ data, onDelete, selectedTriggerName }) => {
-    const [formData, setFormData] = useState({ jobStatus: "" });
+const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes }) => {
+    const [formData, setFormData] = useState({ jobStatus: [] });
 
-    const { appliedFilters, setAppliedFilters, setIconColor,isFilterDrawerVisible,setIsFilterDrawerVisible } = useFilterStore();
+
+
+    const { setIconColor,isFilterDrawerVisible,setIsFilterDrawerVisible } = useFilterStore();
+
+
     const [isHovered, setIsHovered] = useState(false);
 
-    // Open Filter Drawer
+    const [appliedFilters, setAppliedFilters] = useState(() => {
+        const savedApplied = localStorage.getItem("appliedFilters");
+        return savedApplied ? JSON.parse(savedApplied) : null;
+    });
+
+    // Persist appliedFilters in localStorage whenever it changes
+    useEffect(() => {
+        if (appliedFilters) {
+            localStorage.setItem("appliedFilters", JSON.stringify(appliedFilters));
+        }
+    }, [appliedFilters]);
+
     const handleFilterDrawerOpen = () => {
         setIsFilterDrawerVisible(true);
-    };
 
+    };
     // Close Filter Drawer
     const closeDrawer = () => {
         setIsFilterDrawerVisible(false);
     };
 
-    // Handle changes in the filter form
+
+
+    // Handle changes in the form's Select input
     const handleFilterChange = (value, field) => {
-        setFormData({ ...formData, [field]: value });
+        setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    // Handle form submission
-    const handleFilterSubmit = () => {
-        console.log("Submitting Filters:", formData);
-        setAppliedFilters(formData);
-        setIsFilterDrawerVisible(false);
-        setIconColor("green");
+    // When the form is submitted, map job IDs to objects with both id and name,
+    // update appliedFilters, and update the formData.
+    const handleFilterSubmit = (values) => {
+        const jobStatusWithNames = values.jobStatus.map((id) => {
+            const job = jobTypes.find((job) => job.id === id);
+            return job ? { id: job.id, name: job.name } : { id, name: id };
+        });
+
+        const newFilters = { ...values, jobStatus: jobStatusWithNames };
+        setAppliedFilters(newFilters);
+        setFormData(values);
+        setIconColor("green")
+        closeDrawer();
+        console.log("Form submitted:", newFilters);
     };
 
     // Handle Delete Button Click
     const handleDelete = () => {
-        console.log("Deleting Filters");
+        localStorage.removeItem('appliedFilters');
         setAppliedFilters(null);
+        setFormData(null)
         setIconColor("black");
         onDelete();
     };
@@ -109,12 +135,12 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName }) => {
                 <Flex align="center" justify="center" gap="middle">
                     {!selectedTriggerName && <PlusOutlined />}
                     <span style={{ color: "rgb(11, 47, 115)" }}>
-            {selectedTriggerName || data.label}
+                     {selectedTriggerName || data.label}
           </span>
                 </Flex>
 
                 {/* Filters Button */}
-                {selectedTriggerName && (
+                {selectedTriggerName && !appliedFilters && (
                     <div
                         style={{
                             marginTop: 10,
@@ -156,7 +182,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName }) => {
                     />
                 )}
 
-                {/* Applied Filters Display */}
+
                 {appliedFilters && (
                     <div
                         style={{
@@ -167,11 +193,20 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName }) => {
                             display: "inline-block",
                         }}
                     >
-            <span style={{ color: "rgb(11, 47, 115)", fontSize: "10px" }}>
-              Applied Job Status: {appliedFilters.jobStatus}
-            </span>
+
+                        {appliedFilters.jobStatus && appliedFilters.jobStatus.length > 0 ? (
+                            <p style={{color: "rgb(11, 47, 115)", fontSize: "9px"}}>
+                                <span>Job Status:</span>{" "}
+                                {appliedFilters.jobStatus
+                                    .map((filter) => filter.name)
+                                    .join(", ")}
+                            </p>
+                        ) : (
+                            <p>No filters applied.</p>
+                        )}
                     </div>
                 )}
+
 
                 <Handle type="source" position={Position.Bottom} />
             </Card>
@@ -183,34 +218,12 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName }) => {
                 open={isFilterDrawerVisible}
                 onClose={closeDrawer}
             >
-                <Form
-                    layout="vertical"
-                    onFinish={handleFilterSubmit}
-                    initialValues={{
-                        jobStatus: formData.jobStatus || null,
-                    }}
-                    style={{
-                        backgroundColor: "#f0f2f5",
-                        padding: "10px",
-                        borderRadius: "10px",
-                    }}
-                >
-                    <Form.Item label="Job Status" name="jobStatus">
-                        <Select
-                            value={formData.jobStatus || null}
-                            onChange={(value) => handleFilterChange(value, "jobStatus")}
-                            placeholder="Select Job Status"
-                        >
-                            <Select.Option value="Open">Open</Select.Option>
-                            <Select.Option value="On Hold">On Hold</Select.Option>
-                        </Select>
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Apply Filter
-                        </Button>
-                    </Form.Item>
-                </Form>
+                <JobStatusForm
+                    initialValues={formData}
+                    onSubmit={handleFilterSubmit}
+                    onFilterChange={handleFilterChange}
+                    jobTypes={jobTypes}
+                />
             </Drawer>
         </>
     );
@@ -589,6 +602,40 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setIsLoading(false);
         }
     };
+    const [jobTypes, setJobTypes] = useState([]);
+
+    useEffect(() => {
+        if (isFilterDrawerVisible) {
+            fetchJobTypes();
+        }
+    }, [isFilterDrawerVisible]);
+
+
+    const fetchJobTypes = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetch(`${apiServer}/api/masterdata/jobTypes`, {
+                headers: { Authorization: `Bearer ${apiKey}` },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log("Job Types Data:", result);
+
+            if (result && result.data) {
+                setJobTypes(result.data);
+            } else {
+                setJobTypes([]);
+            }
+        } catch (error) {
+            console.error("Error fetching job types: ", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const renderForm = () => {
         let ActionForm;
@@ -660,7 +707,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         const code = trigger.code;
         setTriggerCode(code);
 
-        localStorage.setItem('triggerCode', code); // Save triggerCode to localStorage
+        localStorage.setItem('triggerCode', code);
         fetchActions(code);
     };
 
@@ -739,6 +786,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setEdges(initialEdges)
 
             resetAll();
+            setActionCode(null)
             setIconVisible(false);
             setDrawerVisible(true);
             setIsFirstNodeUsed(false);
@@ -991,7 +1039,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         });
 
-        setActionCode("");
+        setActionCode(null);
         setEditDrawerVisible(false);
         setFormDrawerVisible(false);
         setSelectedNodeId(null);
@@ -1147,6 +1195,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                         selectedTriggerName={selectedTriggerName}
                                         isFilterDrawerVisible={isFilterDrawerVisible}
                                         setIsFilterDrawerVisible={setIsFilterDrawerVisible}
+                                        jobTypes={jobTypes}
                         />
                     ),
                     addAction: (props) => (
