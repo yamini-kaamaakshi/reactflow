@@ -4,7 +4,7 @@ import { Drawer, Segmented, Spin } from "antd";
 import {  PlusOutlined } from "@ant-design/icons";
 import { Card, Flex } from "antd";
 import { MdDelete } from "react-icons/md";
-import { Button, Form, Select } from "antd";
+import { Button,} from "antd";
 import { IoIosFlash } from "react-icons/io";
 import { VscRunCoverage } from "react-icons/vsc";
 import { GrTrigger } from "react-icons/gr";
@@ -13,7 +13,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import JobIsAboutToExpire from "./Forms/JobIsAboutToExpire.jsx";
 import PlacementIscreated from "./Forms/PlacementIscreated.jsx";
-import JobStatusForm from "./Filters/PlacementIsCreated.jsx"
+import JobStatusForm from "./Filters/TriggerFilters.jsx"
 
 
 const useFilterStore = create(
