@@ -29,7 +29,7 @@ const useFilterStore = create(
     )
 );
 // eslint-disable-next-line react/prop-types
-const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes }) => {
+const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,triggers }) => {
     const [formData, setFormData] = useState({ jobStatus: [] });
 
 
@@ -223,6 +223,8 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes }) => {
                     onSubmit={handleFilterSubmit}
                     onFilterChange={handleFilterChange}
                     jobTypes={jobTypes}
+                    triggers={triggers}
+                    data={data}
                 />
             </Drawer>
         </>
@@ -546,9 +548,16 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
 
             const result = await response.json();
-            console.log("data",result)
+            console.log("Full Data:", result);
+
             if (result && result.data) {
                 setTriggers(result.data);
+
+                // Log filters for each trigger
+                // result.data.forEach(trigger => {
+                //     console.log(`Filters for ${trigger.name}:`, trigger.filters);
+                // });
+
             } else {
                 setTriggers([]);
             }
@@ -558,7 +567,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setIsLoading(false);
         }
     };
-
 
 
     useEffect(() => {
@@ -1196,6 +1204,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                         isFilterDrawerVisible={isFilterDrawerVisible}
                                         setIsFilterDrawerVisible={setIsFilterDrawerVisible}
                                         jobTypes={jobTypes}
+                                        triggers={triggers}
                         />
                     ),
                     addAction: (props) => (
