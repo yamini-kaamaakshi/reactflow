@@ -29,11 +29,8 @@ const useFilterStore = create(
     )
 );
 // eslint-disable-next-line react/prop-types
-const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,triggers }) => {
+const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,selectedTrigger }) => {
     const [formData, setFormData] = useState({ jobStatus: [] });
-
-
-
     const { setIconColor,isFilterDrawerVisible,setIsFilterDrawerVisible } = useFilterStore();
 
 
@@ -140,7 +137,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,triggers 
                 </Flex>
 
                 {/* Filters Button */}
-                {selectedTriggerName && !appliedFilters && (
+                {selectedTriggerName && selectedTrigger?.filters?.length > 0 && !appliedFilters && (
                     <div
                         style={{
                             marginTop: 10,
@@ -223,8 +220,8 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,triggers 
                     onSubmit={handleFilterSubmit}
                     onFilterChange={handleFilterChange}
                     jobTypes={jobTypes}
-                    triggers={triggers}
-                    data={data}
+                    tags={tags}
+                    selectedTrigger={selectedTrigger}
                 />
             </Drawer>
         </>
@@ -233,7 +230,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,triggers 
 
 
 // eslint-disable-next-line react/prop-types
-const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, selectedTriggerName}) => {
+const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, selectedTriggerName, selectedTrigger}) => {
     const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
     const iconX = (sourceX + targetX) / 2 - 12;
     const iconY = (sourceY + targetY) / 2 - 12;
@@ -247,7 +244,7 @@ const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, selectedTriggerName
                 d={edgePath}
                 style={{ stroke: "#000", strokeWidth: 2 }}
             />
-            {selectedTriggerName && (
+            {selectedTriggerName &&  selectedTrigger?.filters?.length > 0 && (
                 <foreignObject x={iconX} y={iconY} width="24" height="24">
                     <BsFunnelFill style={{ fontSize: "24px", color: iconColor }} />
                 </foreignObject>
@@ -446,6 +443,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [, setSelectedBlock] = useState(null);
     const [selectedActions, setSelectedActions] = useState([]);
     const [selectedTriggerName, setSelectedTriggerName] = useState(null);
+    const [selectedTrigger, setSelectedTrigger] = useState(null);
     const [selectedAction, setSelectedAction] = useState(null);
     const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
     const [formData, setFormData] = useState({});
@@ -487,6 +485,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [actions, setActions] = useState([]);
     const [triggerCode, setTriggerCode] = useState(null);
     const [actionCode, setActionCode] = useState(null);
+    const [jobTypes, setJobTypes] = useState([]);
+    const [tags, setTags] = useState([]);
+
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
             setSelectedAction(selectedActionData.selectedAction);
@@ -533,41 +534,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     useEffect(() => {
         fetchTriggers();
     }, []);
-    const fetchTriggers = async () => {
-        try {
-            setIsLoading(true);
-            const response = await fetch(
-                `${apiServer}/api/lookup_automation/triggers`,
-                {
-                    headers: { Authorization: `Bearer ${apiKey}` },
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            console.log("Full Data:", result);
-
-            if (result && result.data) {
-                setTriggers(result.data);
-
-                // Log filters for each trigger
-                // result.data.forEach(trigger => {
-                //     console.log(`Filters for ${trigger.name}:`, trigger.filters);
-                // });
-
-            } else {
-                setTriggers([]);
-            }
-        } catch (error) {
-            console.error("Error fetching triggers data: ", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
 
     useEffect(() => {
         const savedTriggerCode = localStorage.getItem('triggerCode'); // Retrieve triggerCode from localStorage
@@ -576,54 +542,21 @@ const WorkFlow = ({apiServer, apiKey}) => {
             fetchActions(savedTriggerCode);
         }
     }, []);
-
-
-    const fetchActions = async (triggerCode) => {
-        try {
-            setIsLoading(true);
-
-            const response = await fetch(
-                `${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            console.log("Fetched actions: ", result);
-
-            if (result && result.data) {
-                setActions(result.data);  // Store actions in state
-            } else {
-                setActions([]);
-            }
-        } catch (error) {
-            console.error("Error fetching actions: ", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    const [jobTypes, setJobTypes] = useState([]);
-
     useEffect(() => {
         if (isFilterDrawerVisible) {
             fetchJobTypes();
+            fetchTags();
         }
     }, [isFilterDrawerVisible]);
 
-
-    const fetchJobTypes = async () => {
+    const fetchData = async (url, setter) => {
         try {
             setIsLoading(true);
-            const response = await fetch(`${apiServer}/api/masterdata/jobTypes`, {
-                headers: { Authorization: `Bearer ${apiKey}` },
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                },
             });
 
             if (!response.ok) {
@@ -631,19 +564,29 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
 
             const result = await response.json();
-            console.log("Job Types Data:", result);
+            console.log(`Fetched data from ${url}:`, result);
 
-            if (result && result.data) {
-                setJobTypes(result.data);
-            } else {
-                setJobTypes([]);
-            }
+            setter(result?.data || []);
         } catch (error) {
-            console.error("Error fetching job types: ", error);
+            console.error(`Error fetching data from ${url}:`, error);
         } finally {
             setIsLoading(false);
         }
     };
+
+    const fetchTriggers = () =>
+        fetchData(`${apiServer}/api/lookup_automation/triggers`, setTriggers);
+
+
+    const fetchActions = (triggerCode) =>
+        fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, setActions);
+
+    const fetchJobTypes = () =>
+        fetchData(`${apiServer}/api/masterdata/jobTypes`, setJobTypes);
+
+    const fetchTags = () =>
+        fetchData(`${apiServer}/api/masterdata/tags/v2`, setTags);
+
 
     const renderForm = () => {
         let ActionForm;
@@ -671,8 +614,11 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const onNodeClick = (_, node) => {
         if (node.id === "exit") return;
         setSelectedNodeId(node.id);
+        console.log("selectedTriggerName",selectedTrigger)
         if (node.id === "1") {
             if (!selectedTriggerName) {
+
+
                 setSelectedNode(node);
                 setDrawerVisible(true);
                 setActionDrawerVisible(false);
@@ -705,7 +651,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         );
         setNodes(updatedNodes);
         setSelectedTriggerName(trigger.name);
-
+        setSelectedTrigger(trigger)
         localStorage.setItem('selectedTriggerName', trigger.name);
 
         setDrawerVisible(false);
@@ -1204,7 +1150,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                         isFilterDrawerVisible={isFilterDrawerVisible}
                                         setIsFilterDrawerVisible={setIsFilterDrawerVisible}
                                         jobTypes={jobTypes}
-                                        triggers={triggers}
+                                        tags={tags}
+                                        selectedTrigger={selectedTrigger}
                         />
                     ),
                     addAction: (props) => (
@@ -1226,7 +1173,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 onDragOver={handleDragOver}
                 edgeTypes={{
                     custom: (props) => (
-                        <CustomEdge {...props} iconVisible={iconVisible} selectedTriggerName={selectedTriggerName} />
+                        <CustomEdge {...props} iconVisible={iconVisible} selectedTriggerName={selectedTriggerName} selectedTrigger={selectedTrigger} />
                     ),
                     button: (props) => (
                         <CustomButton {...props} setActionDrawerVisible={setActionDrawerVisible} nodes={nodes} />
