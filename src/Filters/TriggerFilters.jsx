@@ -1,7 +1,7 @@
 
 import {Form, Button, Select, Checkbox} from "antd";
 
-const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes,tags,selectedTrigger }) => {
+const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes,tags,selectedTrigger,selectedTags }) => {
 
     const hasJobTypeFilter = selectedTrigger?.filters?.includes("JOB_TYPE");
     const masterDataTags = selectedTrigger?.filters?.includes("TAGS");
@@ -35,33 +35,28 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes,tags,
             </Form.Item>
             )}
             {/* Tags Dropdown */}
-
-            { masterDataTags && (
-                <Form.Item label="Tags" name="tags">
+            <Form.Item label="Tags" name="tags">
                 <Select
                     mode="multiple"
-                    placeholder="Select Tags"
-                    onChange={(value) => onFilterChange(value, "tags")}
+                    placeholder="Search Tags"
+                    onChange={onFilterChange}
+                    style={{ width: "100%" }}
+                    showSearch
+                    value={selectedTags} // Bind selectedTags to the Select component
+                    optionLabelProp="label"  // Ensure the label is used for display
                 >
-                    {sortedTags.map((tag) => (
-                        <div key={tag.id} style={{marginBottom: "15px"}}>
-                            <p style={{fontWeight: "bold", marginBottom: "5px"}}>{tag.key}</p>
-                            <Checkbox.Group
-                                onChange={(checkedValues) => onFilterChange(checkedValues, tag.key)}
-                            >
-                                <div style={{display: "flex", flexDirection: "column", gap: "5px"}}>
-                                    {tag.values.map((value, index) => (
-                                        <Checkbox key={`${tag.id}-${index}`} value={`${tag.key}-${value}`}>
-                                            {value}
-                                        </Checkbox>
-                                    ))}
-                                </div>
-                            </Checkbox.Group>
-                        </div>
+                    {tags.map((tagGroup, index) => (
+                        <Select.OptGroup key={index} label={tagGroup.key}>
+                            {tagGroup.values.map((value, subIndex) => (
+                                <Select.Option key={`${tagGroup.key}-${subIndex}`} value={value} label={value}>
+                                    <Checkbox checked={selectedTags.includes(value)}>{value}</Checkbox>
+                                </Select.Option>
+                            ))}
+                        </Select.OptGroup>
                     ))}
                 </Select>
             </Form.Item>
-            )}
+
             <Form.Item>
                 <Button type="primary" htmlType="submit">
                     Apply Filter

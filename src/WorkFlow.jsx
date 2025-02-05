@@ -35,7 +35,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
 
 
     const [isHovered, setIsHovered] = useState(false);
-
+    const [selectedTags, setSelectedTags] = useState([]);
     const [appliedFilters, setAppliedFilters] = useState(() => {
         const savedApplied = localStorage.getItem("appliedFilters");
         return savedApplied ? JSON.parse(savedApplied) : null;
@@ -62,6 +62,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
     // Handle changes in the form's Select input
     const handleFilterChange = (value, field) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
+        setSelectedTags(value)
     };
 
     // When the form is submitted, map job IDs to objects with both id and name,
@@ -191,16 +192,28 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                         }}
                     >
 
-                        {appliedFilters.jobStatus && appliedFilters.jobStatus.length > 0 ? (
-                            <p style={{color: "rgb(11, 47, 115)", fontSize: "9px"}}>
-                                <span>Job Status:</span>{" "}
-                                {appliedFilters.jobStatus
-                                    .map((filter) => filter.name)
-                                    .join(", ")}
+                        {(appliedFilters.jobStatus && appliedFilters.jobStatus.length > 0) ||
+                        (appliedFilters.tags && appliedFilters.tags.length > 0) ? (
+                            <p style={{ color: "rgb(11, 47, 115)", fontSize: "9px" }}>
+                                {appliedFilters.jobStatus && appliedFilters.jobStatus.length > 0 && (
+                                    <>
+                                        <span>Job Status:</span>{" "}
+                                        {appliedFilters.jobStatus.map((filter) => filter).join(", ")}
+                                        <br />
+                                    </>
+                                )}
+
+                                {appliedFilters.tags && appliedFilters.tags.length > 0 && (
+                                    <>
+                                        <span>Tags:</span>{" "}
+                                        {appliedFilters.tags.map((tag) => tag).join(", ")}
+                                    </>
+                                )}
                             </p>
                         ) : (
                             <p>No filters applied.</p>
                         )}
+
                     </div>
                 )}
 
@@ -221,6 +234,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                     onFilterChange={handleFilterChange}
                     jobTypes={jobTypes}
                     tags={tags}
+                    selectedTags={selectedTags}
                     selectedTrigger={selectedTrigger}
                 />
             </Drawer>
