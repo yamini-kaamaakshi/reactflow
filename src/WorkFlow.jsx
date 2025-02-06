@@ -33,6 +33,14 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
     const [formData, setFormData] = useState({ jobStatus: [] });
     const { setIconColor,isFilterDrawerVisible,setIsFilterDrawerVisible } = useFilterStore();
 
+    const selectedTriggerData = localStorage.getItem("selectedTrigger");
+    const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
+    const hasFilters = parsedTrigger?.hasFilters === true
+
+
+    const jobTypesData = localStorage.getItem("jobTypes");
+    console.log("jobTypesData",jobTypesData)
+
 
     const [isHovered, setIsHovered] = useState(false);
     const [selectedTags, setSelectedTags] = useState([]);
@@ -40,6 +48,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
         const savedApplied = localStorage.getItem("appliedFilters");
         return savedApplied ? JSON.parse(savedApplied) : null;
     });
+
 
     // Persist appliedFilters in localStorage whenever it changes
     useEffect(() => {
@@ -78,6 +87,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
     // Handle Delete Button Click
     const handleDelete = () => {
         localStorage.removeItem('appliedFilters');
+        localStorage.removeItem('selectedTrigger');
         setAppliedFilters(null);
         setFormData(null)
         setIconColor("black");
@@ -132,7 +142,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                 </Flex>
 
                 {/* Filters Button */}
-                {selectedTriggerName && selectedTrigger?.filters?.length > 0 && !appliedFilters && (
+                {selectedTriggerName &&  !appliedFilters && (
                     <div
                         style={{
                             marginTop: 10,
@@ -159,7 +169,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                 )}
 
                 {/* Delete Button */}
-                {selectedTriggerName && isHovered && (
+                {selectedTriggerName && isHovered && hasFilters && (
                     <Button
                         onClick={handleDelete}
                         style={{
@@ -238,6 +248,10 @@ const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, selectedTriggerName
     const iconY = (sourceY + targetY) / 2 - 12;
     const { iconColor } = useFilterStore();
 
+    const selectedTriggerData = localStorage.getItem("selectedTrigger");
+    const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
+    const hasFilters = parsedTrigger?.hasFilters === true
+
     return (
         <g>
             <path
@@ -246,7 +260,7 @@ const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, selectedTriggerName
                 d={edgePath}
                 style={{ stroke: "#000", strokeWidth: 2 }}
             />
-            {selectedTriggerName &&  selectedTrigger?.filters?.length > 0 && (
+            {selectedTriggerName && hasFilters && (
                 <foreignObject x={iconX} y={iconY} width="24" height="24">
                     <BsFunnelFill style={{ fontSize: "24px", color: iconColor }} />
                 </foreignObject>
@@ -655,6 +669,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setSelectedTriggerName(trigger.name);
         setSelectedTrigger(trigger)
         localStorage.setItem('selectedTriggerName', trigger.name);
+        localStorage.setItem("selectedTrigger", JSON.stringify(trigger));
 
         setDrawerVisible(false);
         setIsFilterDrawerVisible(true)

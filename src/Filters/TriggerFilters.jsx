@@ -1,9 +1,14 @@
 import { Form, Button, Select, Checkbox } from "antd";
 
-const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags, selectedTrigger, selectedTags }) => {
+const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags, selectedTags }) => {
 
-    const hasJobTypeFilter = selectedTrigger?.filters?.includes("JOB_TYPE");
-    const masterDataTags = selectedTrigger?.filters?.includes("TAGS");
+
+
+    const selectedTriggerData = localStorage.getItem("selectedTrigger");
+    const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
+
+    const hasJobTypeFilter = parsedTrigger?.filters?.includes("JOB_TYPE");
+    const masterDataTags = parsedTrigger?.filters?.includes("TAGS");
 
     // Sort tags for consistent display
     const sortedTags = [...tags].sort((a, b) => a.key.localeCompare(b.key));
@@ -20,12 +25,12 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
             }}
         >
 
-            {hasJobTypeFilter && (
+            {hasJobTypeFilter  && (
                 <Form.Item label="Job Type" name="jobType">
                     <Select
                         mode="multiple"
                         placeholder="Select Job Type"
-                        onChange={(value) => onFilterChange(value, "jobType")} // Ensure filter change updates correctly
+                        onChange={(value) => onFilterChange(value, "jobType")}
                         style={{ width: "100%" }}
                         showSearch
                     >
@@ -37,6 +42,7 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                     </Select>
                 </Form.Item>
             )}
+
 
             {/* Tags Dropdown */}
             {masterDataTags && (
