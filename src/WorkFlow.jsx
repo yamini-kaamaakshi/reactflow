@@ -15,7 +15,6 @@ import JobIsAboutToExpire from "./Forms/JobIsAboutToExpire.jsx";
 import PlacementIscreated from "./Forms/PlacementIscreated.jsx";
 import JobStatusForm from "./Filters/TriggerFilters.jsx"
 
-
 const useFilterStore = create(
     persist(
         (set) => ({
@@ -550,8 +549,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
 
     }, []);
-
-
     useEffect(() => {
         fetchTriggers();
     }, []);
@@ -567,9 +564,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
         if (triggerCode) {
             fetchJobTypes();
             fetchTags();
-            // fetchUsers();
         }
     }, [triggerCode]);
+
     const fetchData = async (url, setter) => {
         try {
             setIsLoading(true);
@@ -608,17 +605,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const fetchTags = () =>
         fetchData(`${apiServer}/api/masterdata/tags/v2`, setTags);
 
-    // const fetchUsers = async () => {
-    //     const response = await axios.get(`https://api.recruitly.io/api/masterdata/candidatestatus`, {
-    //         params: { apiKey, paginated: false },
-    //     });
-    //
-    //     const usersData = response.data.data;
-    //     setUsers(usersData)
-    //     console.log("usersData",usersData)
-    //
-    // };
-    //
 
     const renderForm = () => {
         let ActionForm;
