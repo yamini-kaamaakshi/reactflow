@@ -1,13 +1,14 @@
 import { Form, Button, Select, Checkbox } from "antd";
 
-const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags, selectedTags,candidateStatus }) => {
+const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags, selectedTags,candidateStatus,source }) => {
     const selectedTriggerData = localStorage.getItem("selectedTrigger");
     const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
 
     const hasJobTypeFilter = parsedTrigger?.filters?.includes("JOB_TYPE");
     const masterDataTags = parsedTrigger?.filters?.includes("TAGS");
     const candidateStatusData = parsedTrigger?.filters?.includes('CANDIDATE_STATUS');
-    console.log("candidateStatus",candidateStatus)
+    const  sourceData = parsedTrigger?.filters?.includes( "SOURCE");
+    console.log("source",source)
 
     return (
         <Form
@@ -56,6 +57,22 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                 </Select>
             </Form.Item>
             )}
+            { sourceData && (
+                <Form.Item label="Source" name="source">
+                    <Select
+                        mode="multiple"
+                        placeholder="Select Source"
+                        onChange={(value) => onFilterChange(value, "source ")}
+                        style={{width: "100%"}}
+                        showSearch
+                    >
+                        {source.map((source) => (
+                            <Select.Option key={source.id} value={source.name}>
+                                {source.name}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>)}
             {/* Tags Dropdown */}
             {masterDataTags && (
                 <Form.Item label="Tags" name="tags">

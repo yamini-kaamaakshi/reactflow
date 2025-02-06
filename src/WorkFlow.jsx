@@ -29,7 +29,7 @@ const useFilterStore = create(
     )
 );
 // eslint-disable-next-line react/prop-types
-const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,selectedTrigger,candidateStatus }) => {
+const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,selectedTrigger,candidateStatus,source }) => {
     const [formData, setFormData] = useState({ jobStatus: [] });
     const { setIconColor,isFilterDrawerVisible,setIsFilterDrawerVisible } = useFilterStore();
 
@@ -235,6 +235,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                     jobTypes={jobTypes}
                     tags={tags}
                     candidateStatus={candidateStatus}
+                    source={source}
                     selectedTags={selectedTags}
                     selectedTrigger={selectedTrigger}
                 />
@@ -508,7 +509,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [jobTypes, setJobTypes] = useState([]);
     const [tags, setTags] = useState([]);
     const [candidateStatus, setCandidateStatus] = useState([]);
-
+    const [source, setSource] = useState([]);
 
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
@@ -566,6 +567,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             fetchJobTypes();
             fetchTags();
             fetchUsers();
+            fetchSource();
         }
     }, [triggerCode]);
 
@@ -615,6 +617,17 @@ const WorkFlow = ({apiServer, apiKey}) => {
         const candidatestatus = response.data.data;
         setCandidateStatus(candidatestatus)
         console.log("candidatestatus",candidatestatus)
+
+    };
+
+    const fetchSource = async () => {
+        const response = await axios.get(`https://api.recruitly.io/api/masterdata/source`, {
+            params: { apiKey },
+        });
+
+        const sorceData = response.data.data;
+        setSource(sorceData)
+        console.log("sorceData",sorceData)
 
     };
 
@@ -1179,6 +1192,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                         jobTypes={jobTypes}
                                         tags={tags}
                                         candidateStatus={candidateStatus}
+                                        source={source}
                                         selectedTrigger={selectedTrigger}
                         />
                     ),
