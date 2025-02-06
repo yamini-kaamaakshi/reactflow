@@ -68,17 +68,11 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
     // When the form is submitted, map job IDs to objects with both id and name,
     // update appliedFilters, and update the formData.
     const handleFilterSubmit = (values) => {
-        const jobStatusWithNames = values.jobStatus.map((id) => {
-            const job = jobTypes.find((job) => job.id === id);
-            return job ? { id: job.id, name: job.name } : { id, name: id };
-        });
-
-        const newFilters = { ...values, jobStatus: jobStatusWithNames };
-        setAppliedFilters(newFilters);
+        setAppliedFilters(values);
         setFormData(values);
         setIconColor("green")
         closeDrawer();
-        console.log("Form submitted:", newFilters);
+
     };
 
     // Handle Delete Button Click
@@ -192,27 +186,21 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                         }}
                     >
 
-                        {(appliedFilters.jobStatus && appliedFilters.jobStatus.length > 0) ||
-                        (appliedFilters.tags && appliedFilters.tags.length > 0) ? (
                             <p style={{ color: "rgb(11, 47, 115)", fontSize: "9px" }}>
-                                {appliedFilters.jobStatus && appliedFilters.jobStatus.length > 0 && (
+                                {appliedFilters.jobType && (
                                     <>
-                                        <span>Job Status:</span>{" "}
-                                        {appliedFilters.jobStatus.map((filter) => filter).join(", ")}
-                                        <br />
+                                        <span style={{ fontWeight: "bold" }}>Job Type:</span>{" "}
+                                        {appliedFilters.jobType.map((jobType) => jobType).join(", ")}
                                     </>
                                 )}
-
                                 {appliedFilters.tags && appliedFilters.tags.length > 0 && (
                                     <>
-                                        <span>Tags:</span>{" "}
+                                        <span style={{fontWeight:"bold"}}> Tags:</span>{" "}
                                         {appliedFilters.tags.map((tag) => tag).join(", ")}
                                     </>
                                 )}
                             </p>
-                        ) : (
-                            <p>No filters applied.</p>
-                        )}
+
 
                     </div>
                 )}
