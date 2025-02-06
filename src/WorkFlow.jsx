@@ -193,7 +193,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                                         {appliedFilters.jobType.map((jobType) => jobType).join(", ")}
                                     </>
                                 )}
-                                {appliedFilters.tags && appliedFilters.tags.length > 0 && (
+                                {appliedFilters.tags && (
                                     <>
                                         <span style={{fontWeight:"bold"}}> Tags:</span>{" "}
                                         {appliedFilters.tags.map((tag) => tag).join(", ")}
