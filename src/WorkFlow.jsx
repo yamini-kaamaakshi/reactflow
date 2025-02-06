@@ -16,13 +16,7 @@ import PlacementIscreated from "./Forms/PlacementIscreated.jsx";
 import JobStatusForm from "./Filters/TriggerFilters.jsx"
 
 
-import {
-    fetchTriggers,
-    fetchActions,
-    fetchJobTypes,
-    fetchTags,
-    fetchUsers
-} from '../src/api/apiManager.js';
+import { createApiService } from '../src/api/apiManager.js';
 
 const useFilterStore = create(
     persist(
@@ -225,23 +219,28 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
             </Card>
 
             {/* Filter Drawer */}
-            <Drawer
-                title="Select a Filter"
-                width={550}
-                open={isFilterDrawerVisible}
-                onClose={closeDrawer}
-            >
-                <JobStatusForm
-                    initialValues={formData}
-                    onSubmit={handleFilterSubmit}
-                    onFilterChange={handleFilterChange}
-                    jobTypes={jobTypes}
-                    tags={tags}
-                    users={users}
-                    selectedTags={selectedTags}
-                    selectedTrigger={selectedTrigger}
-                />
-            </Drawer>
+            {isFilterDrawerVisible ? (
+                <Drawer
+                    title="Select a Filter"
+                    width={550}
+                    open={isFilterDrawerVisible}
+                    onClose={closeDrawer}
+                    destroyOnClose={true} // Ensures unmounting on close
+                    forceRender={false} // Prevents unnecessary mounting
+                >
+                    <JobStatusForm
+                        initialValues={formData}
+                        onSubmit={handleFilterSubmit}
+                        onFilterChange={handleFilterChange}
+                        jobTypes={jobTypes}
+                        tags={tags}
+                        users={users}
+                        selectedTags={selectedTags}
+                        selectedTrigger={selectedTrigger}
+                    />
+                </Drawer>
+            ) : null}
+
         </>
     );
 };
@@ -456,6 +455,9 @@ const initialNodes = [
 
 // eslint-disable-next-line react/prop-types
 const WorkFlow = ({apiServer, apiKey}) => {
+
+
+
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [, setSelectedNode] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -469,6 +471,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [selectedAction, setSelectedAction] = useState(null);
     const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
     const [formData, setFormData] = useState({});
+
+    const apiService = createApiService(apiServer, apiKey, setIsLoading);
 
     // Reset functions
     const resetSelectedAction = () => setSelectedAction(null);
@@ -556,73 +560,21 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
 
     useEffect(() => {
-        fetchTriggers(apiServer, setTriggers, apiKey, setIsLoading);
+        apiService.fetchTriggers(setTriggers);
     }, []);
 
     useEffect(() => {
         const savedTriggerCode = localStorage.getItem('triggerCode');
-        if (savedTriggerCode) {
+        if (savedTriggerCode && !triggerCode) {
             setTriggerCode(savedTriggerCode);
-            fetchActions(apiServer, savedTriggerCode, setActions, apiKey, setIsLoading);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (triggerCode) {
-            fetchJobTypes(apiServer, setJobTypes, apiKey, setIsLoading);
-            fetchTags(apiServer, setTags, apiKey, setIsLoading);
-            fetchUsers(setUsers, apiKey);
+            apiService.fetchActions(savedTriggerCode, setActions);
+            apiService.fetchJobTypes(setJobTypes);
+            apiService.fetchTags(setTags);
+            apiService.fetchUsers(setUsers);
         }
     }, [triggerCode]);
 
-    // const fetchData = async (url, setter) => {
-    //     try {
-    //         setIsLoading(true);
-    //         const response = await fetch(url, {
-    //             headers: {
-    //                 Authorization: `Bearer ${apiKey}`,
-    //                 'Content-Type': 'application/json',
-    //             },
-    //         });
-    //
-    //         if (!response.ok) {
-    //             throw new Error(`HTTP error! Status: ${response.status}`);
-    //         }
-    //
-    //         const result = await response.json();
-    //         console.log(`Fetched data from ${url}:`, result);
-    //
-    //         setter(result?.data || []);
-    //     } catch (error) {
-    //         console.error(`Error fetching data from ${url}:`, error);
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // };
-    //
-    // const fetchTriggers = () =>
-    //     fetchData(`${apiServer}/api/lookup_automation/triggers`, setTriggers);
-    //
-    //
-    // const fetchActions = (triggerCode) =>
-    //     fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, setActions);
-    //
-    // const fetchJobTypes = () =>
-    //     fetchData(`${apiServer}/api/masterdata/jobTypes`, setJobTypes);
-    //
-    // const fetchTags = () =>
-    //     fetchData(`${apiServer}/api/masterdata/tags/v2`, setTags);
-    //
-    // const fetchUsers = async () => {
-    //     const response = await axios.get(`https://api.recruitly.io/api/masterdata/candidatestatus`, {
-    //         params: { apiKey},
-    //     });
-    //
-    //     const usersData = response.data.data;
-    //     setUsers(usersData)
-    //     console.log("usersData",usersData)
-    //
-    // };
+
 
 
     const renderForm = () => {
@@ -698,7 +650,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setTriggerCode(code);
 
         localStorage.setItem('triggerCode', code);
-        fetchActions(code);
+       apiService.fetchActions(code);
     };
 
 
