@@ -16,8 +16,6 @@ import PlacementIscreated from "./Forms/PlacementIscreated.jsx";
 import JobStatusForm from "./Filters/TriggerFilters.jsx"
 
 
-import { createApiService } from '../src/api/apiManager.js';
-
 const useFilterStore = create(
     persist(
         (set) => ({
@@ -34,6 +32,11 @@ const useFilterStore = create(
 const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,selectedTrigger,users }) => {
     const [formData, setFormData] = useState({ jobStatus: [] });
     const { setIconColor,isFilterDrawerVisible,setIsFilterDrawerVisible } = useFilterStore();
+
+    useEffect(() => {
+        // Ensure the drawer is closed on page reload
+        setIsFilterDrawerVisible(false);
+    }, []); // Runs once on mount
 
     const selectedTriggerData = localStorage.getItem("selectedTrigger");
     const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
@@ -219,28 +222,23 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
             </Card>
 
             {/* Filter Drawer */}
-            {isFilterDrawerVisible ? (
-                <Drawer
-                    title="Select a Filter"
-                    width={550}
-                    open={isFilterDrawerVisible}
-                    onClose={closeDrawer}
-                    destroyOnClose={true} // Ensures unmounting on close
-                    forceRender={false} // Prevents unnecessary mounting
-                >
-                    <JobStatusForm
-                        initialValues={formData}
-                        onSubmit={handleFilterSubmit}
-                        onFilterChange={handleFilterChange}
-                        jobTypes={jobTypes}
-                        tags={tags}
-                        users={users}
-                        selectedTags={selectedTags}
-                        selectedTrigger={selectedTrigger}
-                    />
-                </Drawer>
-            ) : null}
-
+            <Drawer
+                title="Select a Filter"
+                width={550}
+                open={isFilterDrawerVisible}
+                onClose={closeDrawer}
+            >
+                <JobStatusForm
+                    initialValues={formData}
+                    onSubmit={handleFilterSubmit}
+                    onFilterChange={handleFilterChange}
+                    jobTypes={jobTypes}
+                    tags={tags}
+                    users={users}
+                    selectedTags={selectedTags}
+                    selectedTrigger={selectedTrigger}
+                />
+            </Drawer>
         </>
     );
 };
@@ -455,9 +453,6 @@ const initialNodes = [
 
 // eslint-disable-next-line react/prop-types
 const WorkFlow = ({apiServer, apiKey}) => {
-
-
-
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [, setSelectedNode] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -471,8 +466,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [selectedAction, setSelectedAction] = useState(null);
     const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
     const [formData, setFormData] = useState({});
-
-    const apiService = createApiService(apiServer, apiKey, setIsLoading);
 
     // Reset functions
     const resetSelectedAction = () => setSelectedAction(null);
@@ -560,22 +553,72 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
 
     useEffect(() => {
-        apiService.fetchTriggers(setTriggers);
+        fetchTriggers();
     }, []);
 
     useEffect(() => {
-        const savedTriggerCode = localStorage.getItem('triggerCode');
-        if (savedTriggerCode && !triggerCode) {
+        const savedTriggerCode = localStorage.getItem('triggerCode'); // Retrieve triggerCode from localStorage
+        if (savedTriggerCode) {
             setTriggerCode(savedTriggerCode);
-            apiService.fetchActions(savedTriggerCode, setActions);
-            apiService.fetchJobTypes(setJobTypes);
-            apiService.fetchTags(setTags);
-            apiService.fetchUsers(setUsers);
+            fetchActions(savedTriggerCode);
+        }
+    }, []);
+    useEffect(() => {
+        if (triggerCode) {
+            fetchJobTypes();
+            fetchTags();
+            // fetchUsers();
         }
     }, [triggerCode]);
+    const fetchData = async (url, setter) => {
+        try {
+            setIsLoading(true);
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log(`Fetched data from ${url}:`, result);
+
+            setter(result?.data || []);
+        } catch (error) {
+            console.error(`Error fetching data from ${url}:`, error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const fetchTriggers = () =>
+        fetchData(`${apiServer}/api/lookup_automation/triggers`, setTriggers);
 
 
+    const fetchActions = (triggerCode) =>
+        fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, setActions);
 
+    const fetchJobTypes = () =>
+        fetchData(`${apiServer}/api/masterdata/jobTypes`, setJobTypes);
+
+    const fetchTags = () =>
+        fetchData(`${apiServer}/api/masterdata/tags/v2`, setTags);
+
+    // const fetchUsers = async () => {
+    //     const response = await axios.get(`https://api.recruitly.io/api/masterdata/candidatestatus`, {
+    //         params: { apiKey, paginated: false },
+    //     });
+    //
+    //     const usersData = response.data.data;
+    //     setUsers(usersData)
+    //     console.log("usersData",usersData)
+    //
+    // };
+    //
 
     const renderForm = () => {
         let ActionForm;
@@ -650,7 +693,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setTriggerCode(code);
 
         localStorage.setItem('triggerCode', code);
-       apiService.fetchActions(code);
+        fetchActions(code);
     };
 
 
