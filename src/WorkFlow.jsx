@@ -142,7 +142,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                 </Flex>
 
                 {/* Filters Button */}
-                {selectedTriggerName &&  !appliedFilters && (
+                {selectedTriggerName &&  !appliedFilters && hasFilters && (
                     <div
                         style={{
                             marginTop: 10,
@@ -169,7 +169,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                 )}
 
                 {/* Delete Button */}
-                {selectedTriggerName && isHovered && hasFilters && (
+                {selectedTriggerName && isHovered &&  (
                     <Button
                         onClick={handleDelete}
                         style={{
@@ -559,11 +559,11 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     }, []);
     useEffect(() => {
-        if (isFilterDrawerVisible) {
+        if (triggerCode) {
             fetchJobTypes();
             fetchTags();
         }
-    }, [isFilterDrawerVisible]);
+    }, [triggerCode]);
 
     const fetchData = async (url, setter) => {
         try {
