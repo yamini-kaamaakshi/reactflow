@@ -16,6 +16,14 @@ import PlacementIscreated from "./Forms/PlacementIscreated.jsx";
 import JobStatusForm from "./Filters/TriggerFilters.jsx"
 
 
+import {
+    fetchTriggers,
+    fetchActions,
+    fetchJobTypes,
+    fetchTags,
+    fetchUsers
+} from '../src/api/apiManager.js';
+
 const useFilterStore = create(
     persist(
         (set) => ({
@@ -29,7 +37,7 @@ const useFilterStore = create(
     )
 );
 // eslint-disable-next-line react/prop-types
-const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,selectedTrigger }) => {
+const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,selectedTrigger,users }) => {
     const [formData, setFormData] = useState({ jobStatus: [] });
     const { setIconColor,isFilterDrawerVisible,setIsFilterDrawerVisible } = useFilterStore();
 
@@ -37,9 +45,6 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
     const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
     const hasFilters = parsedTrigger?.hasFilters === true
 
-
-    const jobTypesData = localStorage.getItem("jobTypes");
-    console.log("jobTypesData",jobTypesData)
 
 
     const [isHovered, setIsHovered] = useState(false);
@@ -232,6 +237,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                     onFilterChange={handleFilterChange}
                     jobTypes={jobTypes}
                     tags={tags}
+                    users={users}
                     selectedTags={selectedTags}
                     selectedTrigger={selectedTrigger}
                 />
@@ -501,13 +507,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [actions, setActions] = useState([]);
     const [triggerCode, setTriggerCode] = useState(null);
     const [actionCode, setActionCode] = useState(null);
+
     const [jobTypes, setJobTypes] = useState([]);
     const [tags, setTags] = useState([]);
+    const [users, setUsers] = useState([]);
+
 
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
             setSelectedAction(selectedActionData.selectedAction);
-            console.log("selectedActionData",selectedActionData)
         }
     }, [selectedActionData]);
     useEffect(() => {
@@ -548,60 +556,73 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
 
     useEffect(() => {
-        fetchTriggers();
+        fetchTriggers(apiServer, setTriggers, apiKey, setIsLoading);
     }, []);
 
     useEffect(() => {
-        const savedTriggerCode = localStorage.getItem('triggerCode'); // Retrieve triggerCode from localStorage
+        const savedTriggerCode = localStorage.getItem('triggerCode');
         if (savedTriggerCode) {
             setTriggerCode(savedTriggerCode);
-            fetchActions(savedTriggerCode);
+            fetchActions(apiServer, savedTriggerCode, setActions, apiKey, setIsLoading);
         }
     }, []);
+
     useEffect(() => {
         if (triggerCode) {
-            fetchJobTypes();
-            fetchTags();
+            fetchJobTypes(apiServer, setJobTypes, apiKey, setIsLoading);
+            fetchTags(apiServer, setTags, apiKey, setIsLoading);
+            fetchUsers(setUsers, apiKey);
         }
     }, [triggerCode]);
 
-    const fetchData = async (url, setter) => {
-        try {
-            setIsLoading(true);
-            const response = await fetch(url, {
-                headers: {
-                    Authorization: `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            console.log(`Fetched data from ${url}:`, result);
-
-            setter(result?.data || []);
-        } catch (error) {
-            console.error(`Error fetching data from ${url}:`, error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const fetchTriggers = () =>
-        fetchData(`${apiServer}/api/lookup_automation/triggers`, setTriggers);
-
-
-    const fetchActions = (triggerCode) =>
-        fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, setActions);
-
-    const fetchJobTypes = () =>
-        fetchData(`${apiServer}/api/masterdata/jobTypes`, setJobTypes);
-
-    const fetchTags = () =>
-        fetchData(`${apiServer}/api/masterdata/tags/v2`, setTags);
+    // const fetchData = async (url, setter) => {
+    //     try {
+    //         setIsLoading(true);
+    //         const response = await fetch(url, {
+    //             headers: {
+    //                 Authorization: `Bearer ${apiKey}`,
+    //                 'Content-Type': 'application/json',
+    //             },
+    //         });
+    //
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! Status: ${response.status}`);
+    //         }
+    //
+    //         const result = await response.json();
+    //         console.log(`Fetched data from ${url}:`, result);
+    //
+    //         setter(result?.data || []);
+    //     } catch (error) {
+    //         console.error(`Error fetching data from ${url}:`, error);
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
+    //
+    // const fetchTriggers = () =>
+    //     fetchData(`${apiServer}/api/lookup_automation/triggers`, setTriggers);
+    //
+    //
+    // const fetchActions = (triggerCode) =>
+    //     fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, setActions);
+    //
+    // const fetchJobTypes = () =>
+    //     fetchData(`${apiServer}/api/masterdata/jobTypes`, setJobTypes);
+    //
+    // const fetchTags = () =>
+    //     fetchData(`${apiServer}/api/masterdata/tags/v2`, setTags);
+    //
+    // const fetchUsers = async () => {
+    //     const response = await axios.get(`https://api.recruitly.io/api/masterdata/candidatestatus`, {
+    //         params: { apiKey},
+    //     });
+    //
+    //     const usersData = response.data.data;
+    //     setUsers(usersData)
+    //     console.log("usersData",usersData)
+    //
+    // };
 
 
     const renderForm = () => {
@@ -630,7 +651,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const onNodeClick = (_, node) => {
         if (node.id === "exit") return;
         setSelectedNodeId(node.id);
-        console.log("selectedTriggerName",selectedTrigger)
         if (node.id === "1") {
             if (!selectedTriggerName) {
 
@@ -642,7 +662,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         } else if (node.id === "2" || node.type === "addAction") {
             const savedData = JSON.parse(localStorage.getItem("savedActionData")) || [];
             const actionData = savedData.find((action) => action.node.id === node.id);
-            console.log("actionData",actionData)
             if (actionData) {
                 setSelectedNode(node);
                 setSelectedActionData(actionData);
@@ -872,7 +891,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const generateUpdatedData = (selectedAction, values) => {
         let label;
-        // console.log("selectedAction",selectedAction)
         switch (selectedAction?.code) {
             case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER':
             case 'ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION':
@@ -929,7 +947,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         };
     };
     const handleFormSubmit = (values) => {
-        // console.log("formData", values);
         const updatedData = generateUpdatedData(selectedAction, values);
         let newNode;
         let isFirstNodeUsed = JSON.parse(localStorage.getItem('isFirstNodeUsed')) || false;
@@ -1168,6 +1185,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                         setIsFilterDrawerVisible={setIsFilterDrawerVisible}
                                         jobTypes={jobTypes}
                                         tags={tags}
+                                        users={users}
                                         selectedTrigger={selectedTrigger}
                         />
                     ),

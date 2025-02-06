@@ -1,17 +1,14 @@
 import { Form, Button, Select, Checkbox } from "antd";
 
-const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags, selectedTags }) => {
-
-
-
+const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags, selectedTags,users }) => {
     const selectedTriggerData = localStorage.getItem("selectedTrigger");
     const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
 
     const hasJobTypeFilter = parsedTrigger?.filters?.includes("JOB_TYPE");
     const masterDataTags = parsedTrigger?.filters?.includes("TAGS");
-
+    console.log("users",users)
     // Sort tags for consistent display
-    const sortedTags = [...tags].sort((a, b) => a.key.localeCompare(b.key));
+    // const sortedTags = [...tags].sort((a, b) => a.key.localeCompare(b.key));
 
     return (
         <Form
@@ -43,7 +40,6 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                 </Form.Item>
             )}
 
-
             {/* Tags Dropdown */}
             {masterDataTags && (
                 <Form.Item label="Tags" name="tags">
@@ -56,7 +52,7 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                         value={selectedTags} // Bind selectedTags to the Select component
                         optionLabelProp="label" // Ensure the label is used for display
                     >
-                        {sortedTags.map((tagGroup, index) => (
+                        {tags.map((tagGroup, index) => (
                             <Select.OptGroup key={index} label={tagGroup.key}>
                                 {tagGroup.values.map((value, subIndex) => (
                                     <Select.Option key={`${tagGroup.key}-${subIndex}`} value={value} label={value}>
