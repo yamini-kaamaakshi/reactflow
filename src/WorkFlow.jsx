@@ -14,6 +14,7 @@ import { persist } from "zustand/middleware";
 import JobIsAboutToExpire from "./Forms/JobIsAboutToExpire.jsx";
 import PlacementIscreated from "./Forms/PlacementIscreated.jsx";
 import JobStatusForm from "./Filters/TriggerFilters.jsx"
+import axios from "axios";
 
 const useFilterStore = create(
     persist(
@@ -28,7 +29,7 @@ const useFilterStore = create(
     )
 );
 // eslint-disable-next-line react/prop-types
-const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,selectedTrigger,users }) => {
+const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,selectedTrigger,candidateStatus }) => {
     const [formData, setFormData] = useState({ jobStatus: [] });
     const { setIconColor,isFilterDrawerVisible,setIsFilterDrawerVisible } = useFilterStore();
 
@@ -233,7 +234,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                     onFilterChange={handleFilterChange}
                     jobTypes={jobTypes}
                     tags={tags}
-                    users={users}
+                    candidateStatus={candidateStatus}
                     selectedTags={selectedTags}
                     selectedTrigger={selectedTrigger}
                 />
@@ -506,7 +507,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const [jobTypes, setJobTypes] = useState([]);
     const [tags, setTags] = useState([]);
-    const [users, setUsers] = useState([]);
+    const [candidateStatus, setCandidateStatus] = useState([]);
 
 
     useEffect(() => {
@@ -564,6 +565,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         if (triggerCode) {
             fetchJobTypes();
             fetchTags();
+            fetchUsers();
         }
     }, [triggerCode]);
 
@@ -605,6 +607,16 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const fetchTags = () =>
         fetchData(`${apiServer}/api/masterdata/tags/v2`, setTags);
 
+    const fetchUsers = async () => {
+        const response = await axios.get(`https://api.recruitly.io/api/masterdata/candidatestatus`, {
+            params: { apiKey },
+        });
+
+        const candidatestatus = response.data.data;
+        setCandidateStatus(candidatestatus)
+        console.log("candidatestatus",candidatestatus)
+
+    };
 
     const renderForm = () => {
         let ActionForm;
@@ -1166,7 +1178,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                         setIsFilterDrawerVisible={setIsFilterDrawerVisible}
                                         jobTypes={jobTypes}
                                         tags={tags}
-                                        users={users}
+                                        candidateStatus={candidateStatus}
                                         selectedTrigger={selectedTrigger}
                         />
                     ),
