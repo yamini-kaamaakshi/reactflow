@@ -1,5 +1,6 @@
 import { Form, Button, Select, Checkbox } from "antd";
 
+// eslint-disable-next-line react/prop-types
 const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags, selectedTags,candidateStatus,source,jobStatus }) => {
     const selectedTriggerData = localStorage.getItem("selectedTrigger");
     const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;

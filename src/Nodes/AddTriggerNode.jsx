@@ -11,8 +11,8 @@ import JobStatusForm from "../Filters/TriggerFilters.jsx";
 export const useFilterStore = create(
     persist(
         (set) => ({
-            isFilterDrawerVisible: false,  // Add filterDrawerVisible state
-            setIsFilterDrawerVisible: (isVisible) => set({ isFilterDrawerVisible: isVisible }), // Method to update filterDrawerVisible
+            // isFilterDrawerVisible: false,  // Add filterDrawerVisible state
+            // setIsFilterDrawerVisible: (isVisible) => set({ isFilterDrawerVisible: isVisible }), // Method to update filterDrawerVisible
             setIconColor: (color) => set({ iconColor: color }),
         }),
         {
@@ -21,21 +21,9 @@ export const useFilterStore = create(
     )
 );
 // eslint-disable-next-line react/prop-types
-const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,selectedTrigger,candidateStatus,source,jobStatus }) => {
+const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, selectedTrigger, candidateStatus, source, jobStatus, isFilterDrawerVisible, setIsFilterDrawerVisible  }) => {
     const [formData, setFormData] = useState({ jobStatus: [] });
-    const { setIconColor,isFilterDrawerVisible,setIsFilterDrawerVisible } = useFilterStore();
-
-    useEffect(() => {
-        // Ensure the drawer is closed on page reload
-        setIsFilterDrawerVisible(false);
-    }, []); // Runs once on mount
-
-    const selectedTriggerData = localStorage.getItem("selectedTrigger");
-    const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
-    const hasFilters = parsedTrigger?.hasFilters === true
-
-
-
+    const { setIconColor} = useFilterStore();
     const [isHovered, setIsHovered] = useState(false);
     const [selectedTags, setSelectedTags] = useState([]);
     const [appliedFilters, setAppliedFilters] = useState(() => {
@@ -43,6 +31,9 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
         return savedApplied ? JSON.parse(savedApplied) : null;
     });
 
+    const selectedTriggerData = localStorage.getItem("selectedTrigger");
+    const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
+    const hasFilters = parsedTrigger?.hasFilters === true;
 
     // Persist appliedFilters in localStorage whenever it changes
     useEffect(() => {
@@ -51,77 +42,70 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
         }
     }, [appliedFilters]);
 
+    // Open Filter Drawer (Ensure it's opening on the first click)
     const handleFilterDrawerOpen = () => {
-        setIsFilterDrawerVisible(true);
-
+        setIsFilterDrawerVisible(true); // Open the drawer when the button is clicked
     };
+
     // Close Filter Drawer
     const closeDrawer = () => {
-        setIsFilterDrawerVisible(false);
+        setIsFilterDrawerVisible(false); // Close the drawer
     };
-
-
 
     // Handle changes in the form's Select input
     const handleFilterChange = (value, field) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
-        setSelectedTags(value)
+        setSelectedTags(value);
     };
 
-    // When the form is submitted, map job IDs to objects with both id and name,
-    // update appliedFilters, and update the formData.
     const handleFilterSubmit = (values) => {
         setAppliedFilters(values);
         setFormData(values);
-        setIconColor("green")
+        setIconColor("green");
         closeDrawer();
-
     };
 
-
-// Delete button in AddTriggerNode component
     const handleDelete = () => {
         if (window.confirm("Are you sure you want to delete this node?")) {
-            localStorage.removeItem('appliedFilters');
-            localStorage.removeItem('selectedTrigger');
+            localStorage.removeItem("appliedFilters");
+            localStorage.removeItem("selectedTrigger");
             setAppliedFilters(null);
             setFormData(null);
             setIconColor("black");
             onDelete();
         }
     };
+
     return (
         <>
-            {/* Trigger Label */}
             <span>
-        <div
-            style={{
-                backgroundColor: "rgb(199, 220, 252)",
-                paddingLeft: 8,
-                paddingTop: 3,
-                paddingBottom: 3,
-                paddingRight: 8,
-                borderRadius: 16,
-                marginBottom: 7,
-                display: "inline-block",
-            }}
-        >
-          <Flex gap={2}>
-            <IoIosFlash size={16} color={"rgb(11, 47, 115)"} />
-            <span
-                style={{
-                    color: "rgb(11, 47, 115)",
-                    fontWeight: "medium",
-                    fontSize: "14px",
-                }}
-            >
-              When this happens
+                <div
+                    style={{
+                        backgroundColor: "rgb(199, 220, 252)",
+                        paddingLeft: 8,
+                        paddingTop: 3,
+                        paddingBottom: 3,
+                        paddingRight: 8,
+                        borderRadius: 16,
+                        marginBottom: 7,
+                        display: "inline-block",
+                    }}
+                >
+                    <Flex gap={2}>
+                        <IoIosFlash size={16} color={"rgb(11, 47, 115)"} />
+                        <span
+                            style={{
+                                color: "rgb(11, 47, 115)",
+                                fontWeight: "medium",
+                                fontSize: "14px",
+                            }}
+                        >
+                            When this happens
+                        </span>
+                    </Flex>
+                </div>
             </span>
-          </Flex>
-        </div>
-      </span>
 
-            {/* Card Component */}
             <Card
                 style={{ width: 350, padding: 0 }}
                 hoverable
@@ -129,15 +113,13 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
             >
-                {/* Display Trigger Name or Label */}
                 <Flex align="center" justify="center" gap="middle">
                     {!selectedTriggerName && <PlusOutlined />}
                     <span style={{ color: "rgb(11, 47, 115)" }}>
-                     {selectedTriggerName || data.label}
-          </span>
+                        {selectedTriggerName || data.label}
+                    </span>
                 </Flex>
 
-                {/* Filters Button */}
                 {selectedTriggerName && !appliedFilters && hasFilters && (
                     <div
                         style={{
@@ -163,8 +145,8 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                         </Button>
                     </div>
                 )}
-                {/* Delete Button */}
-                {selectedTriggerName && isHovered &&  (
+
+                {selectedTriggerName && isHovered && (
                     <Button
                         onClick={handleDelete}
                         style={{
@@ -179,7 +161,6 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                     />
                 )}
 
-
                 {appliedFilters && (
                     <div
                         style={{
@@ -190,7 +171,6 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                             display: "inline-block",
                         }}
                     >
-
                         <p style={{ color: "rgb(11, 47, 115)", fontSize: "9px" }}>
                             {appliedFilters.jobType && (
                                 <>
@@ -200,21 +180,18 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                             )}
                             {appliedFilters.tags && (
                                 <>
-                                    <span style={{fontWeight:"bold"}}> Tags:</span>{" "}
+                                    <span style={{ fontWeight: "bold" }}> Tags:</span>{" "}
                                     {appliedFilters.tags.map((tag) => tag).join(", ")}
                                 </>
                             )}
                         </p>
-
-
                     </div>
                 )}
-
 
                 <Handle type="source" position={Position.Bottom} />
             </Card>
 
-            {/* Filter Drawer */}
+            {/* Drawer for Filters */}
             <Drawer
                 title="Select a Filter"
                 width={550}
