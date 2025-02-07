@@ -1,426 +1,19 @@
 import  { useEffect, useState } from "react";
-import ReactFlow, {Background, Handle, Position} from "react-flow-renderer";
+import ReactFlow, {Background} from "react-flow-renderer";
 import { Drawer, Segmented, Spin } from "antd";
-import {  PlusOutlined } from "@ant-design/icons";
 import { Card, Flex } from "antd";
-import { MdDelete } from "react-icons/md";
-import { Button,} from "antd";
 import { IoIosFlash } from "react-icons/io";
-import { VscRunCoverage } from "react-icons/vsc";
 import { GrTrigger } from "react-icons/gr";
-import { BsFunnelFill } from "react-icons/bs";
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import JobIsAboutToExpire from "./Forms/JobIsAboutToExpire.jsx";
-import PlacementIscreated from "./Forms/PlacementIscreated.jsx";
-import JobStatusForm from "./Filters/TriggerFilters.jsx"
+
+import AddTriggerNode from "./AddTriggerNode.jsx";
+import AddActionNode  from "./AddActionNode.jsx";
+import FilterIcon from "../Custom/FilterIcon.jsx";
+import AddActionButton from "../Custom/AddActionButton.jsx";
+import generateUpdatedData from "../swichcaseManager/ActionDisplay.jsx";
+import JobIsAboutToExpire from "../Forms/JobIsAboutToExpire.jsx";
+import PlacementIscreated from "../Forms/PlacementIscreated.jsx";
+
 import axios from "axios";
-
-const useFilterStore = create(
-    persist(
-        (set) => ({
-            isFilterDrawerVisible: false,  // Add filterDrawerVisible state
-            setIsFilterDrawerVisible: (isVisible) => set({ isFilterDrawerVisible: isVisible }), // Method to update filterDrawerVisible
-            setIconColor: (color) => set({ iconColor: color }),
-        }),
-        {
-            name: "applied-filters",
-        }
-    )
-);
-// eslint-disable-next-line react/prop-types
-const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,selectedTrigger,candidateStatus,source,jobStatus }) => {
-    const [formData, setFormData] = useState({ jobStatus: [] });
-    const { setIconColor,isFilterDrawerVisible,setIsFilterDrawerVisible } = useFilterStore();
-
-    useEffect(() => {
-        // Ensure the drawer is closed on page reload
-        setIsFilterDrawerVisible(false);
-    }, []); // Runs once on mount
-
-    const selectedTriggerData = localStorage.getItem("selectedTrigger");
-    const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
-    const hasFilters = parsedTrigger?.hasFilters === true
-
-
-
-    const [isHovered, setIsHovered] = useState(false);
-    const [selectedTags, setSelectedTags] = useState([]);
-    const [appliedFilters, setAppliedFilters] = useState(() => {
-        const savedApplied = localStorage.getItem("appliedFilters");
-        return savedApplied ? JSON.parse(savedApplied) : null;
-    });
-
-
-    // Persist appliedFilters in localStorage whenever it changes
-    useEffect(() => {
-        if (appliedFilters) {
-            localStorage.setItem("appliedFilters", JSON.stringify(appliedFilters));
-        }
-    }, [appliedFilters]);
-
-    const handleFilterDrawerOpen = () => {
-        setIsFilterDrawerVisible(true);
-
-    };
-    // Close Filter Drawer
-    const closeDrawer = () => {
-        setIsFilterDrawerVisible(false);
-    };
-
-
-
-    // Handle changes in the form's Select input
-    const handleFilterChange = (value, field) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-        setSelectedTags(value)
-    };
-
-    // When the form is submitted, map job IDs to objects with both id and name,
-    // update appliedFilters, and update the formData.
-    const handleFilterSubmit = (values) => {
-        setAppliedFilters(values);
-        setFormData(values);
-        setIconColor("green")
-        closeDrawer();
-
-    };
-
-
-// Delete button in AddTriggerNode component
-    const handleDelete = () => {
-        if (window.confirm("Are you sure you want to delete this node?")) {
-            localStorage.removeItem('appliedFilters');
-            localStorage.removeItem('selectedTrigger');
-            setAppliedFilters(null);
-            setFormData(null);
-            setIconColor("black");
-            onDelete();
-        }
-    };
-    return (
-        <>
-            {/* Trigger Label */}
-            <span>
-        <div
-            style={{
-                backgroundColor: "rgb(199, 220, 252)",
-                paddingLeft: 8,
-                paddingTop: 3,
-                paddingBottom: 3,
-                paddingRight: 8,
-                borderRadius: 16,
-                marginBottom: 7,
-                display: "inline-block",
-            }}
-        >
-          <Flex gap={2}>
-            <IoIosFlash size={16} color={"rgb(11, 47, 115)"} />
-            <span
-                style={{
-                    color: "rgb(11, 47, 115)",
-                    fontWeight: "medium",
-                    fontSize: "14px",
-                }}
-            >
-              When this happens
-            </span>
-          </Flex>
-        </div>
-      </span>
-
-            {/* Card Component */}
-            <Card
-                style={{ width: 350, padding: 0 }}
-                hoverable
-                size="small"
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-            >
-                {/* Display Trigger Name or Label */}
-                <Flex align="center" justify="center" gap="middle">
-                    {!selectedTriggerName && <PlusOutlined />}
-                    <span style={{ color: "rgb(11, 47, 115)" }}>
-                     {selectedTriggerName || data.label}
-          </span>
-                </Flex>
-
-                {/* Filters Button */}
-                {selectedTriggerName && !appliedFilters && hasFilters && (
-                    <div
-                        style={{
-                            marginTop: 10,
-                            textAlign: "center",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            gap: "10px",
-                        }}
-                    >
-                        <Button
-                            type="primary"
-                            onClick={handleFilterDrawerOpen}
-                            size="small"
-                            style={{
-                                height: "15px",
-                                width: "40px",
-                                fontSize: "12px",
-                            }}
-                        >
-                            Filters
-                        </Button>
-                    </div>
-                )}
-                {/* Delete Button */}
-                {selectedTriggerName && isHovered &&  (
-                    <Button
-                        onClick={handleDelete}
-                        style={{
-                            backgroundColor: "white",
-                            border: "none",
-                            position: "absolute",
-                            top: "5px",
-                            right: "10px",
-                            padding: 0,
-                        }}
-                        icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
-                    />
-                )}
-
-
-                {appliedFilters && (
-                    <div
-                        style={{
-                            marginTop: 8,
-                            backgroundColor: "#f0f2f5",
-                            padding: "1px 10px",
-                            borderRadius: "5px",
-                            display: "inline-block",
-                        }}
-                    >
-
-                            <p style={{ color: "rgb(11, 47, 115)", fontSize: "9px" }}>
-                                {appliedFilters.jobType && (
-                                    <>
-                                        <span style={{ fontWeight: "bold" }}>Job Type:</span>{" "}
-                                        {appliedFilters.jobType.map((jobType) => jobType).join(", ")}
-                                    </>
-                                )}
-                                {appliedFilters.tags && (
-                                    <>
-                                        <span style={{fontWeight:"bold"}}> Tags:</span>{" "}
-                                        {appliedFilters.tags.map((tag) => tag).join(", ")}
-                                    </>
-                                )}
-                            </p>
-
-
-                    </div>
-                )}
-
-
-                <Handle type="source" position={Position.Bottom} />
-            </Card>
-
-            {/* Filter Drawer */}
-            <Drawer
-                title="Select a Filter"
-                width={550}
-                open={isFilterDrawerVisible}
-                onClose={closeDrawer}
-            >
-                <JobStatusForm
-                    initialValues={formData}
-                    onSubmit={handleFilterSubmit}
-                    onFilterChange={handleFilterChange}
-                    jobTypes={jobTypes}
-                    tags={tags}
-                    candidateStatus={candidateStatus}
-                    source={source}
-                    jobStatus={jobStatus}
-                    selectedTags={selectedTags}
-                    selectedTrigger={selectedTrigger}
-                />
-            </Drawer>
-        </>
-    );
-};
-
-
-// eslint-disable-next-line react/prop-types
-const CustomEdge = ({id, sourceX, sourceY, targetX, targetY, selectedTriggerName, selectedTrigger}) => {
-    const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
-    const iconX = (sourceX + targetX) / 2 - 12;
-    const iconY = (sourceY + targetY) / 2 - 12;
-    const { iconColor } = useFilterStore();
-
-    const selectedTriggerData = localStorage.getItem("selectedTrigger");
-    const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
-    const hasFilters = parsedTrigger?.hasFilters === true
-
-    return (
-        <g>
-            <path
-                id={id}
-                className="react-flow__edge-path"
-                d={edgePath}
-                style={{ stroke: "#000", strokeWidth: 2 }}
-            />
-            {selectedTriggerName && hasFilters && (
-                <foreignObject x={iconX} y={iconY} width="24" height="24">
-                    <BsFunnelFill style={{ fontSize: "24px", color: iconColor }} />
-                </foreignObject>
-            )}
-        </g>
-    );
-};
-
-
-// eslint-disable-next-line react/prop-types
-const CustomButton = ({id, sourceX, sourceY, targetX, targetY, setActionDrawerVisible, nodes
-                      }) => {
-    // Edge path
-    const edgePath = `M${sourceX},${sourceY}L${targetX},${targetY}`;
-    const [, setIsHovered] = useState(false);
-    // eslint-disable-next-line react/prop-types
-    const filteredNodes = nodes.filter(node => node.type === "addAction");
-    const latestNode = filteredNodes.length > 0 ? filteredNodes[filteredNodes.length - 1] : null;
-
-
-    // Calculate the button's position (middle of the edge)
-    const iconX =((sourceX + targetX) / 2 - 15 / 2);
-    const iconY =latestNode.position.y+98
-    return (
-        <g   onMouseEnter={() => setIsHovered(true)} // Show button on hover
-             onMouseLeave={() => setIsHovered(false)} >
-            {/* Draw the edge */}
-            <path
-                id={id}
-                className="react-flow__edge-path"
-                d={edgePath}
-                style={{ stroke: "#000", strokeWidth: 2 }}
-            />
-            {/* Add button in the middle of the edge */}
-            <foreignObject
-                x={iconX}
-                y={iconY}
-                width={20}
-                height={20}
-            >
-                <button
-                    style={{
-                        cursor: "pointer",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        width: 15,
-                        height: 15,
-                        backgroundColor: "black",
-                        borderRadius: "50%",
-                        border: "none",
-                        transition: "background-color 0.8s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = "#555"; // Change background color on hover
-                    }}
-                    onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = "black"; // Reset background color when not hovering
-                    }}
-                    onClick={() => setActionDrawerVisible(true)} // Handle button click
-                >
-                    <PlusOutlined
-                        style={{
-                            fontSize: "10px",
-                            color: "white",
-                        }}
-                    />
-                </button>
-            </foreignObject>
-        </g>
-    );
-};
-
-// eslint-disable-next-line react/prop-types
-const AddActionNode = ({data,deleteAction,handleActionDrop,handleActionDragOver,targetNodeId}) => {
-
-    const [isHovered, setIsHovered] = useState(false);
-    const [storedAction, setStoredAction] = useState({ selectedAction: null, formData: null });
-    useEffect(() => {
-        const savedActionData = JSON.parse(localStorage.getItem("savedActionData")) || [];
-        const nodeActionData = savedActionData.find(action => action.node.id === targetNodeId);
-        if (nodeActionData) {
-            setStoredAction({
-                selectedAction: nodeActionData.selectedAction,
-                formData: nodeActionData.formData,
-            });
-        }
-    }, [targetNodeId]);
-
-    return (
-        <>
-            <span>
-                 <div style={{
-                     backgroundColor: "rgb(199, 220, 252)",
-                     paddingLeft: 8,
-                     paddingTop: 3,
-                     paddingBottom: 3,
-                     paddingRight: 8,
-                     borderRadius: 16,
-                     marginBottom: 7,
-                     display: 'inline-block'
-                 }}>
-                     <Flex gap={2}>
-                         <VscRunCoverage color={"rgb(11, 47, 115)"} size={16}/><span
-                         style={{
-                             fontSize: '14px',
-                             color: "rgb(11, 47, 115)",
-                             fontWeight: "medium"
-                         }}>Then do this</span>
-                     </Flex>
-                 </div>
-            </span>
-            <Card
-                style={{
-                    width: 350,
-                    padding: 0,
-                    border: "1px dashed #dadada",
-                    position: "relative",
-                }}
-                hoverable
-                size="small"
-                onDrop={handleActionDrop}
-                onDragOver={handleActionDragOver}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-            >
-                <div>
-                    <Handle type="target" position="top" />
-                    <div style={{display: "flex", alignItems: "center", justifyContent: "center", gap: "10px"}}>
-                          <span style={{fontSize: "14px", color: "#888888"}}>
-                          { data.label}
-
-                           </span>
-                    </div>
-                    {storedAction?.selectedAction?.name && isHovered && (
-                        <Button
-                            onClick={deleteAction}
-                            style={{
-                                backgroundColor: "white",
-                                border: "none",
-                                position: "absolute",
-                                top: "5px",
-                                right: "10px",
-                                padding: 0,
-                            }}
-                            icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
-                        />
-                    )}
-                    <Handle type="source" position="bottom" />
-                </div>
-            </Card>
-        </>
-    );
-};
 
 const initialEdges = [
     {
@@ -451,8 +44,6 @@ const initialNodes = [
     },
 
 ];
-
-
 
 // eslint-disable-next-line react/prop-types
 const WorkFlow = ({apiServer, apiKey}) => {
@@ -513,6 +104,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [candidateStatus, setCandidateStatus] = useState([]);
     const [source, setSource] = useState([]);
     const [jobStatus, setJobStatus] = useState([]);
+
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
             setSelectedAction(selectedActionData.selectedAction);
@@ -637,8 +229,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         const jobStatusData = response.data.data;
         setJobStatus(jobStatusData)
     };
-
-
     const renderForm = () => {
         let ActionForm;
         switch (triggerCode) {
@@ -667,8 +257,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setSelectedNodeId(node.id);
         if (node.id === "1") {
             if (!selectedTriggerName) {
-
-
                 setSelectedNode(node);
                 setDrawerVisible(true);
                 setActionDrawerVisible(false);
@@ -681,7 +269,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 setSelectedActionData(actionData);
                 setActionCode(actionData.selectedAction?.code);
                 setEditDrawerVisible(true);
-
             }
             else if (selectedTriggerName) {
                 setActionDrawerVisible(true);
@@ -693,7 +280,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
         }
     };
-
     const handleTriggerSelection = (trigger) => {
         const updatedNodes = nodes.map((node) =>
             node.id === "1" ? { ...node, data: { label: trigger.name } } : node
@@ -714,9 +300,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         localStorage.setItem('triggerCode', code);
         fetchActions(code);
     };
-
-
-
     const closeDrawer = () => {
         setDrawerVisible(false);
         setSelectedNode(null);
@@ -823,7 +406,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     //Actions
 
-// Your other logic follows here
     const handleActionSelection = (action) => {
         setSelectedActions((prevActions) => [...prevActions, action]);
         setSelectedAction(action);
@@ -832,12 +414,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
         const code = action.code
         setActionCode(code)
     };
-
-
     const handleActionDragStart = (event, action) => {
         closeActionDrawer();
         event.dataTransfer.setData("text/plain", JSON.stringify(action)); // Set the dragged trigger data
-
     };
     const handleActionDrop = (event) => {
         event.preventDefault();
@@ -860,11 +439,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
             console.error("No data found in drop event.");
             return;
         }
-
         try {
             const action = JSON.parse(data); // Parse the dropped action
-
-
             // Update Node 2's label if no actions have been selected yet
             if (selectedActions.length === 0) {
                 setNodes((prevNodes) =>
@@ -888,41 +464,14 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setSelectedAction(action);
             setActionDrawerVisible(false);
             setFormDrawerVisible(true);
-
-
         } catch (error) {
             console.error("Error processing dropped action:", error);
         }
     };
 
-
     const handleActionDragOver  = (event) => {
         event.preventDefault();
     };
-
-    const generateUpdatedData = (selectedAction, values) => {
-        let label;
-        switch (selectedAction?.code) {
-            case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER':
-            case 'ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION':
-            case 'ATS_PLACEMENT_CREATED_ADD_TASK_CONCERNED_USERS':
-            case 'ATS_PLACEMENT_CREATED_ADD_TASK_TO_OWNER':
-                label = `${selectedAction.name}\nAfter ${values?.when} Days\n`;
-                break;
-            case 'JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION':
-            case 'JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS':
-            case 'JOB_EXPIRY_SEND_EMAIL_TO_OWNER':
-            case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
-                label = `${selectedAction.name}\n ${values?.when} Days Before expire\n`;
-                break;
-            default:
-                label = `${selectedAction?.name}`;
-                break;
-        }
-
-        return { label };
-    };
-
     const closeActionDrawer = () => {
         setSelectedNodeId(null);
         setActionDrawerVisible(false);
@@ -952,7 +501,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             id: `e${sourceNodeId}-${targetNodeId}`,
             source: sourceNodeId,
             target: targetNodeId,
-            type: "button", // Use custom button type
+            type: "button",
 
             style: { stroke: '#d7d9e1', strokeWidth: 1 },
         };
@@ -972,20 +521,17 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     node.id === "2" ? { ...node, data: updatedData } : node
                 )
             );
-
             if (!exitNodeExists) {
                 setNodes((prevNodes) => [
                     ...prevNodes,
                     { id: "exit", type: "default", data: { label: "Exit" }, position: { x: 200, y: firstNode.position.y + 130 } },
                 ]);
-
                 setEdges((prevEdges) => [
                     ...prevEdges.filter((edge) => edge.target !== "exit"),
                     createNewEdge("2", "exit"),
                 ]);
             }
             setSelectedNodeId(null);
-
             setIsFirstNodeUsed(true);
             localStorage.setItem('isFirstNodeUsed', JSON.stringify(true));
         } else {
@@ -1015,7 +561,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 ]);
             }
         }
-
         const existingData = JSON.parse(localStorage.getItem("savedActionData")) || [];
         const updatedActions = existingData.map((action) =>
             action.node.id === (newNode?.id || selectedNodeId)
@@ -1029,29 +574,21 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 node: newNode || { id: selectedNodeId },
             });
         }
-
-
         localStorage.setItem("savedActionData", JSON.stringify(updatedActions));
         setSelectedActionData({
             selectedAction: null,
             formData: {},
-
         });
-
         setActionCode(null);
         setEditDrawerVisible(false);
         setFormDrawerVisible(false);
         setSelectedNodeId(null);
-
     };
-
-
     const closeFormDrawer = () => {
         setSelectedNodeId(null);
         setFormDrawerVisible(false);
 
     };
-
     const handleActionChange = (e) => {
         const selectedId = e.target.value;
         const selectedAction = actions.find(action => action._id === selectedId);
@@ -1181,7 +718,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         localStorage.setItem("savedActionData", JSON.stringify(updatedData));
     };
 
-
     return (
         <div style={{ height: "90vh", verticalAlign: "top" }}>
             <ReactFlow
@@ -1221,15 +757,14 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 onDragOver={handleDragOver}
                 edgeTypes={{
                     custom: (props) => (
-                        <CustomEdge {...props} iconVisible={iconVisible} selectedTriggerName={selectedTriggerName} selectedTrigger={selectedTrigger} />
+                        <FilterIcon {...props} iconVisible={iconVisible} selectedTriggerName={selectedTriggerName} selectedTrigger={selectedTrigger} />
                     ),
                     button: (props) => (
-                        <CustomButton {...props} setActionDrawerVisible={setActionDrawerVisible} nodes={nodes} />
+                        <AddActionButton {...props} setActionDrawerVisible={setActionDrawerVisible} nodes={nodes} />
                     ),
                 }}
                 fitView
             >
-                {/*<Controls />*/}
                 <Background />
             </ReactFlow>
 
@@ -1293,7 +828,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
                             onClick={() => handleActionSelection(action)} // Handle action selection
                             draggable
                             onDragStart={(event) => handleActionDragStart(event, action)}
-
                         >
                             <div>
                                 <Flex gap={'middle'}>
@@ -1341,8 +875,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
                     {selectedNodeId && renderForm(formData[selectedNodeId] || {})}
                 </div>
             </Drawer>
-
-
         </div>
     );
 };
