@@ -10,7 +10,7 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
     const  sourceData = parsedTrigger?.filters?.includes( "SOURCE");
     const  jobStatusData = parsedTrigger?.filters?.includes( "JOB_STATUS");
 
-
+    const sortedTags = [...tags].sort((a, b) => a.key.localeCompare(b.key));
     return (
         <Form
             layout="vertical"
@@ -70,8 +70,8 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                         value={selectedTags} // Bind selectedTags to the Select component
                         optionLabelProp="label" // Ensure the label is used for display
                     >
-                        {tags.map((tagGroup, index) => (
-                            <Select.OptGroup key={index} label={tagGroup.key}>
+                        {sortedTags.map((tagGroup, index) => (
+                            <Select.OptGroup key={index} label={<span style={{ fontSize: 15, fontWeight: "bold" }}>{tagGroup.key}</span>} >
                                 {tagGroup.values.map((value, subIndex) => (
                                     <Select.Option key={`${tagGroup.key}-${subIndex}`} value={value} label={value}>
                                         <Checkbox checked={selectedTags.includes(value)}>{value}</Checkbox>
