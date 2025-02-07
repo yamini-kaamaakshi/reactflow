@@ -35,12 +35,12 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
     const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
     const hasFilters = parsedTrigger?.hasFilters === true;
 
-    // Persist appliedFilters in localStorage whenever it changes
-    useEffect(() => {
-        if (appliedFilters) {
-            localStorage.setItem("appliedFilters", JSON.stringify(appliedFilters));
-        }
-    }, [appliedFilters]);
+    // // Persist appliedFilters in localStorage whenever it changes
+    // useEffect(() => {
+    //     if (appliedFilters) {
+    //         localStorage.setItem("appliedFilters", JSON.stringify(appliedFilters));
+    //     }
+    // }, [appliedFilters]);
 
     // Open Filter Drawer (Ensure it's opening on the first click)
     const handleFilterDrawerOpen = () => {
@@ -60,6 +60,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
 
     const handleFilterSubmit = (values) => {
         setAppliedFilters(values);
+        localStorage.setItem("appliedFilters", JSON.stringify(values));
         setFormData(values);
         setIconColor("green");
         closeDrawer();

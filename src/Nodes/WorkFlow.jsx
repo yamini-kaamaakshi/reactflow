@@ -12,7 +12,6 @@ import AddActionButton from "../Custom/AddActionButton.jsx";
 import generateUpdatedData from "../swichcaseManager/ActionDisplay.jsx";
 import JobIsAboutToExpire from "../Forms/JobIsAboutToExpire.jsx";
 import PlacementIscreated from "../Forms/PlacementIscreated.jsx";
-import {useFilterStore} from "../Nodes/AddTriggerNode.jsx";
 import axios from "axios";
 
 const initialEdges = [
