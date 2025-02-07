@@ -29,7 +29,7 @@ const useFilterStore = create(
     )
 );
 // eslint-disable-next-line react/prop-types
-const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,selectedTrigger,candidateStatus,source }) => {
+const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,selectedTrigger,candidateStatus,source,jobStatus }) => {
     const [formData, setFormData] = useState({ jobStatus: [] });
     const { setIconColor,isFilterDrawerVisible,setIsFilterDrawerVisible } = useFilterStore();
 
@@ -86,16 +86,18 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
 
     };
 
-    // Handle Delete Button Click
-    const handleDelete = () => {
-        localStorage.removeItem('appliedFilters');
-        localStorage.removeItem('selectedTrigger');
-        setAppliedFilters(null);
-        setFormData(null)
-        setIconColor("black");
-        onDelete();
-    };
 
+// Delete button in AddTriggerNode component
+    const handleDelete = () => {
+        if (window.confirm("Are you sure you want to delete this node?")) {
+            localStorage.removeItem('appliedFilters');
+            localStorage.removeItem('selectedTrigger');
+            setAppliedFilters(null);
+            setFormData(null);
+            setIconColor("black");
+            onDelete();
+        }
+    };
     return (
         <>
             {/* Trigger Label */}
@@ -144,7 +146,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                 </Flex>
 
                 {/* Filters Button */}
-                {selectedTriggerName &&  !appliedFilters && hasFilters && (
+                {selectedTriggerName && !appliedFilters && hasFilters && (
                     <div
                         style={{
                             marginTop: 10,
@@ -169,7 +171,6 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                         </Button>
                     </div>
                 )}
-
                 {/* Delete Button */}
                 {selectedTriggerName && isHovered &&  (
                     <Button
@@ -236,6 +237,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName,jobTypes,tags,sele
                     tags={tags}
                     candidateStatus={candidateStatus}
                     source={source}
+                    jobStatus={jobStatus}
                     selectedTags={selectedTags}
                     selectedTrigger={selectedTrigger}
                 />
@@ -510,7 +512,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [tags, setTags] = useState([]);
     const [candidateStatus, setCandidateStatus] = useState([]);
     const [source, setSource] = useState([]);
-
+    const [jobStatus, setJobStatus] = useState([]);
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
             setSelectedAction(selectedActionData.selectedAction);
@@ -566,8 +568,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
         if (triggerCode) {
             fetchJobTypes();
             fetchTags();
-            fetchUsers();
+            fetchCandidateStatus();
             fetchSource();
+            fetchJobStatus();
         }
     }, [triggerCode]);
 
@@ -609,14 +612,13 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const fetchTags = () =>
         fetchData(`${apiServer}/api/masterdata/tags/v2`, setTags);
 
-    const fetchUsers = async () => {
+    const fetchCandidateStatus = async () => {
         const response = await axios.get(`https://api.recruitly.io/api/masterdata/candidatestatus`, {
             params: { apiKey },
         });
 
         const candidatestatus = response.data.data;
         setCandidateStatus(candidatestatus)
-        console.log("candidatestatus",candidatestatus)
 
     };
 
@@ -627,9 +629,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         const sorceData = response.data.data;
         setSource(sorceData)
-        console.log("sorceData",sorceData)
-
     };
+    const fetchJobStatus = async () => {
+        const response = await axios.get(`https://api.recruitly.io/api/masterdata/jobstatus`, {
+            params: { apiKey },
+        });
+        const jobStatusData = response.data.data;
+        setJobStatus(jobStatusData)
+    };
+
 
     const renderForm = () => {
         let ActionForm;
@@ -770,25 +778,22 @@ const WorkFlow = ({apiServer, apiKey}) => {
         event.preventDefault();
     };
 
-    const handleNodeDelete = () => {
-        if (window.confirm("Are you sure you want to delete these nodes?")) {
+   const handleNodeDelete = () => {
             localStorage.removeItem('selectedTriggerName');
             localStorage.removeItem('savedActionData');
             localStorage.removeItem('droppedTrigger');
             localStorage.removeItem('isFirstNodeUsed');
             localStorage.removeItem('selectedNodeId');
             localStorage.removeItem('triggerCode');
-            setNodes(initialNodes);
-            setEdges(initialEdges)
 
+            setNodes(initialNodes);
+            setEdges(initialEdges);
             resetAll();
-            setActionCode(null)
+            setActionCode(null);
             setIconVisible(false);
             setDrawerVisible(true);
             setIsFirstNodeUsed(false);
-
             closeActionDrawer();
-        }
     };
 
     const moduleNames = [
@@ -1193,6 +1198,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                         tags={tags}
                                         candidateStatus={candidateStatus}
                                         source={source}
+                                        jobStatus={jobStatus}
                                         selectedTrigger={selectedTrigger}
                         />
                     ),

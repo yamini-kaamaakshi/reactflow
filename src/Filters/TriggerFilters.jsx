@@ -1,6 +1,6 @@
 import { Form, Button, Select, Checkbox } from "antd";
 
-const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags, selectedTags,candidateStatus,source }) => {
+const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags, selectedTags,candidateStatus,source,jobStatus }) => {
     const selectedTriggerData = localStorage.getItem("selectedTrigger");
     const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
 
@@ -8,7 +8,8 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
     const masterDataTags = parsedTrigger?.filters?.includes("TAGS");
     const candidateStatusData = parsedTrigger?.filters?.includes('CANDIDATE_STATUS');
     const  sourceData = parsedTrigger?.filters?.includes( "SOURCE");
-    console.log("source",source)
+    const  jobStatusData = parsedTrigger?.filters?.includes( "JOB_STATUS");
+
 
     return (
         <Form
@@ -21,7 +22,6 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                 borderRadius: "10px",
             }}
         >
-
             {hasJobTypeFilter  && (
                 <Form.Item label="Job Type" name="jobType">
                     <Select
@@ -39,6 +39,51 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                     </Select>
                 </Form.Item>
             )}
+
+            { jobStatusData && (
+                <Form.Item label="Job Status" name="jobStatus">
+                <Select
+                    mode="multiple"
+                    placeholder="Select Job Status"
+                    onChange={(value) => onFilterChange(value, "jobStatus")}
+                    style={{width: "100%"}}
+                    showSearch
+                >
+                    {jobStatus.map((job) => (
+                        <Select.Option key={job.id} value={job.name}>
+                            {job.name}
+                        </Select.Option>
+                    ))}
+                </Select>
+            </Form.Item>
+            )}
+
+            {/* Tags Dropdown */}
+            {masterDataTags && (
+                <Form.Item label="Tags" name="tags">
+                    <Select
+                        mode="multiple"
+                        placeholder="Search Tags"
+                        onChange={(value) => onFilterChange(value, "tags")} // ensure onFilterChange handles tag updates
+                        style={{ width: "100%" }}
+                        showSearch
+                        value={selectedTags} // Bind selectedTags to the Select component
+                        optionLabelProp="label" // Ensure the label is used for display
+                    >
+                        {tags.map((tagGroup, index) => (
+                            <Select.OptGroup key={index} label={tagGroup.key}>
+                                {tagGroup.values.map((value, subIndex) => (
+                                    <Select.Option key={`${tagGroup.key}-${subIndex}`} value={value} label={value}>
+                                        <Checkbox checked={selectedTags.includes(value)}>{value}</Checkbox>
+                                    </Select.Option>
+                                ))}
+                            </Select.OptGroup>
+                        ))}
+                    </Select>
+                </Form.Item>
+            )}
+
+
 
             { candidateStatusData && (
                 <Form.Item label="Candidate Status" name="candidateStatus">
@@ -73,30 +118,6 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                         ))}
                     </Select>
                 </Form.Item>)}
-            {/* Tags Dropdown */}
-            {masterDataTags && (
-                <Form.Item label="Tags" name="tags">
-                    <Select
-                        mode="multiple"
-                        placeholder="Search Tags"
-                        onChange={(value) => onFilterChange(value, "tags")} // ensure onFilterChange handles tag updates
-                        style={{ width: "100%" }}
-                        showSearch
-                        value={selectedTags} // Bind selectedTags to the Select component
-                        optionLabelProp="label" // Ensure the label is used for display
-                    >
-                        {tags.map((tagGroup, index) => (
-                            <Select.OptGroup key={index} label={tagGroup.key}>
-                                {tagGroup.values.map((value, subIndex) => (
-                                    <Select.Option key={`${tagGroup.key}-${subIndex}`} value={value} label={value}>
-                                        <Checkbox checked={selectedTags.includes(value)}>{value}</Checkbox>
-                                    </Select.Option>
-                                ))}
-                            </Select.OptGroup>
-                        ))}
-                    </Select>
-                </Form.Item>
-            )}
 
             {/* Submit Button */}
             <Form.Item>
