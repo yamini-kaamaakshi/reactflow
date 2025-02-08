@@ -185,7 +185,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
 
             {/* Drawer for Filters */}
             <Drawer
-                title="Select a Filter"
+                title="Filters"
                 width={550}
                 open={isFilterDrawerVisible}
                 onClose={closeDrawer}

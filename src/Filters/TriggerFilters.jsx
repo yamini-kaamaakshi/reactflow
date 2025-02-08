@@ -5,7 +5,7 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
     const selectedTriggerData = localStorage.getItem("selectedTrigger");
     const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
 
-    const hasJobTypeFilter = parsedTrigger?.filters?.includes("JOB_TYPE");
+    const JobType = parsedTrigger?.filters?.includes("JOB_TYPE");
     const masterDataTags = parsedTrigger?.filters?.includes("TAGS");
     const candidateStatusData = parsedTrigger?.filters?.includes('CANDIDATE_STATUS');
     const  sourceData = parsedTrigger?.filters?.includes( "SOURCE");
@@ -14,6 +14,10 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
 
     const sortedTags = [...tags].sort((a, b) => a.key.localeCompare(b.key));
     return (
+<>
+    <div style={{ marginBottom: '20px', fontSize: '16px', fontWeight: 'bold', color: '#333' }}>
+        Select the filters below to target a specific group of records with this automation
+    </div>
         <Form
             layout="vertical"
             initialValues={initialValues}
@@ -24,7 +28,7 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                 borderRadius: "10px",
             }}
         >
-            {hasJobTypeFilter  && (
+            {JobType  && (
                 <Form.Item label="Job Type" name="jobType">
                     <Select
                         mode="multiple"
@@ -61,22 +65,23 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
 
             { owner && (
                 <Form.Item label="Owner" name="owner">
-                <Select
-                    mode="multiple"
-                    placeholder="Select Owner"
-                    onChange={(value) => onFilterChange(value, "owner")}
-                    style={{width: "100%"}}
-                    showSearch
-                >
-                    {users.map((owner) => (
-                        <Select.Option key={owner.id} value={owner.name}>
-                            {owner.fullName}
-                        </Select.Option>
-                    ))}
-                </Select>
-            </Form.Item>
+                    <Select
+                        mode="multiple"
+                        placeholder="Select Owner"
+                        onChange={(value) => onFilterChange(value, "owner")}
+                        style={{ width: "100%" }}
+                        showSearch
+                    >
+                        {users
+                            .sort((a, b) => a.fullName.localeCompare(b.fullName)) // Sort alphabetically
+                            .map((owner) => (
+                                <Select.Option key={owner.id} value={owner.name}>
+                                    {owner.fullName}
+                                </Select.Option>
+                            ))}
+                    </Select>
+                </Form.Item>
             )}
-
             {/* Tags Dropdown */}
             {masterDataTags && (
                 <Form.Item label="Tags" name="tags">
@@ -145,6 +150,7 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                 </Button>
             </Form.Item>
         </Form>
+</>
     );
 };
 
