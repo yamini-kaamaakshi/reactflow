@@ -1,6 +1,6 @@
 import {create} from "zustand";
 import {persist} from "zustand/middleware";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {Button, Card, Drawer, Flex} from "antd";
 import {IoIosFlash} from "react-icons/io";
 import {PlusOutlined} from "@ant-design/icons";
@@ -11,8 +11,6 @@ import JobStatusForm from "../Filters/TriggerFilters.jsx";
 export const useFilterStore = create(
     persist(
         (set) => ({
-            // isFilterDrawerVisible: false,  // Add filterDrawerVisible state
-            // setIsFilterDrawerVisible: (isVisible) => set({ isFilterDrawerVisible: isVisible }), // Method to update filterDrawerVisible
             setIconColor: (color) => set({ iconColor: color }),
         }),
         {
@@ -21,7 +19,7 @@ export const useFilterStore = create(
     )
 );
 // eslint-disable-next-line react/prop-types
-const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, selectedTrigger, candidateStatus, source, jobStatus, isFilterDrawerVisible, setIsFilterDrawerVisible  }) => {
+const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, selectedTrigger, candidateStatus, source, jobStatus, isFilterDrawerVisible, setIsFilterDrawerVisible,users  }) => {
     const [formData, setFormData] = useState({ jobStatus: [] });
     const { setIconColor} = useFilterStore();
     const [isHovered, setIsHovered] = useState(false);
@@ -34,13 +32,6 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
     const selectedTriggerData = localStorage.getItem("selectedTrigger");
     const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
     const hasFilters = parsedTrigger?.hasFilters === true;
-
-    // // Persist appliedFilters in localStorage whenever it changes
-    // useEffect(() => {
-    //     if (appliedFilters) {
-    //         localStorage.setItem("appliedFilters", JSON.stringify(appliedFilters));
-    //     }
-    // }, [appliedFilters]);
 
     // Open Filter Drawer (Ensure it's opening on the first click)
     const handleFilterDrawerOpen = () => {
@@ -209,6 +200,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
                     source={source}
                     jobStatus={jobStatus}
                     selectedTags={selectedTags}
+                    users={users}
                     selectedTrigger={selectedTrigger}
                 />
             </Drawer>

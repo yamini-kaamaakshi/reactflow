@@ -1,7 +1,7 @@
 import { Form, Button, Select, Checkbox } from "antd";
 
 // eslint-disable-next-line react/prop-types
-const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags, selectedTags,candidateStatus,source,jobStatus }) => {
+const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags, selectedTags,candidateStatus,source,jobStatus,users }) => {
     const selectedTriggerData = localStorage.getItem("selectedTrigger");
     const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
 
@@ -10,6 +10,7 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
     const candidateStatusData = parsedTrigger?.filters?.includes('CANDIDATE_STATUS');
     const  sourceData = parsedTrigger?.filters?.includes( "SOURCE");
     const  jobStatusData = parsedTrigger?.filters?.includes( "JOB_STATUS");
+    const  owner = parsedTrigger?.filters?.includes( "OWNER");
 
     const sortedTags = [...tags].sort((a, b) => a.key.localeCompare(b.key));
     return (
@@ -40,19 +41,36 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                     </Select>
                 </Form.Item>
             )}
-
             { jobStatusData && (
                 <Form.Item label="Job Status" name="jobStatus">
+                    <Select
+                        mode="multiple"
+                        placeholder="Select Job Status"
+                        onChange={(value) => onFilterChange(value, "jobStatus")}
+                        style={{width: "100%"}}
+                        showSearch
+                    >
+                        {jobStatus.map((job) => (
+                            <Select.Option key={job.id} value={job.name}>
+                                {job.name}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
+            )}
+
+            { owner && (
+                <Form.Item label="Owner" name="owner">
                 <Select
                     mode="multiple"
-                    placeholder="Select Job Status"
-                    onChange={(value) => onFilterChange(value, "jobStatus")}
+                    placeholder="Select Owner"
+                    onChange={(value) => onFilterChange(value, "owner")}
                     style={{width: "100%"}}
                     showSearch
                 >
-                    {jobStatus.map((job) => (
-                        <Select.Option key={job.id} value={job.name}>
-                            {job.name}
+                    {users.map((owner) => (
+                        <Select.Option key={owner.id} value={owner.name}>
+                            {owner.fullName}
                         </Select.Option>
                     ))}
                 </Select>

@@ -103,6 +103,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [candidateStatus, setCandidateStatus] = useState([]);
     const [source, setSource] = useState([]);
     const [jobStatus, setJobStatus] = useState([]);
+    const [users, setUsers] = useState([])
+    const [webhooks, setWebhooks] = useState([])
 
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
@@ -162,6 +164,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
             fetchCandidateStatus();
             fetchSource();
             fetchJobStatus();
+            fetchUsers();
+            fetchWebhooks();
         }
     }, [triggerCode]);
 
@@ -203,31 +207,23 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const fetchTags = () =>
         fetchData(`${apiServer}/api/masterdata/tags/v2`, setTags);
 
-    const fetchCandidateStatus = async () => {
-        const response = await axios.get(`https://api.recruitly.io/api/masterdata/candidatestatus`, {
-            params: { apiKey },
-        });
+    const fetchCandidateStatus = () =>
+        fetchData(`${apiServer}/api/masterdata/candidatestatus`, setCandidateStatus);
 
-        const candidatestatus = response.data.data;
-        setCandidateStatus(candidatestatus)
 
-    };
+    const fetchSource = () =>
+        fetchData(`${apiServer}/api/masterdata/source`, setSource);
 
-    const fetchSource = async () => {
-        const response = await axios.get(`https://api.recruitly.io/api/masterdata/source`, {
-            params: { apiKey },
-        });
+    const fetchJobStatus = () =>
+        fetchData(`${apiServer}/api/masterdata/jobstatus`, setJobStatus);
 
-        const sorceData = response.data.data;
-        setSource(sorceData)
-    };
-    const fetchJobStatus = async () => {
-        const response = await axios.get(`https://api.recruitly.io/api/masterdata/jobstatus`, {
-            params: { apiKey },
-        });
-        const jobStatusData = response.data.data;
-        setJobStatus(jobStatusData)
-    };
+    const fetchUsers = () =>
+        fetchData(`${apiServer}/api/user_list`, setUsers);
+
+    const fetchWebhooks = () =>
+        fetchData(`${apiServer}/api/masterdata/webhooks `, setWebhooks);
+
+
     const renderForm = () => {
         let ActionForm;
         switch (triggerCode) {
@@ -402,9 +398,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         );
     }
 
-
     //Actions
-
     const handleActionSelection = (action) => {
         setSelectedActions((prevActions) => [...prevActions, action]);
         setSelectedAction(action);
@@ -734,6 +728,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                                         candidateStatus={candidateStatus}
                                         source={source}
                                         jobStatus={jobStatus}
+                                        users={users}
                                         selectedTrigger={selectedTrigger}
                         />
                     ),
