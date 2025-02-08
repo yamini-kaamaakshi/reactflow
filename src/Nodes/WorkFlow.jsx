@@ -243,6 +243,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 actionCode={actionCode}
                 formData={selectedActionData?.formData}
                 selectedNodeId={selectedNodeId}
+                webhooks={webhooks}
             />
         );
     };

@@ -22,7 +22,7 @@ const DefaultFormItem = () => (
     </Form.Item>
 );
 // eslint-disable-next-line react/prop-types
-const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
+const JobIsAboutToExpire = ({handleFormSubmit, actionCode,webhooks }) => {
 
 
 
@@ -40,33 +40,14 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode }) => {
                         <Select
                             placeholder="Select Webhook"
                             name="selectedWebhook"
-                            // onChange={handleWebhookChange}
                             className="form-control"
                         >
-                            <Select.Option value="486e9141-3c86-4f59-9dfb-8b54e747d8ab">
-                                Pipedream webhook
-                            </Select.Option>
-                            <Select.Option value="9e92a176-a08f-4d57-8714-dbae89799b59">
-                                Webhook -2 PipeDream
-                            </Select.Option>
-                            <Select.Option value="672809ca-8fea-4d4e-af67-e8ea16f3a06e">
-                                TEST WEBHOOK
-                            </Select.Option>
-                            <Select.Option value="b82c68c9-acdc-419e-adcf-a0acd08b8cbc">
-                                Teams - 1
-                            </Select.Option>
-                            <Select.Option value="4135ab04-e694-428e-bd96-502fc5a385f3">
-                                teams
-                            </Select.Option>
-                            <Select.Option value="555b94db-f53e-48f8-8682-e2bd35a0e0cc">
-                                Teams - 2
-                            </Select.Option>
-                            <Select.Option value="610f0153-6640-4794-8c7f-0834ac251d82">
-                                Verification
-                            </Select.Option>
-                            <Select.Option value="a9e9358b-47db-40e6-bfcd-0e00bf6ca40d">
-                                Pipe Dream
-                            </Select.Option>
+
+                            {webhooks.map((webhook) => (
+                                <Select.Option key={webhook.id} value={webhook.id}>
+                                    {webhook.name}
+                                </Select.Option>
+                            ))}
                         </Select>
                     </Form.Item>
 
