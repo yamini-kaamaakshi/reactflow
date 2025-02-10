@@ -228,7 +228,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         fetchData(`${apiServer}/api/masterdata/webhooks `, setWebhooks);
 
     const fetchRejectReasons = () =>
-        fetchData(`${apiServer}/api/masterdata/job_pipeline/reject_reasons `, setRejectReasons());
+        fetchData(`${apiServer}/api/masterdata/job_pipeline/reject_reasons `, setRejectReasons);
 
     const renderForm = () => {
         let ActionForm;
@@ -253,7 +253,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 formData={selectedActionData?.formData}
                 selectedNodeId={selectedNodeId}
                 webhooks={webhooks}
-                rejectreasons={rejectReasons}
+                rejectReasons={rejectReasons}
             />
         );
     };

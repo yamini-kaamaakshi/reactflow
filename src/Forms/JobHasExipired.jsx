@@ -24,7 +24,7 @@ const JoBHasExpired = ({ actionCode, handleFormSubmit, formData,rejectReasons })
                         >
 
                             {rejectReasons?.map((rejectReason) => (
-                                <Select.Option key={rejectReason.id} value={rejectReason.id}>
+                                <Select.Option key={rejectReason.id} value={rejectReason.name}>
                                     {rejectReason.name}
                                 </Select.Option>
                             ))}
