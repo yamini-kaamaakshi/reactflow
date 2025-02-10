@@ -3,7 +3,7 @@ import { Form, Input, Select, Button } from "antd";
 // DefaultFormItem now renders an Input field with the given props
 const DefaultFormItem = () => (
     <Form.Item
-        label="When:"
+        label="WhenAfterDays:"
         name="when"
         rules={[{ required: true, message: "Please input the number of days!" }]}
     >

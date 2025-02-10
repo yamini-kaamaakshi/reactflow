@@ -1,31 +1,6 @@
 import { Button, Form, Input, Radio, Select } from "antd";
 import { useState} from "react";
-
-const DefaultFormItem = ({ formData }) => {
-    return (
-        <Form.Item
-            label="When:"
-            name="when"
-            rules={[{ required: true, message: "Please input the number of days!" }]}
-            initialValue={formData?.when}
-        >
-            <div className="input-group">
-                <Input
-                    type="number"
-                    title="After Days"
-                    placeholder="1"
-                    autoComplete="off"
-                    step="1"
-                    min="1"
-                    max="1500"
-                    addonBefore="After"
-                    addonAfter="Days"
-                    defaultValue={formData?.when}
-                />
-            </div>
-        </Form.Item>
-    );
-};
+import WhenAfterDays from "./DefaultFields/WhenAfterDays.jsx";
 
 
 
@@ -48,7 +23,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
                     subject: formData?.subject || "",
                     message: formData?.message || ""
                 }}>
-                    <DefaultFormItem formData={formData} />
+                    <WhenAfterDays formData={formData} />
 
                     <Form.Item label="Send as:" name="sendAs">
                         <Radio.Group
@@ -110,7 +85,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
         case "ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <DefaultFormItem formData={formData} />
+                    <WhenAfterDays formData={formData} />
 
                     <Form.Item>
                         <Button type="primary" htmlType="submit">
@@ -123,7 +98,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
         case 'ATS_PLACEMENT_CREATED_ADD_TASK_TO_OWNER':
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <DefaultFormItem formData={formData} />
+                    <WhenAfterDays formData={formData} />
                     <Form.Item label="Due Date:" name="dueDate">
                         <Select
                             className="form-control"
