@@ -1,7 +1,7 @@
 import {create} from "zustand";
 import {persist} from "zustand/middleware";
 import {useState} from "react";
-import {Button, Card, Drawer, Flex} from "antd";
+import {Button, Card, Drawer, Flex, Tooltip} from "antd";
 import {IoIosFlash} from "react-icons/io";
 import {PlusOutlined} from "@ant-design/icons";
 import {MdDelete} from "react-icons/md";
@@ -30,6 +30,8 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
         const savedApplied = localStorage.getItem("appliedFilters");
         return savedApplied ? JSON.parse(savedApplied) : null;
     });
+
+    const [tooltipOpen, setTooltipOpen] = useState(true);
 
     const selectedTriggerData = localStorage.getItem("selectedTrigger");
     const parsedTrigger = selectedTriggerData ? JSON.parse(selectedTriggerData) : null;
@@ -76,17 +78,23 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
         });
     };
 
-
     const handleDelete = () => {
-        if (window.confirm("Are you sure you want to delete this node?")) {
-            localStorage.removeItem("appliedFilters");
-            localStorage.removeItem("selectedTrigger");
-            setAppliedFilters(null);
-            setFormData(null);
-            setIconColor("black");
-            onDelete();
-        }
+        setTooltipOpen(false); // Hide tooltip first
+
+        Promise.resolve().then(() => {
+            if (window.confirm("Are you sure you want to delete this node?")) {
+                localStorage.removeItem("appliedFilters");
+                localStorage.removeItem("selectedTrigger");
+                setAppliedFilters(null);
+                setFormData(null);
+                setIconColor("black");
+
+                onDelete();
+            }
+        });
     };
+
+
 
     return (
         <>
@@ -145,6 +153,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
                     >
                         {/* Show Filter Icon only if hasFilters is true */}
                         {hasFilters && (
+                            <Tooltip title="Apply the filters">
                             <FilterOutlined
                                 onClick={handleFilterDrawerOpen}
                                 style={{
@@ -153,19 +162,26 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
                                     cursor: "pointer",
                                 }}
                             />
+                                </Tooltip>
                         )}
 
                         {/* Delete Button should always appear when hovered */}
-                        <Button
-                            onClick={handleDelete}
-                            style={{
-                                backgroundColor: "white",
-                                border: "none",
-                                padding: 0,
-                                margin: 0,
-                            }}
-                            icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
-                        />
+                        <Tooltip
+                            title="Delete this trigger"
+                            open={tooltipOpen}
+                            onOpenChange={(isOpen) => setTooltipOpen(isOpen)} // Allows hover to show tooltip
+                        >
+                            <Button
+                                onClick={handleDelete}
+                                style={{
+                                    backgroundColor: "white",
+                                    border: "none",
+                                    padding: 0,
+                                    margin: 0,
+                                }}
+                                icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
+                            />
+                        </Tooltip>
                     </div>
                 )}
                 <Handle type="source" position={Position.Bottom} />

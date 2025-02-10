@@ -1,7 +1,7 @@
 import  { useEffect, useState } from "react";
 import  { Handle} from "react-flow-renderer";
 import { MdDelete } from "react-icons/md";
-import { Button,} from "antd";
+import {Button, Tooltip,} from "antd";
 import { VscRunCoverage } from "react-icons/vsc";
 import { Card, Flex } from "antd";
 // eslint-disable-next-line react/prop-types
@@ -66,6 +66,7 @@ const AddActionNode = ({data,deleteAction,handleActionDrop,handleActionDragOver,
                            </span>
                     </div>
                     {storedAction?.selectedAction?.name && isHovered && (
+                        <Tooltip title="Delete this Action">
                         <Button
                             onClick={deleteAction}
                             style={{
@@ -78,6 +79,7 @@ const AddActionNode = ({data,deleteAction,handleActionDrop,handleActionDragOver,
                             }}
                             icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
                         />
+                        </Tooltip>
                     )}
                     <Handle type="source" position="bottom" />
                 </div>

@@ -13,6 +13,7 @@ import generateUpdatedData from "../swichcaseManager/ActionDisplay.jsx";
 import JobIsAboutToExpire from "../Forms/JobIsAboutToExpire.jsx";
 import PlacementIscreated from "../Forms/PlacementIscreated.jsx";
 import axios from "axios";
+import JobHasExipired from "../Forms/JobHasExipired.jsx";
 
 const initialEdges = [
     {
@@ -105,6 +106,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [jobStatus, setJobStatus] = useState([]);
     const [users, setUsers] = useState([])
     const [webhooks, setWebhooks] = useState([])
+    const [rejectReasons, setRejectReasons] = useState([])
 
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
@@ -155,6 +157,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
         if (savedTriggerCode) {
             setTriggerCode(savedTriggerCode);
             fetchActions(savedTriggerCode);
+            fetchWebhooks();
+            fetchRejectReasons();
         }
     }, []);
     useEffect(() => {
@@ -165,7 +169,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             fetchSource();
             fetchJobStatus();
             fetchUsers();
-            fetchWebhooks();
+
         }
     }, [triggerCode]);
 
@@ -223,12 +227,17 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const fetchWebhooks = () =>
         fetchData(`${apiServer}/api/masterdata/webhooks `, setWebhooks);
 
+    const fetchRejectReasons = () =>
+        fetchData(`${apiServer}/api/masterdata/job_pipeline/reject_reasons `, setRejectReasons());
 
     const renderForm = () => {
         let ActionForm;
         switch (triggerCode) {
             case 'ATS_JOB_ABOUT_EXPIRE':
                 ActionForm = JobIsAboutToExpire;
+                break;
+            case 'JOB_EXPIRED':
+                ActionForm = JobHasExipired;
                 break;
             case 'ATS_PLACEMENT_CREATED':
                 ActionForm = PlacementIscreated;
@@ -244,6 +253,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 formData={selectedActionData?.formData}
                 selectedNodeId={selectedNodeId}
                 webhooks={webhooks}
+                rejectreasons={rejectReasons}
             />
         );
     };
@@ -407,6 +417,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         setFormDrawerVisible(true);
         const code = action.code
         setActionCode(code)
+        console.log("actionCode",code)
     };
     const handleActionDragStart = (event, action) => {
         closeActionDrawer();

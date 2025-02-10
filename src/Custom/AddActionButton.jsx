@@ -4,6 +4,7 @@
 // eslint-disable-next-line react/prop-types
 import {useState} from "react";
 import {PlusOutlined} from "@ant-design/icons";
+import {Tooltip} from "antd";
 
 const AddActionButton = ({id, sourceX, sourceY, targetX, targetY, setActionDrawerVisible, nodes
                       }) => {
@@ -56,12 +57,14 @@ const AddActionButton = ({id, sourceX, sourceY, targetX, targetY, setActionDrawe
                     }}
                     onClick={() => setActionDrawerVisible(true)} // Handle button click
                 >
+                    <Tooltip title="Add Block">
                     <PlusOutlined
                         style={{
                             fontSize: "10px",
                             color: "white",
                         }}
                     />
+                    </Tooltip>
                 </button>
             </foreignObject>
         </g>
