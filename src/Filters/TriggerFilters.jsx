@@ -75,7 +75,7 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                         {users
                             .sort((a, b) => a.fullName.localeCompare(b.fullName)) // Sort alphabetically
                             .map((owner) => (
-                                <Select.Option key={owner.id} value={owner.name}>
+                                <Select.Option key={owner.id} value={owner.fullName}>
                                     {owner.fullName}
                                 </Select.Option>
                             ))}

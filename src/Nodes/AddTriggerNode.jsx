@@ -7,7 +7,8 @@ import {PlusOutlined} from "@ant-design/icons";
 import {MdDelete} from "react-icons/md";
 import {Handle, Position} from "react-flow-renderer";
 import JobStatusForm from "../Filters/TriggerFilters.jsx";
-
+import { notification } from "antd";
+import { FilterOutlined  } from "@ant-design/icons";
 export const useFilterStore = create(
     persist(
         (set) => ({
@@ -20,7 +21,8 @@ export const useFilterStore = create(
 );
 // eslint-disable-next-line react/prop-types
 const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, selectedTrigger, candidateStatus, source, jobStatus, isFilterDrawerVisible, setIsFilterDrawerVisible,users  }) => {
-    const [formData, setFormData] = useState({ jobStatus: [] });
+    const [isFilterEditDrawerVisible, setIsFilterEditDrawerVisible] = useState(false);
+    const [formData, setFormData] = useState({ });
     const { setIconColor} = useFilterStore();
     const [isHovered, setIsHovered] = useState(false);
     const [selectedTags, setSelectedTags] = useState([]);
@@ -35,12 +37,20 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
 
     // Open Filter Drawer (Ensure it's opening on the first click)
     const handleFilterDrawerOpen = () => {
-        setIsFilterDrawerVisible(true); // Open the drawer when the button is clicked
+
+
+        if (appliedFilters) {
+            setIsFilterEditDrawerVisible(true); // Open the edit drawer if filters are applied
+        }
+        else {
+            setIsFilterDrawerVisible(true);
+        }
     };
 
     // Close Filter Drawer
     const closeDrawer = () => {
         setIsFilterDrawerVisible(false); // Close the drawer
+        setIsFilterEditDrawerVisible(false)
     };
 
     // Handle changes in the form's Select input
@@ -49,13 +59,23 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
         setSelectedTags(value);
     };
 
+
+
     const handleFilterSubmit = (values) => {
         setAppliedFilters(values);
         localStorage.setItem("appliedFilters", JSON.stringify(values));
         setFormData(values);
         setIconColor("green");
         closeDrawer();
+
+        notification.success({
+            message: "Filters Applied Successfully",
+            description: "Your filters have been applied to the trigger.",
+            duration: 2,
+            placement: "bottomRight",
+        });
     };
+
 
     const handleDelete = () => {
         if (window.confirm("Are you sure you want to delete this node?")) {
@@ -112,98 +132,69 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
                     </span>
                 </Flex>
 
-                {selectedTriggerName && !appliedFilters && hasFilters && (
+                {selectedTriggerName  && hasFilters && isHovered && (
                     <div
                         style={{
-                            marginTop: 10,
-                            textAlign: "center",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            gap: "10px",
-                        }}
-                    >
-                        <Button
-                            type="primary"
-                            onClick={handleFilterDrawerOpen}
-                            size="small"
-                            style={{
-                                height: "15px",
-                                width: "40px",
-                                fontSize: "12px",
-                            }}
-                        >
-                            Filters
-                        </Button>
-                    </div>
-                )}
-
-                {selectedTriggerName && isHovered && (
-                    <Button
-                        onClick={handleDelete}
-                        style={{
-                            backgroundColor: "white",
-                            border: "none",
-                            position: "absolute",
                             top: "5px",
-                            right: "10px",
-                            padding: 0,
-                        }}
-                        icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
-                    />
-                )}
-
-                {appliedFilters && (
-                    <div
-                        style={{
-                            marginTop: 8,
-                            backgroundColor: "#f0f2f5",
-                            padding: "1px 10px",
-                            borderRadius: "5px",
-                            display: "inline-block",
+                            right: "20px",
+                            display: "flex",  // Flexbox to align items side by side
+                            alignItems: "center", // Align vertically in the center
+                            gap: "10px", // Space between the icons
+                            position: "absolute", // Position them relative to the parent container
                         }}
                     >
-                        <p style={{ color: "rgb(11, 47, 115)", fontSize: "9px" }}>
-                            {appliedFilters.jobType && (
-                                <>
-                                    <span style={{ fontWeight: "bold" }}>Job Type:</span>{" "}
-                                    {appliedFilters.jobType.map((jobType) => jobType).join(", ")}
-                                </>
-                            )}
-                            {appliedFilters.tags && (
-                                <>
-                                    <span style={{ fontWeight: "bold" }}> Tags:</span>{" "}
-                                    {appliedFilters.tags.map((tag) => tag).join(", ")}
-                                </>
-                            )}
-                        </p>
+                        <FilterOutlined
+                            onClick={handleFilterDrawerOpen} // On click handler for opening the filter drawer
+                            style={{
+                                fontSize: 16, // Size of the icon
+                                color: "rgb(11, 47, 115)", // Color of the icon
+                                cursor: "pointer", // Change cursor on hover
+                            }}
+                        />
+
+
+                        {isHovered && (
+                            <Button
+                                onClick={handleDelete}
+                                style={{
+                                    backgroundColor: "white",
+                                    border: "none",
+                                    padding: 0,
+                                    margin: 0, // Remove margin between the button and the icon
+                                }}
+                                icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
+                            />
+                        )}
                     </div>
                 )}
+
+
 
                 <Handle type="source" position={Position.Bottom} />
             </Card>
 
-            {/* Drawer for Filters */}
+
             <Drawer
-                title="Filters"
+                title={appliedFilters ? "Edit Filter" : "Filter"}
                 width={550}
-                open={isFilterDrawerVisible}
+                open={isFilterDrawerVisible || isFilterEditDrawerVisible}
                 onClose={closeDrawer}
             >
                 <JobStatusForm
-                    initialValues={formData}
+                    initialValues={appliedFilters || formData}
                     onSubmit={handleFilterSubmit}
                     onFilterChange={handleFilterChange}
                     jobTypes={jobTypes}
                     tags={tags}
+                    users={users}
                     candidateStatus={candidateStatus}
                     source={source}
                     jobStatus={jobStatus}
                     selectedTags={selectedTags}
-                    users={users}
                     selectedTrigger={selectedTrigger}
                 />
             </Drawer>
+
         </>
     );
 };
