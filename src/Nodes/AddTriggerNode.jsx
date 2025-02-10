@@ -81,7 +81,8 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
     const handleDelete = () => {
         setTooltipOpen(false); // Hide tooltip first
 
-        Promise.resolve().then(() => {
+        // Add a slight delay before confirming deletion
+        setTimeout(() => {
             if (window.confirm("Are you sure you want to delete this node?")) {
                 localStorage.removeItem("appliedFilters");
                 localStorage.removeItem("selectedTrigger");
@@ -91,7 +92,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
 
                 onDelete();
             }
-        });
+        }, 100); // Small delay to ensure tooltip disappears
     };
 
 

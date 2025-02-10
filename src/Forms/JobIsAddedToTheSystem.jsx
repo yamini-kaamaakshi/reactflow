@@ -11,7 +11,7 @@ const JobIsAddedToTheSystem = ({ actionCode, handleFormSubmit,webhooks,formData 
         case "JOB_ADDED_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <WebHooks webhooks={webhooks} />
+                    <WebHooks webhooks={webhooks} formData={formData} />
                     <Form.Item>
                         <Button type="primary" htmlType="submit">
                             Submit
@@ -24,7 +24,11 @@ const JobIsAddedToTheSystem = ({ actionCode, handleFormSubmit,webhooks,formData 
             return (
                 <Form onFinish={handleFormSubmit}>
                     <DueDate formData={formData} />
-
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Submit
+                        </Button>
+                    </Form.Item>
                 </Form>
             )
         default:

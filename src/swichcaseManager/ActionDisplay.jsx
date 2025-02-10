@@ -14,6 +14,9 @@ const generateUpdatedData = (selectedAction, values) => {
         case 'MARK_JOB_STATUS_AS_CLOSED':
         case 'JOB_EXPIRED_SEND_WEBHOOK_NOTIFICATION':
         case 'JOB_APPLICATION_RECEIVED_ADD_TASK_TO_OWNER':
+        case 'JOB_ADDED_ADD_TASK_TO_OWNER':
+        case 'ATS_PLACEMENT_STARTED_SEND_WEBHOOK_NOTIFICATION':
+        case "ATS_PLACEMENT_ABOUT_START_SEND_WEBHOOK_NOTIFICATION":
             label = `${selectedAction.name}\nAfter ${values?.when} Days\n`;
             break;
         case 'JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION':

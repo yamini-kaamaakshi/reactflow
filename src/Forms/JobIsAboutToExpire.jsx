@@ -4,7 +4,7 @@ import WebHooks from "./DefaultFields/WebHooks.jsx";
 // DefaultFormItem now renders an Input field with the given props
 const DefaultFormItem = () => (
     <Form.Item
-        label="WhenAfterDays:"
+        label="When:"
         name="when"
         rules={[{ required: true, message: "Please input the number of days!" }]}
     >
