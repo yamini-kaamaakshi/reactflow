@@ -132,44 +132,42 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
                     </span>
                 </Flex>
 
-                {selectedTriggerName  && hasFilters && isHovered && (
+                {selectedTriggerName && isHovered && (
                     <div
                         style={{
                             top: "5px",
                             right: "20px",
-                            display: "flex",  // Flexbox to align items side by side
-                            alignItems: "center", // Align vertically in the center
-                            gap: "10px", // Space between the icons
-                            position: "absolute", // Position them relative to the parent container
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            position: "absolute",
                         }}
                     >
-                        <FilterOutlined
-                            onClick={handleFilterDrawerOpen} // On click handler for opening the filter drawer
-                            style={{
-                                fontSize: 16, // Size of the icon
-                                color: "rgb(11, 47, 115)", // Color of the icon
-                                cursor: "pointer", // Change cursor on hover
-                            }}
-                        />
-
-
-                        {isHovered && (
-                            <Button
-                                onClick={handleDelete}
+                        {/* Show Filter Icon only if hasFilters is true */}
+                        {hasFilters && (
+                            <FilterOutlined
+                                onClick={handleFilterDrawerOpen}
                                 style={{
-                                    backgroundColor: "white",
-                                    border: "none",
-                                    padding: 0,
-                                    margin: 0, // Remove margin between the button and the icon
+                                    fontSize: 16,
+                                    color: "rgb(11, 47, 115)",
+                                    cursor: "pointer",
                                 }}
-                                icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
                             />
                         )}
+
+                        {/* Delete Button should always appear when hovered */}
+                        <Button
+                            onClick={handleDelete}
+                            style={{
+                                backgroundColor: "white",
+                                border: "none",
+                                padding: 0,
+                                margin: 0,
+                            }}
+                            icon={<MdDelete style={{ color: "red", fontSize: "16px" }} />}
+                        />
                     </div>
                 )}
-
-
-
                 <Handle type="source" position={Position.Bottom} />
             </Card>
 
