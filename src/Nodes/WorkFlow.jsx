@@ -16,6 +16,7 @@ import axios from "axios";
 import JobHasExipired from "../Forms/JobHasExipired.jsx";
 import JobIsAddedToTheSystem from "../Forms/JobIsAddedToTheSystem.jsx";
 import JobApplicationIsNotReviewed from "../Forms/JobApplicationIsNotReviewed.jsx";
+import PlacedCandidateHasStarted from "../Forms/PlacedCandidateHasStarted.jsx";
 
 const initialEdges = [
     {
@@ -250,6 +251,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'JOB_APPLICATION_RECEIVED':
                 ActionForm = JobApplicationIsNotReviewed;
                 break;
+            case 'ATS_PLACEMENT_ABOUT_START':
+                ActionForm = PlacedCandidateHasStarted;
+                break;
             default:
                 return <div>Invalid Action code.</div>;
         }
@@ -432,6 +436,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         const code = action.code
         setActionCode(code)
         console.log("actionCode",code)
+        console.log("selectedtriggerName",selectedTriggerName)
     };
     const handleActionDragStart = (event, action) => {
         closeActionDrawer();
