@@ -60,7 +60,7 @@ const AddActionNode = ({data,deleteAction,handleActionDrop,handleActionDragOver,
                 <div>
                     <Handle type="target" position="top" />
                     <div style={{display: "flex", alignItems: "center", justifyContent: "center", gap: "10px"}}>
-                          <span style={{fontSize: "14px", color: "#888888"}}>
+                          <span style={{fontSize: "12px", color: "#888888"}}>
                           { data.label}
 
                            </span>

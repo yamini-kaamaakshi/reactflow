@@ -135,7 +135,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
             >
                 <Flex align="center" justify="center" gap="middle">
                     {!selectedTriggerName && <PlusOutlined />}
-                    <span style={{ color: "rgb(11, 47, 115)" }}>
+                    <span style={{fontSize: "12px", color: "rgb(11, 47, 115)" }}>
                         {selectedTriggerName || data.label}
                     </span>
                 </Flex>

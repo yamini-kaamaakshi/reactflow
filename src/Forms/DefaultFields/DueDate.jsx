@@ -1,12 +1,12 @@
 import {Form, Input} from "antd";
 
-const WhenAfterDays = ({ formData }) => {
+const DueDate = ({ formData }) => {
     return (
         <Form.Item
-            label="When:"
-            name="when"
+            label="Due Date:"
+            name="dueDate"
             rules={[{ required: true, message: "Please input the number of days!" }]}
-            initialValue={formData?.when}
+            initialValue={formData?.dueDate}
         >
             <div className="input-group">
                 <Input
@@ -19,11 +19,11 @@ const WhenAfterDays = ({ formData }) => {
                     max="1500"
                     addonBefore="After"
                     addonAfter="Days"
-                    defaultValue={formData?.when}
+                    defaultValue={formData?.dueDate}
                 />
             </div>
         </Form.Item>
     );
 };
 
-export default WhenAfterDays
+export default DueDate

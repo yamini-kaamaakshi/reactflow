@@ -14,6 +14,8 @@ import JobIsAboutToExpire from "../Forms/JobIsAboutToExpire.jsx";
 import PlacementIscreated from "../Forms/PlacementIscreated.jsx";
 import axios from "axios";
 import JobHasExipired from "../Forms/JobHasExipired.jsx";
+import JobIsAddedToTheSystem from "../Forms/JobIsAddedToTheSystem.jsx";
+import JobApplicationIsNotReviewed from "../Forms/JobApplicationIsNotReviewed.jsx";
 
 const initialEdges = [
     {
@@ -157,9 +159,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
         if (savedTriggerCode) {
             setTriggerCode(savedTriggerCode);
             fetchActions(savedTriggerCode);
-            fetchWebhooks();
-            fetchRejectReasons();
         }
+        fetchWebhooks();
+        fetchRejectReasons();
     }, []);
     useEffect(() => {
         if (triggerCode) {
@@ -242,6 +244,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'ATS_PLACEMENT_CREATED':
                 ActionForm = PlacementIscreated;
                 break;
+            case 'JOB_ADDED_TO_SYSTEM':
+                ActionForm = JobIsAddedToTheSystem;
+                break;
+            case 'JOB_APPLICATION_RECEIVED':
+                ActionForm = JobApplicationIsNotReviewed;
+                break;
             default:
                 return <div>Invalid Action code.</div>;
         }
@@ -302,7 +310,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         const code = trigger.code;
         setTriggerCode(code);
-
+        console.log("triggercode",code)
         localStorage.setItem('triggerCode', code);
         fetchActions(code);
     };
@@ -352,7 +360,13 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 setNodes(updatedNodes);
                 setDroppedItem(draggedTrigger.name);
                 setSelectedTriggerName(draggedTrigger.name);
-
+                setSelectedTrigger(draggedTrigger)
+                localStorage.setItem('selectedTriggerName', draggedTrigger.name);
+                localStorage.setItem("selectedTrigger", JSON.stringify(draggedTrigger));
+                const code = draggedTrigger.code;
+                setTriggerCode(code);
+                localStorage.setItem('triggerCode', code);
+                fetchActions(code);
                 // Store trigger data in localStorage
                 localStorage.setItem("droppedTrigger", JSON.stringify(draggedTrigger));
             } catch (error) {

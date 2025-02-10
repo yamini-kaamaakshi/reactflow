@@ -1,4 +1,5 @@
-import { Form, Input, Select, Button } from "antd";
+import { Form, Input, Button } from "antd";
+import WebHooks from "./DefaultFields/WebHooks.jsx";
 
 // DefaultFormItem now renders an Input field with the given props
 const DefaultFormItem = () => (
@@ -23,33 +24,13 @@ const DefaultFormItem = () => (
 );
 // eslint-disable-next-line react/prop-types
 const JobIsAboutToExpire = ({handleFormSubmit, actionCode,webhooks }) => {
-
-
-
     switch (actionCode) {
         case "JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <Form onFinish={handleFormSubmit}>
                     <DefaultFormItem/>
 
-                    <Form.Item
-                        label="Webhook:"
-                        name="webhook"
-                        rules={[{ required: true, message: "Please select a webhook!" }]}
-                    >
-                        <Select
-                            placeholder="Select Webhook"
-                            name="selectedWebhook"
-                            className="form-control"
-                        >
-
-                            {webhooks.map((webhook) => (
-                                <Select.Option key={webhook.id} value={webhook.id}>
-                                    {webhook.name}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
+                  <WebHooks webhooks={webhooks} />
 
                     <Form.Item>
                         <Button type="primary" htmlType="submit">
