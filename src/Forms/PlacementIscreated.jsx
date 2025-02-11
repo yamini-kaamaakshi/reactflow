@@ -1,11 +1,13 @@
 import { Button, Form, Input, Radio, Select } from "antd";
 import { useState} from "react";
 import WhenAfterDays from "./DefaultFields/WhenAfterDays.jsx";
+import WebHooks from "./DefaultFields/WebHooks.jsx";
+import AddAction from "./DefaultFields/AddAction.jsx";
 
 
 
 // eslint-disable-next-line react/prop-types
-const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
+const PlacementIscreated = ({ actionCode, handleFormSubmit, formData,webhooks }) => {
     const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
     const [sender, setSender] = useState(formData?.sender );
     const [dueDate, setDueDate] = useState("0");
@@ -87,13 +89,12 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
                 <Form onFinish={handleFormSubmit}>
                     <WhenAfterDays formData={formData} />
 
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
+                    <WebHooks webhooks={webhooks} />
+
+                    <AddAction/>
                 </Form>
             );
+
         case "ATS_PLACEMENT_CREATED_ADD_TASK_CONCERNED_USERS":
         case 'ATS_PLACEMENT_CREATED_ADD_TASK_TO_OWNER':
             return (
@@ -132,11 +133,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
                         />
                     </Form.Item>
 
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
+                    <AddAction/>
                 </Form>
             );
         default:
