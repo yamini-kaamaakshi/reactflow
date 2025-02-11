@@ -1,6 +1,7 @@
-import {Form, Input, Radio, Select } from "antd";
+import { Button, Form, Input, Radio, Select } from "antd";
 import { useState} from "react";
 import WhenAfterDays from "./DefaultFields/WhenAfterDays.jsx";
+
 
 
 // eslint-disable-next-line react/prop-types
@@ -72,6 +73,12 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
                     </Form.Item>
 
                     <input type="hidden" value="hire91d671c1f45d42608c2b7f73d6c2cce3" />
+
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Submit
+                        </Button>
+                    </Form.Item>
                 </Form>
             );
 
@@ -79,6 +86,12 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
             return (
                 <Form onFinish={handleFormSubmit}>
                     <WhenAfterDays formData={formData} />
+
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Submit
+                        </Button>
+                    </Form.Item>
                 </Form>
             );
         case "ATS_PLACEMENT_CREATED_ADD_TASK_CONCERNED_USERS":
@@ -117,6 +130,12 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
                                 borderTopRightRadius: 0,
                             }}
                         />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Submit
+                        </Button>
                     </Form.Item>
                 </Form>
             );
