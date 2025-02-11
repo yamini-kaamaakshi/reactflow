@@ -1,23 +1,24 @@
-import { Form} from "antd";
+import {Form} from "antd";
 import WebHooks from "./DefaultFields/WebHooks.jsx";
-import DueDate from "./DefaultFields/DueDate.jsx";
+import WhenJobIsOpenFor from "./DefaultFields/WhenJobIsOpenFor.jsx";
 
 // eslint-disable-next-line react/prop-types
-const JobIsAddedToTheSystem = ({ actionCode, handleFormSubmit,webhooks,formData }) => {
+const WhenJobStatusIsOpen = ({ actionCode, handleFormSubmit, formData,webhooks }) => {
 
     switch (actionCode) {
-        case "JOB_ADDED_SEND_WEBHOOK_NOTIFICATION":
+
+        case "JOB_OPEN_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <Form onFinish={handleFormSubmit}>
+                    <WhenJobIsOpenFor formData={formData} />
                     <WebHooks webhooks={webhooks} formData={formData} />
-                    {/*<AddAction />*/}
                 </Form>
             )
 
-        case 'JOB_ADDED_ADD_TASK_TO_OWNER':
+        case "JOB_OPEN_MARK_JOB_STATUS_AS_CLOSED":
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <DueDate formData={formData} />
+                    <WhenJobIsOpenFor formData={formData} />
                 </Form>
             )
         default:
@@ -25,4 +26,4 @@ const JobIsAddedToTheSystem = ({ actionCode, handleFormSubmit,webhooks,formData 
     }
 };
 
-export default JobIsAddedToTheSystem;
+export default WhenJobStatusIsOpen;

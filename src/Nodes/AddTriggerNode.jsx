@@ -154,7 +154,7 @@ const AddTriggerNode = ({ data, onDelete, selectedTriggerName, jobTypes, tags, s
                     >
                         {/* Show Filter Icon only if hasFilters is true */}
                         {hasFilters && (
-                            <Tooltip title="Apply the filters">
+                            <Tooltip title="Apply filters">
                             <FilterOutlined
                                 onClick={handleFilterDrawerOpen}
                                 style={{

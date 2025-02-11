@@ -1,4 +1,4 @@
-import { Form, Input, Button } from "antd";
+import { Form, Input} from "antd";
 import WebHooks from "./DefaultFields/WebHooks.jsx";
 
 // DefaultFormItem now renders an Input field with the given props
@@ -23,21 +23,17 @@ const DefaultFormItem = () => (
     </Form.Item>
 );
 // eslint-disable-next-line react/prop-types
-const JobIsAboutToExpire = ({handleFormSubmit, actionCode,webhooks }) => {
+const JobIsAboutToExpire = ({actionCode,webhooks }) => {
     switch (actionCode) {
         case "JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION":
             return (
-                <Form onFinish={handleFormSubmit}>
+                // <Form onFinish={handleFormSubmit}>
+                <>
                     <DefaultFormItem/>
 
                   <WebHooks webhooks={webhooks} />
-
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
-                </Form>
+                </>
+                // </Form>
             );
 
         case "JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS":
@@ -45,14 +41,9 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode,webhooks }) => {
         case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
 
             return (
-                <Form onFinish={handleFormSubmit}>
+                // <Form onFinish={handleFormSubmit}>
                     <DefaultFormItem/>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
-                </Form>
+                // </Form>
             );
         default:
             return ;

@@ -1,9 +1,7 @@
-import {Button, Form} from "antd";
+import {Form} from "antd";
 import WebHooks from "./DefaultFields/WebHooks.jsx";
-import WhenAfterDays from "./DefaultFields/WhenAfterDays.jsx";
 import DueDate from "./DefaultFields/DueDate.jsx";
-
-
+import AddAction from "./DefaultFields/AddAction.jsx";
 
 // eslint-disable-next-line react/prop-types
 const JobApplicationIsNotReviewed = ({ actionCode, handleFormSubmit,formData,webhooks }) => {
@@ -13,11 +11,7 @@ const JobApplicationIsNotReviewed = ({ actionCode, handleFormSubmit,formData,web
             return (
                 <Form onFinish={handleFormSubmit}>
                     <WebHooks webhooks={webhooks} />
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
+                    <AddAction />
                 </Form>
             )
 
@@ -25,11 +19,7 @@ const JobApplicationIsNotReviewed = ({ actionCode, handleFormSubmit,formData,web
             return (
                 <Form onFinish={handleFormSubmit}>
                     <DueDate formData={formData} />
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
+                    <AddAction />
                 </Form>
             )
         default:

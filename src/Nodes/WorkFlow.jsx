@@ -1,6 +1,6 @@
 import  { useEffect, useState } from "react";
 import ReactFlow, {Background} from "react-flow-renderer";
-import { Drawer, Segmented, Spin } from "antd";
+import {Button, Drawer, Form, Segmented, Spin} from "antd";
 import { Card, Flex } from "antd";
 import { IoIosFlash } from "react-icons/io";
 import { GrTrigger } from "react-icons/gr";
@@ -12,11 +12,13 @@ import AddActionButton from "../Custom/AddActionButton.jsx";
 import generateUpdatedData from "../swichcaseManager/ActionDisplay.jsx";
 import JobIsAboutToExpire from "../Forms/JobIsAboutToExpire.jsx";
 import PlacementIscreated from "../Forms/PlacementIscreated.jsx";
-import axios from "axios";
 import JobHasExipired from "../Forms/JobHasExipired.jsx";
 import JobIsAddedToTheSystem from "../Forms/JobIsAddedToTheSystem.jsx";
 import JobApplicationIsNotReviewed from "../Forms/JobApplicationIsNotReviewed.jsx";
 import PlacedCandidateHasStarted from "../Forms/PlacedCandidateHasStarted.jsx";
+import WhenJobStatusIsOpen from "../Forms/WhenJobStatusIsOpen.jsx";
+import AddAction from "../Forms/DefaultFields/AddAction.jsx";
+
 
 const initialEdges = [
     {
@@ -25,7 +27,6 @@ const initialEdges = [
         target: "2",
         animated: false,
         type: "custom",
-
     },
 ];
 const initialNodes = [
@@ -34,7 +35,6 @@ const initialNodes = [
         type: "addTrigger",
         data: {label: "Add Trigger"},
         position: {x: 100, y: 200},
-
     },
     {
         id: "2",
@@ -45,7 +45,6 @@ const initialNodes = [
         },
         position: {x: 100, y: 350},
     },
-
 ];
 
 // eslint-disable-next-line react/prop-types
@@ -110,6 +109,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [users, setUsers] = useState([])
     const [webhooks, setWebhooks] = useState([])
     const [rejectReasons, setRejectReasons] = useState([])
+    const [senders, setSenders] = useState([])
 
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
@@ -161,8 +161,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setTriggerCode(savedTriggerCode);
             fetchActions(savedTriggerCode);
         }
-        fetchWebhooks();
-        fetchRejectReasons();
+
     }, []);
     useEffect(() => {
         if (triggerCode) {
@@ -175,6 +174,14 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         }
     }, [triggerCode]);
+
+    useEffect(() => {
+        if(actionCode){
+            fetchWebhooks();
+            fetchRejectReasons();
+            fetchSenders();
+        }
+    }, [actionCode]);
 
     const fetchData = async (url, setter) => {
         try {
@@ -228,10 +235,13 @@ const WorkFlow = ({apiServer, apiKey}) => {
         fetchData(`${apiServer}/api/user_list`, setUsers);
 
     const fetchWebhooks = () =>
-        fetchData(`${apiServer}/api/masterdata/webhooks `, setWebhooks);
+        fetchData(`${apiServer}/api/masterdata/webhooks`, setWebhooks);
 
     const fetchRejectReasons = () =>
-        fetchData(`${apiServer}/api/masterdata/job_pipeline/reject_reasons `, setRejectReasons);
+        fetchData(`${apiServer}/api/masterdata/job_pipeline/reject_reasons`, setRejectReasons);
+
+    const fetchSenders = () =>
+        fetchData(`${apiServer}/api/marketing/senders`, setSenders);
 
     const renderForm = () => {
         let ActionForm;
@@ -253,6 +263,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
             case 'ATS_PLACEMENT_ABOUT_START':
                 ActionForm = PlacedCandidateHasStarted;
+                break;
+            case 'JOB_STATUS_OPEN':
+                ActionForm = WhenJobStatusIsOpen;
                 break;
             default:
                 return <div>Invalid Action code.</div>;
@@ -872,9 +885,19 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 open={formDrawerVisible}
                 onClose={closeFormDrawer}
             >
-                <div style={{marginTop: '20px'}}>
-                    {isLoading ? <Spin/> : renderForm()}
+                <div style={{ marginTop: '20px' }}>
+                    {isLoading ? <Spin /> : (
+                        <Form onFinish={handleFormSubmit}>
+                            {renderForm()} {/* This now returns only form fields */}
+                            <Form.Item>
+                                <Button type="primary" htmlType="submit">
+                                    Add Action
+                                </Button>
+                            </Form.Item>
+                        </Form>
+                    )}
                 </div>
+
             </Drawer>
 
             <Drawer

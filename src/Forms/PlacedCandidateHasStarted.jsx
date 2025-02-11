@@ -1,8 +1,6 @@
-import {Button, Form} from "antd";
+import {Form} from "antd";
 import WhenAfterDays from "./DefaultFields/WhenAfterDays.jsx";
 import WebHooks from "./DefaultFields/WebHooks.jsx";
-
-
 
 
 // eslint-disable-next-line react/prop-types
@@ -14,11 +12,7 @@ const PlacedCandidateHasStarted = ({ actionCode, handleFormSubmit,webhooks,formD
                 <Form onFinish={handleFormSubmit}>
                   <WhenAfterDays formData={formData} />
                     <WebHooks webhooks={webhooks} formData={formData} />
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
+
                 </Form>
             )
         default:

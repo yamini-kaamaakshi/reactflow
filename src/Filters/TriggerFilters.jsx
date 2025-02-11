@@ -144,11 +144,7 @@ const JobStatusForm = ({ initialValues, onSubmit, onFilterChange, jobTypes, tags
                 </Form.Item>)}
 
             {/* Submit Button */}
-            <Form.Item>
-                <Button type="primary" htmlType="submit" block>
-                    Apply Filter
-                </Button>
-            </Form.Item>
+
         </Form>
 </>
     );
