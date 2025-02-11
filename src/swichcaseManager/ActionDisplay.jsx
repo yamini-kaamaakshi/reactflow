@@ -25,6 +25,10 @@ const generateUpdatedData = (selectedAction, values) => {
         case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
             label = `${selectedAction.name}\n ${values?.when} Days Before expire\n`;
             break;
+        case 'JOB_OPEN_SEND_WEBHOOK_NOTIFICATION':
+        case 'JOB_OPEN_MARK_JOB_STATUS_AS_CLOSED':
+            label = `${selectedAction.name}\nJob is open for ${values?.when} Days\n`;
+            break;
         default:
             label = `${selectedAction?.name}`;
             break;
