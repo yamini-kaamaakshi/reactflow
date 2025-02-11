@@ -1,5 +1,6 @@
-import { Form, Input, Button } from "antd";
+import { Form, Input } from "antd";
 import WebHooks from "./DefaultFields/WebHooks.jsx";
+import AddAction from "./DefaultFields/AddAction.jsx";
 
 // DefaultFormItem now renders an Input field with the given props
 const DefaultFormItem = () => (
@@ -32,11 +33,7 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode,webhooks }) => {
 
                   <WebHooks webhooks={webhooks} />
 
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
+                    <AddAction/>
                 </Form>
             );
 
@@ -47,11 +44,7 @@ const JobIsAboutToExpire = ({handleFormSubmit, actionCode,webhooks }) => {
             return (
                 <Form onFinish={handleFormSubmit}>
                     <DefaultFormItem/>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
+                    <AddAction/>
                 </Form>
             );
         default:
