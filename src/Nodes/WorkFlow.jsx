@@ -920,7 +920,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
                             </option>
                         ))}
                     </select>
-                    {selectedNodeId && renderForm(formData[selectedNodeId] || {})}
+
+                    <Form onFinish={handleFormSubmit}>
+                        {selectedNodeId && renderForm(formData[selectedNodeId] || {})}
+                        <Form.Item>
+                            <Button type="primary" htmlType="submit">
+                                Add Action
+                            </Button>
+                        </Form.Item>
+                    </Form>
                 </div>
             </Drawer>
         </div>
