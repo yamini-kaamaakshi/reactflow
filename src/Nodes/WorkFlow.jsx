@@ -1,6 +1,6 @@
 import  { useEffect, useState } from "react";
 import ReactFlow, {Background} from "react-flow-renderer";
-import {Button, Drawer, Form, Segmented, Spin} from "antd";
+import {Button, Drawer, Form, Input, Segmented, Select, Spin} from "antd";
 import { Card, Flex } from "antd";
 import { IoIosFlash } from "react-icons/io";
 import { GrTrigger } from "react-icons/gr";
@@ -273,7 +273,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         return (
             <ActionForm
-                handleFormSubmit={handleFormSubmit}
+
+                handleFormSubmit={handleSubmit}  // Ensure this is correct
                 actionCode={actionCode}
                 formData={selectedActionData?.formData}
                 selectedNodeId={selectedNodeId}
@@ -755,6 +756,64 @@ const WorkFlow = ({apiServer, apiKey}) => {
         localStorage.setItem("savedActionData", JSON.stringify(updatedData));
     };
 
+
+    const handleSubmit = async (values) => {
+        console.log("Submitting Action:", values);
+
+        // Construct the JSON payload
+        const requestData = {
+            steps: {
+                [values.automationStepId]: {
+                    enabled: "true",
+                    id: values.automationStepId,
+                    lookupStep: {
+                        code: "ATS_PLACEMENT_CREATED",
+                        hasFilters: "true",
+                    },
+                    name: "Placement is created",
+                    filter: {
+                        filterCondition: "IN",
+                        tags: [],
+                    },
+                    actions: {
+                        [values.actionId]: {
+                            enabled: "true",
+                            lookupAction: {
+                                code: values.actionCode, // Dynamic action code
+                            },
+                            actionData: {
+                                days: values.days || "",
+                                sendAs: values.sendAs || "DEFAULT",
+                                senderId: values.senderId || "",
+                                subject: values.subject || "TEST",
+                                message: values.message || "<div>TEST</div>",
+                            },
+                            id: values.actionId,
+                        },
+                    },
+                },
+            },
+            lookupModuleCode: "ATS",
+            id: values.actionId,
+        };
+
+        try {
+            const response = await axios.post(`${apiServer}/api/workflow`, requestData, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${apiKey}`,
+                },
+            });
+
+            console.log("API Response:", response.data);
+            alert("Action submitted successfully!");
+        } catch (error) {
+            console.error("Error submitting action:", error);
+            alert("Submission failed!");
+        }
+    };
+
+
     return (
         <div style={{ height: "90vh", verticalAlign: "top" }}>
             <ReactFlow
@@ -887,14 +946,26 @@ const WorkFlow = ({apiServer, apiKey}) => {
             >
                 <div style={{ marginTop: '20px' }}>
                     {isLoading ? <Spin /> : (
-                        <Form onFinish={handleFormSubmit}>
-                            {renderForm()} {/* This now returns only form fields */}
-                            <Form.Item>
-                                <Button type="primary" htmlType="submit">
-                                    Add Action
-                                </Button>
+                        <Form onFinish={handleSubmit} layout="vertical">
+                            <Form.Item name="actionId" label="Action ID" rules={[{ required: true }]}>
+                                <Input placeholder="Enter Action ID" />
                             </Form.Item>
+
+                            <Form.Item name="days" label="Days">
+                                <Input type="number" min="0" placeholder="Enter days" />
+                            </Form.Item>
+
+                            <Form.Item name="sendAs" label="Send As">
+                                <Select>
+                                    <Select.Option value="DEFAULT">Default</Select.Option>
+                                    <Select.Option value="RECORD_OWNER">Record Owner</Select.Option>
+                                    <Select.Option value="EMAIL_SENDER">Email Sender</Select.Option>
+                                </Select>
+                            </Form.Item>
+
+                            <Button type="primary" htmlType="submit">Submit</Button>
                         </Form>
+
                     )}
                 </div>
 
