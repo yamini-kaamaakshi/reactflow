@@ -17,7 +17,14 @@ import JobIsAddedToTheSystem from "../Forms/JobIsAddedToTheSystem.jsx";
 import JobApplicationIsNotReviewed from "../Forms/JobApplicationIsNotReviewed.jsx";
 import PlacedCandidateHasStarted from "../Forms/PlacedCandidateHasStarted.jsx";
 import WhenJobStatusIsOpen from "../Forms/WhenJobStatusIsOpen.jsx";
-import AddAction from "../Forms/DefaultFields/AddAction.jsx";
+import PlacedCandidateIsAboutToStart from "../Forms/PlacedCandidateIsAboutToStart.jsx";
+import  ACandidateAddedManually from "../Forms/ACandidateAddedManually.jsx"
+import CandidateAddedToJobPipline from "../Forms/CandidateAddedToJobPipline.jsx"
+import PlacementInvoiceCreationIsDue from "../Forms/PlacementInvoiceCreationIsDue.jsx";
+import WhenAPlacementIsNearingItsEndDate from "../Forms/WhenAPlacementIsNearingItsEndDate.jsx";
+import CandidatePipelineStatusIsUpdated from "../Forms/CandidatePipelineStatusIsUpdated.jsx";
+import JobStatusUpdated from "../Forms/JobStatusUpdated.jsx";
+import JobInterviewIsDue from "../Forms/JobInterviewIsDue.jsx";
 
 
 const initialEdges = [
@@ -198,7 +205,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
 
             const result = await response.json();
-            console.log(`Fetched data from ${url}:`, result);
+            // console.log(`Fetched data from ${url}:`, result);
 
             setter(result?.data || []);
         } catch (error) {
@@ -261,11 +268,35 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'JOB_APPLICATION_RECEIVED':
                 ActionForm = JobApplicationIsNotReviewed;
                 break;
-            case 'ATS_PLACEMENT_ABOUT_START':
+            case 'ATS_PLACEMENT_STARTED':
                 ActionForm = PlacedCandidateHasStarted;
                 break;
             case 'JOB_STATUS_OPEN':
                 ActionForm = WhenJobStatusIsOpen;
+                break;
+            case 'ATS_PLACEMENT_ABOUT_START':
+                ActionForm = PlacedCandidateIsAboutToStart;
+                break;
+            case 'NEW_CANDIDATE_ADDED_MANUALLY':
+                ActionForm = ACandidateAddedManually;
+                break;
+            case 'ATS_CANDIDATE_ADDED_TO_PIPELINE':
+                ActionForm = CandidateAddedToJobPipline;
+                break;
+            case 'PLACEMENT_INVOICE_CREATION_DUE':
+                ActionForm = PlacementInvoiceCreationIsDue;
+                break;
+            case 'ATS_PLACEMENT_ABOUT_END':
+                ActionForm = WhenAPlacementIsNearingItsEndDate;
+                break;
+            case 'PIPELINE_STATUS_UPDATE':
+                ActionForm = CandidatePipelineStatusIsUpdated;
+                break;
+            case 'JOB_STATUS_UPDATED':
+                ActionForm = JobStatusUpdated;
+                break;
+            case 'JOB_INTERVIEW_DUE':
+                ActionForm = JobInterviewIsDue;
                 break;
             default:
                 return <div>Invalid Action code.</div>;

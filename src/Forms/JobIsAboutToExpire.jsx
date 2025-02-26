@@ -1,12 +1,15 @@
 import { Form, Input} from "antd";
 import WebHooks from "./DefaultFields/WebHooks.jsx";
+import DueDay from "./DefaultFields/DueDay.jsx";
 
 // DefaultFormItem now renders an Input field with the given props
-const DefaultFormItem = () => (
+const DaysBeforeExpire = ({formData}) => (
     <Form.Item
         label="When:"
         name="when"
         rules={[{ required: true, message: "Please input the number of days!" }]}
+        initialValue={formData?.when}
+
     >
         <div className="input-group">
             <Input
@@ -23,27 +26,29 @@ const DefaultFormItem = () => (
     </Form.Item>
 );
 // eslint-disable-next-line react/prop-types
-const JobIsAboutToExpire = ({actionCode,webhooks }) => {
+const JobIsAboutToExpire = ({actionCode,webhooks,formData }) => {
     switch (actionCode) {
         case "JOB_EXPIRY_SEND_WEBHOOK_NOTIFICATION":
             return (
-                // <Form onFinish={handleFormSubmit}>
                 <>
-                    <DefaultFormItem/>
-
-                  <WebHooks webhooks={webhooks} />
+                    <DaysBeforeExpire formData={formData} />
+                  <WebHooks webhooks={webhooks} formData={formData} />
                 </>
-                // </Form>
             );
 
         case "JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS":
-        case "JOB_EXPIRY_SEND_EMAIL_TO_OWNER":
         case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
 
             return (
-                // <Form onFinish={handleFormSubmit}>
-                    <DefaultFormItem/>
-                // </Form>
+                    <DaysBeforeExpire formData={formData}/>
+            );
+        case "JOB_EXPIRY_SEND_EMAIL_TO_OWNER":
+
+            return (
+                <>
+                <DaysBeforeExpire formData={formData}/>
+                <DueDay formData={formData} />
+                </>
             );
         default:
             return ;

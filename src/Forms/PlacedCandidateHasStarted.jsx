@@ -7,13 +7,13 @@ import WebHooks from "./DefaultFields/WebHooks.jsx";
 const PlacedCandidateHasStarted = ({ actionCode, handleFormSubmit,webhooks,formData }) => {
 
     switch (actionCode) {
-        case "ATS_PLACEMENT_ABOUT_START_SEND_WEBHOOK_NOTIFICATION":
+        case "ATS_PLACEMENT_STARTED_SEND_WEBHOOK_NOTIFICATION":
             return (
-                <Form onFinish={handleFormSubmit}>
+      <>
                   <WhenAfterDays formData={formData} />
                     <WebHooks webhooks={webhooks} formData={formData} />
 
-                </Form>
+      </>
             )
         default:
             return ;
