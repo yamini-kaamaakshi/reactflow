@@ -2,7 +2,6 @@ import {Form, Input} from "antd";
 import {WhenBeforeDays,Subject,Message,DueDay,WebHooks} from "../DefaultFields/FormFields.jsx";
 
 
-
 // eslint-disable-next-line react/prop-types
 const WhenAPlacementIsNearingItsEndDate = ({ actionCode,formData,webhooks }) => {
 
