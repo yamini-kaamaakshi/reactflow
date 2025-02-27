@@ -301,14 +301,15 @@ export const UserDropdown = ({ users,formData }) => {
     );
 };
 
-export const SendAsRadioButtons = ({ sendAs, setSendAs, name = "sendAs" }) => {
+export const SendAsRadioButtons = ({ sendAs, setSendAs,formData}) => {
     return (
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <label style={{ fontSize: "14px"}}>Send as:</label>
             <Radio.Group
                 onChange={(e) => setSendAs(e.target.value)}
                 value={sendAs}
-                name={name}
+                name="sendAs"
+                initialValue={formData?.sendAs}
             >
                 <Radio value="DEFAULT">Default</Radio>
                 <Radio value="RECORD_OWNER">Record Owner</Radio>
