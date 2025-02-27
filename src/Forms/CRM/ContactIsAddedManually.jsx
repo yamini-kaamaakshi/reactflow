@@ -1,9 +1,9 @@
 import {useState} from "react";
-import {Message, SendAsRadioButtons, Subject, UserDropdown, WebHooks} from "../DefaultFields/FormFields.jsx";
+import {Message, SendAs, Subject, UserDropdown, WebHooks} from "../DefaultFields/FormFields.jsx";
 
 
 const ContactIsAddedManually = ({actionCode, webhooks, users,formData}) => {
-    const [sendAs, setSendAs] = useState("");
+    const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
     const [subject, setSubject] = useState("");
     const [message, setMessage] = useState("");
 
@@ -13,7 +13,7 @@ const ContactIsAddedManually = ({actionCode, webhooks, users,formData}) => {
             return (
                 <>
                     <UserDropdown users={users} formData={formData}/>
-                    <SendAsRadioButtons sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
+                    <SendAs sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
                     <Subject subject={subject} setSubject={setSubject} formData={formData}/>
                     <Message message={message} setMessage={setMessage} formData={formData}/>
                 </>
@@ -22,7 +22,7 @@ const ContactIsAddedManually = ({actionCode, webhooks, users,formData}) => {
         case "CONTACT_ADDED_MANUALLY_SEND_EMAIL_TO_CONTACT":
             return (
                 <>
-                    <SendAsRadioButtons sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
+                    <SendAs sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
                     <Subject subject={subject} setSubject={setSubject} formData={formData}/>
                     <Message message={message} setMessage={setMessage} formData={formData}/>
                 </>
