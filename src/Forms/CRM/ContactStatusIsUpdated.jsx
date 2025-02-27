@@ -4,8 +4,6 @@ import {Message, SendAs, Subject, UserDropdown} from "../DefaultFields/FormField
 
 const ContactStatusIsUpdated = ({actionCode, users,formData}) => {
     const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
-    const [subject, setSubject] = useState("");
-    const [message, setMessage] = useState("");
 
     switch (actionCode) {
 
@@ -14,8 +12,8 @@ const ContactStatusIsUpdated = ({actionCode, users,formData}) => {
             return (
                 <>
                     <SendAs sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
-                    <Subject subject={subject} setSubject={setSubject} formData={formData}/>
-                    <Message message={message} setMessage={setMessage} formData={formData}/>
+                    <Subject formData={formData}/>
+                    <Message formData={formData}/>
                 </>
             );
 
@@ -24,8 +22,8 @@ const ContactStatusIsUpdated = ({actionCode, users,formData}) => {
                 <>
                     <UserDropdown users={users} formData={formData}/>
                     <SendAs sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
-                    <Subject subject={subject} setSubject={setSubject} formData={formData}/>
-                    <Message message={message} setMessage={setMessage} formData={formData}/>
+                    <Subject formData={formData}/>
+                    <Message formData={formData}/>
                 </>
             );
 
