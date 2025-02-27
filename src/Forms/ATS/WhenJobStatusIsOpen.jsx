@@ -1,9 +1,9 @@
-import {Form} from "antd";
-import WebHooks from "./DefaultFields/WebHooks.jsx";
-import WhenJobIsOpenFor from "./DefaultFields/WhenJobIsOpenFor.jsx";
-import DueDay from "./DefaultFields/DueDay.jsx";
-import Subject from "./DefaultFields/Subject.jsx";
-import Message from "./DefaultFields/Message.jsx";
+
+import {WebHooks} from "../DefaultFields/FormFields.jsx";
+import {WhenJobIsOpenFor} from "../DefaultFields/FormFields.jsx";
+import {DueDay} from "../DefaultFields/FormFields.jsx";
+import {Subject} from "../DefaultFields/FormFields.jsx";
+import {Message} from "../DefaultFields/FormFields.jsx";
 
 // eslint-disable-next-line react/prop-types
 const WhenJobStatusIsOpen = ({ actionCode, formData,webhooks }) => {
@@ -14,6 +14,8 @@ const WhenJobStatusIsOpen = ({ actionCode, formData,webhooks }) => {
             return (
              <>
              <WhenJobIsOpenFor formData={formData} />
+             <Subject formData={formData} />
+             <Message formData={formData} />
              </>
             )
 

@@ -1,6 +1,6 @@
 import { Button, Form, Input, Radio, Select } from "antd";
 import { useState} from "react";
-import WhenAfterDays from "./DefaultFields/WhenAfterDays.jsx";
+import {FormFields} from "../DefaultFields/FormFields.jsx";
 
 
 
@@ -23,7 +23,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
                     subject: formData?.subject || "",
                     message: formData?.message || ""
                 }}>
-                    <WhenAfterDays formData={formData} />
+                    <FormFields formData={formData} />
 
                     <Form.Item label="Send as:" name="sendAs">
                         <Radio.Group
@@ -85,7 +85,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
         case "ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <WhenAfterDays formData={formData} />
+                    <FormFields formData={formData} />
 
                     <Form.Item>
                         <Button type="primary" htmlType="submit">
@@ -98,7 +98,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
         case 'ATS_PLACEMENT_CREATED_ADD_TASK_TO_OWNER':
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <WhenAfterDays formData={formData} />
+                    <FormFields formData={formData} />
                     <Form.Item label="Due Date:" name="dueDate">
                         <Select
                             className="form-control"

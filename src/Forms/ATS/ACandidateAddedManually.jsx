@@ -1,9 +1,9 @@
-import WebHooks from "./DefaultFields/WebHooks.jsx";
+import {WebHooks} from "../DefaultFields/FormFields.jsx";
 import {Radio} from "antd";
 import {useState} from "react";
-import Subject from "./DefaultFields/Subject.jsx";
-import DueDay from "./DefaultFields/DueDay.jsx";
-import Message from "./DefaultFields/Message.jsx";
+import {Subject} from "../DefaultFields/FormFields.jsx"
+import {DueDay} from "../DefaultFields/FormFields.jsx";
+import {Message} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types

@@ -10,21 +10,22 @@ import AddActionNode  from "./AddActionNode.jsx";
 import FilterIcon from "../Custom/FilterIcon.jsx";
 import AddActionButton from "../Custom/AddActionButton.jsx";
 import generateUpdatedData from "../swichcaseManager/ActionDisplay.jsx";
-import JobIsAboutToExpire from "../Forms/JobIsAboutToExpire.jsx";
-import PlacementIscreated from "../Forms/PlacementIscreated.jsx";
-import JobHasExipired from "../Forms/JobHasExipired.jsx";
-import JobIsAddedToTheSystem from "../Forms/JobIsAddedToTheSystem.jsx";
-import JobApplicationIsNotReviewed from "../Forms/JobApplicationIsNotReviewed.jsx";
-import PlacedCandidateHasStarted from "../Forms/PlacedCandidateHasStarted.jsx";
-import WhenJobStatusIsOpen from "../Forms/WhenJobStatusIsOpen.jsx";
-import PlacedCandidateIsAboutToStart from "../Forms/PlacedCandidateIsAboutToStart.jsx";
-import  ACandidateAddedManually from "../Forms/ACandidateAddedManually.jsx"
-import CandidateAddedToJobPipline from "../Forms/CandidateAddedToJobPipline.jsx"
-import PlacementInvoiceCreationIsDue from "../Forms/PlacementInvoiceCreationIsDue.jsx";
-import WhenAPlacementIsNearingItsEndDate from "../Forms/WhenAPlacementIsNearingItsEndDate.jsx";
-import CandidatePipelineStatusIsUpdated from "../Forms/CandidatePipelineStatusIsUpdated.jsx";
-import JobStatusUpdated from "../Forms/JobStatusUpdated.jsx";
-import JobInterviewIsDue from "../Forms/JobInterviewIsDue.jsx";
+import JobIsAboutToExpire from "../Forms/ATS/JobIsAboutToExpire.jsx";
+import PlacementIscreated from "../Forms/ATS/PlacementIscreated.jsx";
+import JobHasExipired from "../Forms/ATS/JobHasExipired.jsx";
+import JobIsAddedToTheSystem from "../Forms/ATS/JobIsAddedToTheSystem.jsx";
+import JobApplicationIsNotReviewed from "../Forms/ATS/JobApplicationIsNotReviewed.jsx";
+import PlacedCandidateHasStarted from "../Forms/ATS/PlacedCandidateHasStarted.jsx";
+import WhenJobStatusIsOpen from "../Forms/ATS/WhenJobStatusIsOpen.jsx";
+import PlacedCandidateIsAboutToStart from "../Forms/ATS/PlacedCandidateIsAboutToStart.jsx";
+import  ACandidateAddedManually from "../Forms/ATS/ACandidateAddedManually.jsx"
+import CandidateAddedToJobPipline from "../Forms/ATS/CandidateAddedToJobPipline.jsx"
+import PlacementInvoiceCreationIsDue from "../Forms/ATS/PlacementInvoiceCreationIsDue.jsx";
+import WhenAPlacementIsNearingItsEndDate from "../Forms/ATS/WhenAPlacementIsNearingItsEndDate.jsx";
+import CandidatePipelineStatusIsUpdated from "../Forms/ATS/CandidatePipelineStatusIsUpdated.jsx";
+import JobStatusUpdated from "../Forms/ATS/JobStatusUpdated.jsx";
+import JobInterviewIsDue from "../Forms/ATS/JobInterviewIsDue.jsx";
+import candidateCVIsShared from "../Forms/ATS/CandidateCVIsShared.jsx";
 
 
 const initialEdges = [
@@ -205,7 +206,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
 
             const result = await response.json();
-            // console.log(`Fetched data from ${url}:`, result);
+             console.log(`Fetched data from ${url}:`, result);
 
             setter(result?.data || []);
         } catch (error) {
@@ -297,6 +298,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
             case 'JOB_INTERVIEW_DUE':
                 ActionForm = JobInterviewIsDue;
+                break;
+            case 'ATS_CANDIDATE_CV_SHARED':
+                ActionForm = candidateCVIsShared;
                 break;
             default:
                 return <div>Invalid Action code.</div>;

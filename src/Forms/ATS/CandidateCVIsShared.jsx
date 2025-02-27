@@ -1,16 +1,15 @@
-import Subject from "./DefaultFields/Subject.jsx";
-import Message from "./DefaultFields/Message.jsx";
-import WhenDaysBefore from "./DefaultFields/WhenDaysBefore.jsx";
+import {Subject} from "../DefaultFields/FormFields.jsx";
+import {Message} from "../DefaultFields/FormFields.jsx";
+
 
 
 // eslint-disable-next-line react/prop-types
 const CandidateCVIsShared = ({ actionCode,formData }) => {
 
     switch (actionCode) {
-        case "JOB_INTERVIEW_DUE_SEND_EMAIL_TO_CLIENT":
+        case "ATS_CANDIDATE_CV_SHARED_TO_CLIENT":
             return (
                 <>
-                    <WhenDaysBefore formData={formData} />
                     <Subject formData={formData} />
                     <Message formData={formData} />
 
