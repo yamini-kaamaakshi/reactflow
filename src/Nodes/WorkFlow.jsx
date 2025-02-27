@@ -28,6 +28,7 @@ import JobInterviewIsDue from "../Forms/ATS/JobInterviewIsDue.jsx";
 import candidateCVIsShared from "../Forms/ATS/CandidateCVIsShared.jsx";
 import ContactIsAddedManually from "../Forms/CRM/ContactIsAddedManually.jsx";
 import ContactStatusIsUpdated from "../Forms/CRM/ContactStatusIsUpdated.jsx";
+import LeadIsAddedManually from "../Forms/CRM/LeadIsAddedManually.jsx";
 
 
 const initialEdges = [
@@ -311,6 +312,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
             case 'CONTACT_STATUS_UPDATED':
                 ActionForm = ContactStatusIsUpdated;
+                break;
+            case 'NEW_LEAD_ADDED_MANUALLY':
+                ActionForm = LeadIsAddedManually;
                 break;
             default:
                 return <div>Invalid Action code.</div>;
