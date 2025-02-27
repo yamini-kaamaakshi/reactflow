@@ -1,5 +1,5 @@
 import {Form, Input} from "antd";
-import {WebHooks,Subject,Message,FormFields} from "../DefaultFields/FormFields.jsx";
+import {WebHooks,Subject,Message,WhenAfterDays} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types
@@ -12,7 +12,7 @@ const PlacedCandidateHasStarted = ({ actionCode,webhooks,formData }) => {
             return (
                 <>
                     {/*<FormFields formData={formData} />*/}
-                    <FormFields formData={formData} />
+                    <WhenAfterDays formData={formData} />
 
                     <Subject formData={formData} />
                     <Message formData={formData} />
@@ -21,13 +21,13 @@ const PlacedCandidateHasStarted = ({ actionCode,webhooks,formData }) => {
         case "ATS_PLACEMENT_STARTED_ADD_CANDIDATE_TO_SEQUENCE":
             return (
                 <>
-                    <FormFields formData={formData} />
+                    <WhenAfterDays formData={formData} />
                 </>
             )
         case "ATS_PLACEMENT_STARTED_ADD_TASK_TO_OWNER":
             return (
                 <>
-                    <FormFields formData={formData} />
+                    <WhenAfterDays formData={formData} />
                     <Form.Item
                         label="Subject:"
                         name="subject"
@@ -64,7 +64,7 @@ const PlacedCandidateHasStarted = ({ actionCode,webhooks,formData }) => {
         case "ATS_PLACEMENT_STARTED_SEND_WEBHOOK_NOTIFICATION":
             return (
                     <>
-                    <FormFields formData={formData} />
+                    <WhenAfterDays formData={formData} />
                     <WebHooks webhooks={webhooks} formData={formData} />
                     </>
             )

@@ -1,6 +1,6 @@
 import { useState} from "react";
 import { Button, Form, Input, Radio, Select } from "antd";
-import {FormFields} from "../DefaultFields/FormFields.jsx";
+import {WhenAfterDays} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types
@@ -22,7 +22,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
                     subject: formData?.subject || "",
                     message: formData?.message || ""
                 }}>
-                    <FormFields formData={formData} />
+                    <WhenAfterDays formData={formData} />
 
                     <Form.Item label="Send as:" name="sendAs">
                         <Radio.Group
@@ -84,7 +84,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
         case "ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <FormFields formData={formData} />
+                    <WhenAfterDays formData={formData} />
 
                     <Form.Item>
                         <Button type="primary" htmlType="submit">
@@ -97,7 +97,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
         case 'ATS_PLACEMENT_CREATED_ADD_TASK_TO_OWNER':
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <FormFields formData={formData} />
+                    <WhenAfterDays formData={formData} />
                     <Form.Item label="Due Date:" name="dueDate">
                         <Select
                             className="form-control"

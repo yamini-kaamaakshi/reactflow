@@ -2,7 +2,7 @@ import { Form, Input, Select } from "antd";
 import { Radio } from "antd";
 import { useState } from "react";
 
-export const FormFields = ({ formData }) => (
+export const WhenAfterDays = ({ formData }) => (
     <Form.Item
         label="When:"
         name="when"
