@@ -1,8 +1,5 @@
 import {Form, Input} from "antd";
-import {WebHooks} from "../DefaultFields/FormFields.jsx";
-import {Subject} from "../DefaultFields/FormFields.jsx";
-import {Message} from "../DefaultFields/FormFields.jsx";
-import {FormFields} from "../DefaultFields/FormFields.jsx";
+import {WebHooks,Subject,Message,FormFields} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types

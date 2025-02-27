@@ -1,9 +1,5 @@
 import {Form, Input} from "antd";
-import {WebHooks} from "../DefaultFields/FormFields.jsx";
-import {WhenBeforeDays} from "../DefaultFields/FormFields.jsx";
-import {Subject} from "../DefaultFields/FormFields.jsx";
-import {Message} from "../DefaultFields/FormFields.jsx";
-import {DueDay} from "../DefaultFields/FormFields.jsx";
+import {WebHooks,WhenBeforeDays,Subject,Message,DueDay} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types

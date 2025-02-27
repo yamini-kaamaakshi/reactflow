@@ -1,7 +1,4 @@
-import {SendAs, Sender, WebHooks} from "../DefaultFields/FormFields.jsx";
-import {Subject} from "../DefaultFields/FormFields.jsx";
-import {Message} from "../DefaultFields/FormFields.jsx";
-
+import {SendAs, Sender, WebHooks,Subject,Message} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types

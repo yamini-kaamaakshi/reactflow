@@ -1,6 +1,4 @@
-import {Subject} from "../DefaultFields/FormFields.jsx";
-import {Message} from "../DefaultFields/FormFields.jsx";
-import {WhenDaysBefore} from "../DefaultFields/FormFields.jsx";
+import {Subject,Message,WhenDaysBefore} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types

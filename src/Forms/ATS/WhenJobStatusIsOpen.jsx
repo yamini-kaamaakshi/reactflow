@@ -1,9 +1,5 @@
+import {WebHooks,WhenJobIsOpenFor,DueDay,Subject,Message} from "../DefaultFields/FormFields.jsx";
 
-import {WebHooks} from "../DefaultFields/FormFields.jsx";
-import {WhenJobIsOpenFor} from "../DefaultFields/FormFields.jsx";
-import {DueDay} from "../DefaultFields/FormFields.jsx";
-import {Subject} from "../DefaultFields/FormFields.jsx";
-import {Message} from "../DefaultFields/FormFields.jsx";
 
 // eslint-disable-next-line react/prop-types
 const WhenJobStatusIsOpen = ({ actionCode, formData,webhooks }) => {
