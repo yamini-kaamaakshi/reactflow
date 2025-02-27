@@ -300,21 +300,3 @@ export const UserDropdown = ({ users,formData }) => {
         </Form.Item>
     );
 };
-
-export const SendAsRadioButtons = ({ sendAs, setSendAs,formData}) => {
-    return (
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <label style={{ fontSize: "14px"}}>Send as:</label>
-            <Radio.Group
-                onChange={(e) => setSendAs(e.target.value)}
-                value={sendAs}
-                name="sendAs"
-                initialValue={formData?.sendAs}
-            >
-                <Radio value="DEFAULT">Default</Radio>
-                <Radio value="RECORD_OWNER">Record Owner</Radio>
-                <Radio value="EMAIL_SENDER">Email Sender</Radio>
-            </Radio.Group>
-        </div>
-    );
-};
