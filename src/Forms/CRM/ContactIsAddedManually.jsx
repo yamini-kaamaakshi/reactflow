@@ -4,8 +4,6 @@ import {Message, SendAs, Subject, UserDropdown, WebHooks} from "../DefaultFields
 
 const ContactIsAddedManually = ({actionCode, webhooks, users,formData}) => {
     const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
-    const [subject, setSubject] = useState("");
-    const [message, setMessage] = useState("");
 
     switch (actionCode) {
 
@@ -14,8 +12,8 @@ const ContactIsAddedManually = ({actionCode, webhooks, users,formData}) => {
                 <>
                     <UserDropdown users={users} formData={formData}/>
                     <SendAs sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
-                    <Subject subject={subject} setSubject={setSubject} formData={formData}/>
-                    <Message message={message} setMessage={setMessage} formData={formData}/>
+                    <Subject formData={formData}/>
+                    <Message formData={formData}/>
                 </>
             );
 
@@ -23,8 +21,8 @@ const ContactIsAddedManually = ({actionCode, webhooks, users,formData}) => {
             return (
                 <>
                     <SendAs sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
-                    <Subject subject={subject} setSubject={setSubject} formData={formData}/>
-                    <Message message={message} setMessage={setMessage} formData={formData}/>
+                    <Subject formData={formData}/>
+                    <Message formData={formData}/>
                 </>
             );
 
