@@ -26,6 +26,7 @@ import CandidatePipelineStatusIsUpdated from "../Forms/ATS/CandidatePipelineStat
 import JobStatusUpdated from "../Forms/ATS/JobStatusUpdated.jsx";
 import JobInterviewIsDue from "../Forms/ATS/JobInterviewIsDue.jsx";
 import candidateCVIsShared from "../Forms/ATS/CandidateCVIsShared.jsx";
+import ContactIsAddedManually from "../Forms/CRM/ContactIsAddedManually.jsx";
 
 
 const initialEdges = [
@@ -301,6 +302,11 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
             case 'ATS_CANDIDATE_CV_SHARED':
                 ActionForm = candidateCVIsShared;
+                break;
+
+            // CRM Data
+            case 'NEW_CONTACT_ADDED_MANUALLY':
+                ActionForm = ContactIsAddedManually;
                 break;
             default:
                 return <div>Invalid Action code.</div>;
