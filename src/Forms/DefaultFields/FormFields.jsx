@@ -278,3 +278,42 @@ export const Sender = ({ sendAs }) => {
         </Form.Item>
     );
 };
+
+export const UserDropdown = ({ users,formData }) => {
+    return (
+        <Form.Item label="User" name="users">
+            <Select
+                mode="multiple"
+                placeholder="Select User"
+                showSearch
+                style={{ width: "432px",marginLeft:"25px" }}
+                initialValue={formData?.users}
+            >
+                {users
+                    .sort((a, b) => a.fullName.localeCompare(b.fullName)) // Sort alphabetically
+                    .map((user) => (
+                        <Select.Option key={user.id} value={user.fullName}>
+                            {user.fullName}
+                        </Select.Option>
+                    ))}
+            </Select>
+        </Form.Item>
+    );
+};
+
+export const SendAsRadioButtons = ({ sendAs, setSendAs, name = "sendAs" }) => {
+    return (
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <label style={{ fontSize: "14px"}}>Send as:</label>
+            <Radio.Group
+                onChange={(e) => setSendAs(e.target.value)}
+                value={sendAs}
+                name={name}
+            >
+                <Radio value="DEFAULT">Default</Radio>
+                <Radio value="RECORD_OWNER">Record Owner</Radio>
+                <Radio value="EMAIL_SENDER">Email Sender</Radio>
+            </Radio.Group>
+        </div>
+    );
+};
