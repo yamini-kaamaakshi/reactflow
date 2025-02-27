@@ -300,3 +300,36 @@ export const UserDropdown = ({ users,formData }) => {
         </Form.Item>
     );
 };
+
+export const PipelineSelect = ({ selectedLead, setSelectedLead,formData }) => {
+    return (
+        <Form.Item label="Pipeline:" name="Pipeline">
+            <Select
+                mode="multiple"
+                value={selectedLead}
+                onChange={setSelectedLead}
+                placeholder="Select Pipeline"
+                initialValue={formData?.Pipeline}
+            >
+                <Select.Option value="Lead1">Lead1</Select.Option>
+                <Select.Option value="hireOptica1">hireOptica1</Select.Option>
+            </Select>
+        </Form.Item>
+    );
+};
+
+export const Sequence = ({formData}) => {
+    return (
+        <Form.Item
+            label="Sequence:"
+            name="sequence"
+            rules={[{ required: true, message: "Please select a sequence!" }]}
+            initialValue={formData?.sequence}
+        >
+            <Select mode="multiple" placeholder="Please Select..">
+                <Select.Option value="test">test</Select.Option>
+                <Select.Option value="hiring">hiring</Select.Option>
+            </Select>
+        </Form.Item>
+    );
+};
