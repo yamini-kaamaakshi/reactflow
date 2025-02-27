@@ -39,8 +39,8 @@ const LeadIsAddedManually = ({actionCode, webhooks, users,formData}) => {
                 <>
                     <UserDropdown users={users} formData={formData}/>
                     <SendAs sendAs={sendAs} setSendAs={setSendAs}/>
-                    <Subject/>
-                    <Message/>
+                    <Subject formData={formData}/>
+                    <Message formData={formData}/>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead}/>
                 </>
             );
