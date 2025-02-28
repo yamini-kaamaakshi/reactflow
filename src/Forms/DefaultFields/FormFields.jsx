@@ -237,7 +237,7 @@ export const WhenJobIsOpenFor = ({ formData }) => (
         </Form.Item>
     );
 
-export const SendAs = ({formData}) => {
+export const SendAsRadioButtons = ({formData}) => {
     const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
     return (
 
