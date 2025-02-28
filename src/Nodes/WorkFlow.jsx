@@ -267,6 +267,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 ActionForm = ACandidateIsAddedManually;
                 break;
 
+
             // ATS
             case 'ATS_JOB_ABOUT_EXPIRE':
                 ActionForm = JobIsAboutToExpire;

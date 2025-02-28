@@ -17,6 +17,7 @@ const ACandidateIsAddedManually = ({ actionCode,formData }) => {
                     <DueDay formData={formData} />
                     <Subject formData={formData} />
                     <Message formData={formData} />
+
                 </>
             );
         default:
