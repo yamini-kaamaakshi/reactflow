@@ -1,9 +1,8 @@
 import {Alert, Form, Input, Radio, Select} from "antd";
-import WhenAfterDays from "./DefaultFields/WhenAfterDays.jsx";
 
 import ReactQuill from "react-quill";
 import {useState} from "react";
-import WebHooks from "./DefaultFields/WebHooks.jsx";
+import {WhenAfterDays,WebHooks,DueDay,Subject,Message} from "../DefaultFields/FormFields.jsx";
 
 // eslint-disable-next-line react/prop-types
 const CandidateAddedToPipeline = ({actionCode, senders, formData ,webhooks }) => {

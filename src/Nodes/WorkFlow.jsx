@@ -9,11 +9,11 @@ import { SaveOutlined } from "@ant-design/icons";
 
 
 
-import PipelineStatusUpdate from "../Forms/PipelineStatusUpdate.jsx";
-import JobStatusUpdate from "../Forms/JobStatusUpdate.jsx";
-import JobStatusOpen from "../Forms/JobStatusOpen.jsx";
-import PlacementInvoiceDue from "../Forms/PlacementInvoiceDue.jsx";
-import CandidateAddedToPipeline from "../Forms/CandidateAddedToPipeline.jsx";
+import PipelineStatusUpdate from "../Forms/ATS/PipelineStatusUpdate.jsx";
+import JobStatusUpdate from "../Forms/ATS/JobStatusUpdate.jsx";
+import JobStatusOpen from "../Forms/ATS/JobStatusOpen.jsx";
+import PlacementInvoiceDue from "../Forms/ATS/PlacementInvoiceDue.jsx";
+import CandidateAddedToPipeline from "../Forms/ATS/CandidateAddedToPipeline.jsx";
 
 import AddTriggerNode from "./AddTriggerNode.jsx";
 import AddActionNode  from "./AddActionNode.jsx";

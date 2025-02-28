@@ -2,8 +2,7 @@ import { Alert, Form, Input, Radio, Select } from "antd";
 import { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // Import Quill styles
-import WhenAfterDays from "./DefaultFields/WhenAfterDays.jsx";
-import WebHooks from "./DefaultFields/WebHooks.jsx";
+import {WhenAfterDays,WebHooks,DueDay,Subject,Message} from "../DefaultFields/FormFields.jsx";
 
 // eslint-disable-next-line react/prop-types
 const JobStatusOpen = ({ actionCode, senders, formData , webhooks , jobStatuses }) => { // Added formData here
