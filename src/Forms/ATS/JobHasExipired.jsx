@@ -1,16 +1,24 @@
 import {Form, Select} from "antd";
-import WhenAfterDays from "./DefaultFields/WhenAfterDays.jsx";
-import WebHooks from "./DefaultFields/WebHooks.jsx";
+import {WhenAfterDays,WebHooks,DueDay,Subject,Message} from "../DefaultFields/FormFields.jsx";
+
 
 // eslint-disable-next-line react/prop-types
 const JoBHasExpired = ({ actionCode, formData,rejectReasons,webhooks }) => {
-
     switch (actionCode) {
+        case "JOB_EXPIRED_ADD_TASK_TO_OWNER":
+            return (
+                <>
+                <DueDay formData={formData} />
+                <Subject formData={formData} />
+                <Message formData={formData} />
+                </>
+            )
 
         case "MARK_JOB_STATUS_AS_CLOSED":
             return (
                 <WhenAfterDays formData={formData} />
             )
+
         case "JOB_EXPIRED_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <>
@@ -44,6 +52,7 @@ const JoBHasExpired = ({ actionCode, formData,rejectReasons,webhooks }) => {
                     </Form.Item>
                 </>
             );
+
         case "REMOVE_JOB_FROM_WEBSITE":
         case "UNPUBLISH_FROM_JOB_BOARDS":
             return (

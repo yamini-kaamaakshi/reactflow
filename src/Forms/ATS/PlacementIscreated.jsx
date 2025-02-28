@@ -1,7 +1,6 @@
-import { Button, Form, Input, Radio, Select } from "antd";
 import { useState} from "react";
-import WhenAfterDays from "./DefaultFields/WhenAfterDays.jsx";
-
+import { Button, Form, Input, Radio, Select } from "antd";
+import {WhenAfterDays} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types
@@ -94,6 +93,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
                     </Form.Item>
                 </Form>
             );
+
         case "ATS_PLACEMENT_CREATED_ADD_TASK_CONCERNED_USERS":
         case 'ATS_PLACEMENT_CREATED_ADD_TASK_TO_OWNER':
             return (

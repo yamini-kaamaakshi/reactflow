@@ -4,26 +4,42 @@ import {Button, Drawer, Form, Segmented, Spin} from "antd";
 import { Card, Flex } from "antd";
 import { IoIosFlash } from "react-icons/io";
 import { GrTrigger } from "react-icons/gr";
-import { SaveOutlined } from "@ant-design/icons"; // ✅ Ensure this import exists
 
 import AddTriggerNode from "./AddTriggerNode.jsx";
 import AddActionNode  from "./AddActionNode.jsx";
 import FilterIcon from "../Custom/FilterIcon.jsx";
 import AddActionButton from "../Custom/AddActionButton.jsx";
 import generateUpdatedData from "../swichcaseManager/ActionDisplay.jsx";
-import JobIsAboutToExpire from "../Forms/JobIsAboutToExpire.jsx";
-import PlacementIscreated from "../Forms/PlacementIscreated.jsx";
-import JobHasExipired from "../Forms/JobHasExipired.jsx";
-import JobIsAddedToTheSystem from "../Forms/JobIsAddedToTheSystem.jsx";
-import JobApplicationIsNotReviewed from "../Forms/JobApplicationIsNotReviewed.jsx";
-import PlacedCandidateHasStarted from "../Forms/PlacedCandidateHasStarted.jsx";
-import WhenJobStatusIsOpen from "../Forms/WhenJobStatusIsOpen.jsx";
-import AddAction from "../Forms/DefaultFields/AddAction.jsx";
-import PipelineStatusUpdate from "../Forms/PipelineStatusUpdate.jsx";
-import JobStatusUpdate from "../Forms/JobStatusUpdate.jsx";
-import JobStatusOpen from "../Forms/JobStatusOpen.jsx";
-import PlacementInvoiceDue from "../Forms/PlacementInvoiceDue.jsx";
-import CandidateAddedToPipeline from "../Forms/CandidateAddedToPipeline.jsx";
+import JobIsAboutToExpire from "../Forms/ATS/JobIsAboutToExpire.jsx";
+import PlacementIscreated from "../Forms/ATS/PlacementIscreated.jsx";
+import JobHasExipired from "../Forms/ATS/JobHasExipired.jsx";
+import JobIsAddedToTheSystem from "../Forms/ATS/JobIsAddedToTheSystem.jsx";
+import JobApplicationIsNotReviewed from "../Forms/ATS/JobApplicationIsNotReviewed.jsx";
+import PlacedCandidateHasStarted from "../Forms/ATS/PlacedCandidateHasStarted.jsx";
+import WhenJobStatusIsOpen from "../Forms/ATS/WhenJobStatusIsOpen.jsx";
+import PlacedCandidateIsAboutToStart from "../Forms/ATS/PlacedCandidateIsAboutToStart.jsx";
+import  ACandidateAddedManually from "../Forms/ATS/ACandidateAddedManually.jsx"
+import CandidateAddedToJobPipline from "../Forms/ATS/CandidateAddedToJobPipline.jsx"
+import PlacementInvoiceCreationIsDue from "../Forms/ATS/PlacementInvoiceCreationIsDue.jsx";
+import WhenAPlacementIsNearingItsEndDate from "../Forms/ATS/WhenAPlacementIsNearingItsEndDate.jsx";
+import CandidatePipelineStatusIsUpdated from "../Forms/ATS/CandidatePipelineStatusIsUpdated.jsx";
+import JobStatusUpdated from "../Forms/ATS/JobStatusUpdated.jsx";
+import JobInterviewIsDue from "../Forms/ATS/JobInterviewIsDue.jsx";
+import candidateCVIsShared from "../Forms/ATS/CandidateCVIsShared.jsx";
+import ContactIsAddedManually from "../Forms/CRM/ContactIsAddedManually.jsx";
+import ContactStatusIsUpdated from "../Forms/CRM/ContactStatusIsUpdated.jsx";
+import LeadIsAddedManually from "../Forms/CRM/LeadIsAddedManually.jsx";
+import LeadStatusIsUpdated from "../Forms/CRM/LeadStatusIsUpdated.jsx";
+import OpportunityPipelineStatusIsUpdated from "../Forms/CRM/OpportunityPipelineStatusIsUpdated.jsx";
+import OpportunityIsCreatedManually from "../Forms/CRM/OpportunityIsCreatedManually.jsx";
+import LeadFormIsSubmitted from "../Forms/CRM/LeadFormIsSubmitted.jsx";
+import ACandidateIsAddedManually from "../Forms/GDPR/ACandidateIsAddedManually.jsx";
+import GDPRConsentRequestIsRejected from "../Forms/GDPR/GDPRConsentRequestIsRejected.jsx";
+import NoResponseToGDPRConsentRequestNewConsent from "../Forms/GDPR/NoResponseToGDPRConsentRequest(New Consent).jsx";
+import GDPRPrivacyConsentIsAboutToExpire from "../Forms/GDPR/GDPRPrivacyConsentIsAboutToExpire.jsx";
+import NoResponseToGDPRConsentRequestConsentProvidedBefore
+    from "../Forms/GDPR/NoResponseToGDPRConsentRequest(Consent Provided before).jsx";
+
 
 const initialEdges = [
     {
@@ -93,50 +109,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
         localStorage.setItem('edges', JSON.stringify(edges));
     }, [nodes, edges]);
 
-    const handleSaveTrigger = () => {
-        let workflowData = JSON.parse(localStorage.getItem("workflowData")) || { steps: {} };
-
-        // Retrieve the selected trigger
-        const selectedTrigger = JSON.parse(localStorage.getItem("selectedTrigger")) || null;
-        const triggerId = selectedTrigger?._id || null;
-
-        // Ensure only one trigger is saved at a time
-        workflowData.steps = {}; // Clears all existing triggers before saving the new one
-
-        // Retrieve all saved actions
-        let savedActionData = JSON.parse(localStorage.getItem("savedActionData")) || [];
-
-        // Remove invalid actions
-        savedActionData = savedActionData.filter(action => action?.selectedAction?._id);
-
-        // Convert actions array to object
-        const actions = savedActionData.reduce((acc, action) => {
-            const actionId = action?.selectedAction?._id;
-            if (actionId) {
-                acc[actionId] = {
-                    actionData: action.formData || {}
-                };
-            }
-            return acc;
-        }, {});
-
-        if (selectedTrigger) {
-            workflowData.steps[triggerId] = {
-                ...selectedTrigger,
-                actions: actions
-            };
-        }
-
-        // Save updated workflowData to localStorage
-        localStorage.setItem("workflowData", JSON.stringify(workflowData));
-
-        console.log("workflowData:", workflowData);
-    };
-
-
-
-
-
 
     const [selectFilter, setSelectFilter] = useState("All");
     const [, setDroppedItem] = useState(null);
@@ -159,10 +131,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [webhooks, setWebhooks] = useState([])
     const [rejectReasons, setRejectReasons] = useState([])
     const [senders, setSenders] = useState([])
-    const [pipelineStatuses, setPipelineStatuses] = useState([]);
-    const jobStatuses = pipelineStatuses?.map((status) => status.statusName) || [];
-
-
 
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
@@ -225,16 +193,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
             fetchJobStatus();
             fetchUsers();
 
-
         }
     }, [triggerCode]);
-
-    useEffect(() => {
-        if (triggerCode === "PIPELINE_STATUS_UPDATE") {
-            fetchJobPipelineData();
-        }
-    }, [triggerCode]);
-
 
     useEffect(() => {
         if(actionCode){
@@ -243,17 +203,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
             fetchSenders();
         }
     }, [actionCode]);
-
-
-    useEffect(() => {
-        fetchData(`${apiServer}/api/masterdata/job_pipeline`, (data) => {
-            console.log("📊 API Response - Job Pipeline Data:", data); // ✅ Check API response
-
-            setPipelineStatuses(data); // ✅ Set the exact statuses from API
-        });
-    }, []);
-
-
 
     const fetchData = async (url, setter) => {
         try {
@@ -270,7 +219,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
 
             const result = await response.json();
-            console.log(`Fetched data from ${url}:`, result);
+             // console.log(`Fetched data from ${url}:`, result);
 
             setter(result?.data || []);
         } catch (error) {
@@ -284,15 +233,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
         fetchData(`${apiServer}/api/lookup_automation/triggers`, setTriggers);
 
 
-    const fetchActions = (triggerCode) => {
-        console.log(`🚀 Fetching actions for triggerCode: ${triggerCode}`); // ✅ Log triggerCode before API call
-
-        fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, (data) => {
-            console.log("📊 API Response - Actions Data:", data); // ✅ Log API response data
-            setActions(data);
-        });
-    };
-
+    const fetchActions = (triggerCode) =>
+        fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, setActions);
 
     const fetchJobTypes = () =>
         fetchData(`${apiServer}/api/masterdata/jobTypes`, setJobTypes);
@@ -307,13 +249,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const fetchSource = () =>
         fetchData(`${apiServer}/api/masterdata/source`, setSource);
 
-    const fetchJobStatus = () => {
-        fetchData(`${apiServer}/api/masterdata/jobstatus`, (data) => {
-            console.log("📊 API Response - Job Status Data:", data); // ✅ Added console log
-            setJobStatus(data);
-        });
-    };
-
+    const fetchJobStatus = () =>
+        fetchData(`${apiServer}/api/masterdata/jobstatus`, setJobStatus);
 
     const fetchUsers = () =>
         fetchData(`${apiServer}/api/user_list`, setUsers);
@@ -324,25 +261,30 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const fetchRejectReasons = () =>
         fetchData(`${apiServer}/api/masterdata/job_pipeline/reject_reasons`, setRejectReasons);
 
-    const fetchJobPipelineData = () => {
-        const url = `${apiServer}/api/masterdata/job_pipeline`;
-
-        console.log(`🚀 Fetching job pipeline data from: ${url}`); // ✅ Log API request URL
-
-        fetchData(url, (data) => {
-            console.log("📊 API Response - Job Pipeline Data:", data); // ✅ Log API response
-        });
-    };
-
-
-
-
     const fetchSenders = () =>
         fetchData(`${apiServer}/api/marketing/senders`, setSenders);
 
     const renderForm = () => {
         let ActionForm;
         switch (triggerCode) {
+            // GDPR
+            case 'CANDIDATE_ADDED_MANUALLY':
+                ActionForm = ACandidateIsAddedManually;
+                break;
+            case 'GDPR_CONSENT_REQUEST_REJECTED':
+                ActionForm = GDPRConsentRequestIsRejected;
+                break;
+            case 'GDPR_CONSENT_REQUEST_NO_RESPONSE':
+                ActionForm = NoResponseToGDPRConsentRequestNewConsent;
+                break;
+            case 'GDPR_CONSENT_REQUEST_EXPIRING':
+                ActionForm = GDPRPrivacyConsentIsAboutToExpire;
+                break;
+            case 'GDPR_CONSENT_REQUEST_EXISTING_NO_RESPONSE':
+                ActionForm = NoResponseToGDPRConsentRequestConsentProvidedBefore;
+                break;
+
+            // ATS
             case 'ATS_JOB_ABOUT_EXPIRE':
                 ActionForm = JobIsAboutToExpire;
                 break;
@@ -358,24 +300,61 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'JOB_APPLICATION_RECEIVED':
                 ActionForm = JobApplicationIsNotReviewed;
                 break;
-            case 'ATS_PLACEMENT_ABOUT_START':
+            case 'ATS_PLACEMENT_STARTED':
                 ActionForm = PlacedCandidateHasStarted;
                 break;
-
+            case 'JOB_STATUS_OPEN':
+                ActionForm = WhenJobStatusIsOpen;
+                break;
+            case 'ATS_PLACEMENT_ABOUT_START':
+                ActionForm = PlacedCandidateIsAboutToStart;
+                break;
+            case 'NEW_CANDIDATE_ADDED_MANUALLY':
+                ActionForm = ACandidateAddedManually;
+                break;
+            case 'ATS_CANDIDATE_ADDED_TO_PIPELINE':
+                ActionForm = CandidateAddedToJobPipline;
+                break;
+            case 'PLACEMENT_INVOICE_CREATION_DUE':
+                ActionForm = PlacementInvoiceCreationIsDue;
+                break;
+            case 'ATS_PLACEMENT_ABOUT_END':
+                ActionForm = WhenAPlacementIsNearingItsEndDate;
+                break;
             case 'PIPELINE_STATUS_UPDATE':
-                ActionForm = PipelineStatusUpdate;
+                ActionForm = CandidatePipelineStatusIsUpdated;
                 break;
             case 'JOB_STATUS_UPDATED':
-                ActionForm = JobStatusUpdate;
+                ActionForm = JobStatusUpdated;
                 break;
-            case 'JOB_STATUS_OPEN':
-                ActionForm = JobStatusOpen; // Add this line
+            case 'JOB_INTERVIEW_DUE':
+                ActionForm = JobInterviewIsDue;
                 break;
-            case "PLACEMENT_INVOICE_CREATION_DUE":
-                ActionForm = PlacementInvoiceDue; // ✅ Assign new component
+            case 'ATS_CANDIDATE_CV_SHARED':
+                ActionForm = candidateCVIsShared;
                 break;
-            case "ATS_CANDIDATE_ADDED_TO_PIPELINE":
-                ActionForm = CandidateAddedToPipeline; // ✅ Assign new component
+
+            // CRM Data
+            case 'NEW_LEAD_ADDED_MANUALLY':
+                ActionForm = LeadIsAddedManually;
+                break;
+            case 'LEAD_STATUS_UPDATED':
+                ActionForm = LeadStatusIsUpdated;
+                break;
+            case 'LEAD_GENERATOR_FORM_SUBMITTED':
+                ActionForm = LeadFormIsSubmitted;
+                break;
+            case 'NEW_CONTACT_ADDED_MANUALLY':
+                ActionForm = ContactIsAddedManually;
+                break;
+            case 'CONTACT_STATUS_UPDATED':
+                ActionForm = ContactStatusIsUpdated;
+                break;
+            case 'NEW_OPPORTUNITY_CREATED_MANUALLY':
+                ActionForm = OpportunityIsCreatedManually;
+                break;
+            case 'OPPORTUNITY_STATUS_UPDATED':
+                ActionForm = OpportunityPipelineStatusIsUpdated;
                 break;
             default:
                 return <div>Invalid Action code.</div>;
@@ -386,15 +365,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 handleFormSubmit={handleFormSubmit}
                 actionCode={actionCode}
                 formData={selectedActionData?.formData}
+                users={users}
                 selectedNodeId={selectedNodeId}
-                senders={senders}
-                fetchSenders={fetchSenders}
                 webhooks={webhooks}
                 rejectReasons={rejectReasons}
-                pipelineStatuses={pipelineStatuses}
-
-                jobStatuses={jobStatus}
-
             />
         );
     };
@@ -514,22 +488,22 @@ const WorkFlow = ({apiServer, apiKey}) => {
         event.preventDefault();
     };
 
-    const handleNodeDelete = () => {
-        localStorage.removeItem('selectedTriggerName');
-        localStorage.removeItem('savedActionData');
-        localStorage.removeItem('droppedTrigger');
-        localStorage.removeItem('isFirstNodeUsed');
-        localStorage.removeItem('selectedNodeId');
-        localStorage.removeItem('triggerCode');
+   const handleNodeDelete = () => {
+            localStorage.removeItem('selectedTriggerName');
+            localStorage.removeItem('savedActionData');
+            localStorage.removeItem('droppedTrigger');
+            localStorage.removeItem('isFirstNodeUsed');
+            localStorage.removeItem('selectedNodeId');
+            localStorage.removeItem('triggerCode');
 
-        setNodes(initialNodes);
-        setEdges(initialEdges);
-        resetAll();
-        setActionCode(null);
-        setIconVisible(false);
-        setDrawerVisible(true);
-        setIsFirstNodeUsed(false);
-        closeActionDrawer();
+            setNodes(initialNodes);
+            setEdges(initialEdges);
+            resetAll();
+            setActionCode(null);
+            setIconVisible(false);
+            setDrawerVisible(true);
+            setIsFirstNodeUsed(false);
+            closeActionDrawer();
     };
 
     const moduleNames = [
@@ -872,15 +846,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
     return (
-        <div style={{ height: "90vh", verticalAlign: "top",position: "relative" }}>
-            <Button
-                type="primary"
-                icon={<SaveOutlined />} // ✅ Ensure this is wrapped in JSX brackets
-                onClick={handleSaveTrigger}
-                style={{ position: "absolute", top: 16, right: 16, zIndex: 1000 }}
-            >
-                Save Trigger
-            </Button>
+        <div style={{ height: "90vh", verticalAlign: "top" }}>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
