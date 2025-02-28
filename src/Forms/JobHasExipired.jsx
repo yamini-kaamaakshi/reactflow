@@ -9,7 +9,7 @@ const JoBHasExpired = ({ actionCode, formData,rejectReasons,webhooks }) => {
 
         case "MARK_JOB_STATUS_AS_CLOSED":
             return (
-                    <WhenAfterDays formData={formData} />
+                <WhenAfterDays formData={formData} />
             )
         case "JOB_EXPIRED_SEND_WEBHOOK_NOTIFICATION":
             return (

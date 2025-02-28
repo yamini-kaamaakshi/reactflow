@@ -1,9 +1,10 @@
 import  { useEffect, useState } from "react";
 import ReactFlow, {Background} from "react-flow-renderer";
-import {Button, Drawer, Form, Input, Segmented, Select, Spin} from "antd";
+import {Button, Drawer, Form, Segmented, Spin} from "antd";
 import { Card, Flex } from "antd";
 import { IoIosFlash } from "react-icons/io";
 import { GrTrigger } from "react-icons/gr";
+import { SaveOutlined } from "@ant-design/icons"; // ✅ Ensure this import exists
 
 import AddTriggerNode from "./AddTriggerNode.jsx";
 import AddActionNode  from "./AddActionNode.jsx";
@@ -18,7 +19,11 @@ import JobApplicationIsNotReviewed from "../Forms/JobApplicationIsNotReviewed.js
 import PlacedCandidateHasStarted from "../Forms/PlacedCandidateHasStarted.jsx";
 import WhenJobStatusIsOpen from "../Forms/WhenJobStatusIsOpen.jsx";
 import AddAction from "../Forms/DefaultFields/AddAction.jsx";
-
+import PipelineStatusUpdate from "../Forms/PipelineStatusUpdate.jsx";
+import JobStatusUpdate from "../Forms/JobStatusUpdate.jsx";
+import JobStatusOpen from "../Forms/JobStatusOpen.jsx";
+import PlacementInvoiceDue from "../Forms/PlacementInvoiceDue.jsx";
+import CandidateAddedToPipeline from "../Forms/CandidateAddedToPipeline.jsx";
 
 const initialEdges = [
     {
@@ -88,6 +93,50 @@ const WorkFlow = ({apiServer, apiKey}) => {
         localStorage.setItem('edges', JSON.stringify(edges));
     }, [nodes, edges]);
 
+    const handleSaveTrigger = () => {
+        let workflowData = JSON.parse(localStorage.getItem("workflowData")) || { steps: {} };
+
+        // Retrieve the selected trigger
+        const selectedTrigger = JSON.parse(localStorage.getItem("selectedTrigger")) || null;
+        const triggerId = selectedTrigger?._id || null;
+
+        // Ensure only one trigger is saved at a time
+        workflowData.steps = {}; // Clears all existing triggers before saving the new one
+
+        // Retrieve all saved actions
+        let savedActionData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+
+        // Remove invalid actions
+        savedActionData = savedActionData.filter(action => action?.selectedAction?._id);
+
+        // Convert actions array to object
+        const actions = savedActionData.reduce((acc, action) => {
+            const actionId = action?.selectedAction?._id;
+            if (actionId) {
+                acc[actionId] = {
+                    actionData: action.formData || {}
+                };
+            }
+            return acc;
+        }, {});
+
+        if (selectedTrigger) {
+            workflowData.steps[triggerId] = {
+                ...selectedTrigger,
+                actions: actions
+            };
+        }
+
+        // Save updated workflowData to localStorage
+        localStorage.setItem("workflowData", JSON.stringify(workflowData));
+
+        console.log("workflowData:", workflowData);
+    };
+
+
+
+
+
 
     const [selectFilter, setSelectFilter] = useState("All");
     const [, setDroppedItem] = useState(null);
@@ -110,6 +159,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [webhooks, setWebhooks] = useState([])
     const [rejectReasons, setRejectReasons] = useState([])
     const [senders, setSenders] = useState([])
+    const [pipelineStatuses, setPipelineStatuses] = useState([]);
+    const jobStatuses = pipelineStatuses?.map((status) => status.statusName) || [];
+
+
 
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
@@ -172,8 +225,16 @@ const WorkFlow = ({apiServer, apiKey}) => {
             fetchJobStatus();
             fetchUsers();
 
+
         }
     }, [triggerCode]);
+
+    useEffect(() => {
+        if (triggerCode === "PIPELINE_STATUS_UPDATE") {
+            fetchJobPipelineData();
+        }
+    }, [triggerCode]);
+
 
     useEffect(() => {
         if(actionCode){
@@ -182,6 +243,17 @@ const WorkFlow = ({apiServer, apiKey}) => {
             fetchSenders();
         }
     }, [actionCode]);
+
+
+    useEffect(() => {
+        fetchData(`${apiServer}/api/masterdata/job_pipeline`, (data) => {
+            console.log("📊 API Response - Job Pipeline Data:", data); // ✅ Check API response
+
+            setPipelineStatuses(data); // ✅ Set the exact statuses from API
+        });
+    }, []);
+
+
 
     const fetchData = async (url, setter) => {
         try {
@@ -212,8 +284,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
         fetchData(`${apiServer}/api/lookup_automation/triggers`, setTriggers);
 
 
-    const fetchActions = (triggerCode) =>
-        fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, setActions);
+    const fetchActions = (triggerCode) => {
+        console.log(`🚀 Fetching actions for triggerCode: ${triggerCode}`); // ✅ Log triggerCode before API call
+
+        fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, (data) => {
+            console.log("📊 API Response - Actions Data:", data); // ✅ Log API response data
+            setActions(data);
+        });
+    };
+
 
     const fetchJobTypes = () =>
         fetchData(`${apiServer}/api/masterdata/jobTypes`, setJobTypes);
@@ -228,8 +307,13 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const fetchSource = () =>
         fetchData(`${apiServer}/api/masterdata/source`, setSource);
 
-    const fetchJobStatus = () =>
-        fetchData(`${apiServer}/api/masterdata/jobstatus`, setJobStatus);
+    const fetchJobStatus = () => {
+        fetchData(`${apiServer}/api/masterdata/jobstatus`, (data) => {
+            console.log("📊 API Response - Job Status Data:", data); // ✅ Added console log
+            setJobStatus(data);
+        });
+    };
+
 
     const fetchUsers = () =>
         fetchData(`${apiServer}/api/user_list`, setUsers);
@@ -239,6 +323,19 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const fetchRejectReasons = () =>
         fetchData(`${apiServer}/api/masterdata/job_pipeline/reject_reasons`, setRejectReasons);
+
+    const fetchJobPipelineData = () => {
+        const url = `${apiServer}/api/masterdata/job_pipeline`;
+
+        console.log(`🚀 Fetching job pipeline data from: ${url}`); // ✅ Log API request URL
+
+        fetchData(url, (data) => {
+            console.log("📊 API Response - Job Pipeline Data:", data); // ✅ Log API response
+        });
+    };
+
+
+
 
     const fetchSenders = () =>
         fetchData(`${apiServer}/api/marketing/senders`, setSenders);
@@ -264,8 +361,21 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'ATS_PLACEMENT_ABOUT_START':
                 ActionForm = PlacedCandidateHasStarted;
                 break;
+
+            case 'PIPELINE_STATUS_UPDATE':
+                ActionForm = PipelineStatusUpdate;
+                break;
+            case 'JOB_STATUS_UPDATED':
+                ActionForm = JobStatusUpdate;
+                break;
             case 'JOB_STATUS_OPEN':
-                ActionForm = WhenJobStatusIsOpen;
+                ActionForm = JobStatusOpen; // Add this line
+                break;
+            case "PLACEMENT_INVOICE_CREATION_DUE":
+                ActionForm = PlacementInvoiceDue; // ✅ Assign new component
+                break;
+            case "ATS_CANDIDATE_ADDED_TO_PIPELINE":
+                ActionForm = CandidateAddedToPipeline; // ✅ Assign new component
                 break;
             default:
                 return <div>Invalid Action code.</div>;
@@ -273,13 +383,18 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
         return (
             <ActionForm
-
-                handleFormSubmit={handleSubmit}  // Ensure this is correct
+                handleFormSubmit={handleFormSubmit}
                 actionCode={actionCode}
                 formData={selectedActionData?.formData}
                 selectedNodeId={selectedNodeId}
+                senders={senders}
+                fetchSenders={fetchSenders}
                 webhooks={webhooks}
                 rejectReasons={rejectReasons}
+                pipelineStatuses={pipelineStatuses}
+
+                jobStatuses={jobStatus}
+
             />
         );
     };
@@ -399,22 +514,22 @@ const WorkFlow = ({apiServer, apiKey}) => {
         event.preventDefault();
     };
 
-   const handleNodeDelete = () => {
-            localStorage.removeItem('selectedTriggerName');
-            localStorage.removeItem('savedActionData');
-            localStorage.removeItem('droppedTrigger');
-            localStorage.removeItem('isFirstNodeUsed');
-            localStorage.removeItem('selectedNodeId');
-            localStorage.removeItem('triggerCode');
+    const handleNodeDelete = () => {
+        localStorage.removeItem('selectedTriggerName');
+        localStorage.removeItem('savedActionData');
+        localStorage.removeItem('droppedTrigger');
+        localStorage.removeItem('isFirstNodeUsed');
+        localStorage.removeItem('selectedNodeId');
+        localStorage.removeItem('triggerCode');
 
-            setNodes(initialNodes);
-            setEdges(initialEdges);
-            resetAll();
-            setActionCode(null);
-            setIconVisible(false);
-            setDrawerVisible(true);
-            setIsFirstNodeUsed(false);
-            closeActionDrawer();
+        setNodes(initialNodes);
+        setEdges(initialEdges);
+        resetAll();
+        setActionCode(null);
+        setIconVisible(false);
+        setDrawerVisible(true);
+        setIsFirstNodeUsed(false);
+        closeActionDrawer();
     };
 
     const moduleNames = [
@@ -756,66 +871,16 @@ const WorkFlow = ({apiServer, apiKey}) => {
         localStorage.setItem("savedActionData", JSON.stringify(updatedData));
     };
 
-
-    const handleSubmit = async (values) => {
-        console.log("Submitting Action:", values);
-
-        // Construct the JSON payload
-        const requestData = {
-            steps: {
-                [values.automationStepId]: {
-                    enabled: "true",
-                    id: values.automationStepId,
-                    lookupStep: {
-                        code: "ATS_PLACEMENT_CREATED",
-                        hasFilters: "true",
-                    },
-                    name: "Placement is created",
-                    filter: {
-                        filterCondition: "IN",
-                        tags: [],
-                    },
-                    actions: {
-                        [values.actionId]: {
-                            enabled: "true",
-                            lookupAction: {
-                                code: values.actionCode, // Dynamic action code
-                            },
-                            actionData: {
-                                days: values.days || "",
-                                sendAs: values.sendAs || "DEFAULT",
-                                senderId: values.senderId || "",
-                                subject: values.subject || "TEST",
-                                message: values.message || "<div>TEST</div>",
-                            },
-                            id: values.actionId,
-                        },
-                    },
-                },
-            },
-            lookupModuleCode: "ATS",
-            id: values.actionId,
-        };
-
-        try {
-            const response = await axios.post(`${apiServer}/api/workflow`, requestData, {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${apiKey}`,
-                },
-            });
-
-            console.log("API Response:", response.data);
-            alert("Action submitted successfully!");
-        } catch (error) {
-            console.error("Error submitting action:", error);
-            alert("Submission failed!");
-        }
-    };
-
-
     return (
-        <div style={{ height: "90vh", verticalAlign: "top" }}>
+        <div style={{ height: "90vh", verticalAlign: "top",position: "relative" }}>
+            <Button
+                type="primary"
+                icon={<SaveOutlined />} // ✅ Ensure this is wrapped in JSX brackets
+                onClick={handleSaveTrigger}
+                style={{ position: "absolute", top: 16, right: 16, zIndex: 1000 }}
+            >
+                Save Trigger
+            </Button>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -946,26 +1011,14 @@ const WorkFlow = ({apiServer, apiKey}) => {
             >
                 <div style={{ marginTop: '20px' }}>
                     {isLoading ? <Spin /> : (
-                        <Form onFinish={handleSubmit} layout="vertical">
-                            <Form.Item name="actionId" label="Action ID" rules={[{ required: true }]}>
-                                <Input placeholder="Enter Action ID" />
+                        <Form onFinish={handleFormSubmit}>
+                            {renderForm()} {/* This now returns only form fields */}
+                            <Form.Item>
+                                <Button type="primary" htmlType="submit">
+                                    Add Action
+                                </Button>
                             </Form.Item>
-
-                            <Form.Item name="days" label="Days">
-                                <Input type="number" min="0" placeholder="Enter days" />
-                            </Form.Item>
-
-                            <Form.Item name="sendAs" label="Send As">
-                                <Select>
-                                    <Select.Option value="DEFAULT">Default</Select.Option>
-                                    <Select.Option value="RECORD_OWNER">Record Owner</Select.Option>
-                                    <Select.Option value="EMAIL_SENDER">Email Sender</Select.Option>
-                                </Select>
-                            </Form.Item>
-
-                            <Button type="primary" htmlType="submit">Submit</Button>
                         </Form>
-
                     )}
                 </div>
 
