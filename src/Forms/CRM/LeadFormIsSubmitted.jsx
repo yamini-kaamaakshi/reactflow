@@ -82,9 +82,10 @@ const LeadFormIsSubmitted = ({actionCode, webhooks, formData, users}) => {
                 <>
                     <LeadForm formData={formData}/>
                     <UserDropdown users={users} formData={formData}/>
+                    <WhenAfterDays formData={formData} />
                     <SendAsRadioButtons/>
-                    <Subject/>
-                    <Message/>
+                    <Subject formData={formData}/>
+                    <Message formData={formData}/>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead}/>
                 </>
             );
