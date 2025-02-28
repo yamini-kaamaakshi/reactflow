@@ -333,3 +333,18 @@ export const Sequence = ({formData}) => {
         </Form.Item>
     );
 };
+
+export const LeadForm = ({formData}) => {
+    return (
+        <Form.Item
+            label="Lead Form:"
+            name="LeadForm"
+            initialValue={formData?.LeadForm}
+        >
+            <Select mode="multiple" placeholder="Please Select..">
+                <Select.Option value="test">test</Select.Option>
+                <Select.Option value="LeadForm">LeadForm</Select.Option>
+            </Select>
+        </Form.Item>
+    );
+};
