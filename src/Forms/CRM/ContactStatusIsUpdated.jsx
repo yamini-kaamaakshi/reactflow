@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {Message, SendAs, Subject, UserDropdown} from "../DefaultFields/FormFields.jsx";
+import {Message, SendAsRadioButtons, Subject, UserDropdown} from "../DefaultFields/FormFields.jsx";
 
 
 const ContactStatusIsUpdated = ({actionCode, users,formData}) => {
@@ -10,7 +10,7 @@ const ContactStatusIsUpdated = ({actionCode, users,formData}) => {
         case "CONTACT_STATUS_UPDATED_SEND_EMAIL_TO_CONTACT_OWNER":
             return (
                 <>
-                    <SendAs sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
+                    <SendAsRadioButtons sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                 </>
@@ -20,7 +20,7 @@ const ContactStatusIsUpdated = ({actionCode, users,formData}) => {
             return (
                 <>
                     <UserDropdown users={users} formData={formData}/>
-                    <SendAs sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
+                    <SendAsRadioButtons sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                 </>
