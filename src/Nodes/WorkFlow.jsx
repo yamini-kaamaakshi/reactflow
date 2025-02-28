@@ -29,6 +29,7 @@ import candidateCVIsShared from "../Forms/ATS/CandidateCVIsShared.jsx";
 import ContactIsAddedManually from "../Forms/CRM/ContactIsAddedManually.jsx";
 import ContactStatusIsUpdated from "../Forms/CRM/ContactStatusIsUpdated.jsx";
 import LeadIsAddedManually from "../Forms/CRM/LeadIsAddedManually.jsx";
+import LeadStatusIsUpdated from "../Forms/CRM/LeadStatusIsUpdated.jsx";
 
 
 const initialEdges = [
@@ -315,6 +316,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
             case 'NEW_LEAD_ADDED_MANUALLY':
                 ActionForm = LeadIsAddedManually;
+                break;
+            case 'LEAD_STATUS_UPDATED':
+                ActionForm = LeadStatusIsUpdated;
                 break;
             default:
                 return <div>Invalid Action code.</div>;
