@@ -34,7 +34,13 @@ const ContactIsAddedManually = ({actionCode, webhooks, users,formData,senders}) 
         case "CONTACT_ADDED_MANUALLY_SEND_EMAIL_TO_CONTACT":
             return (
                 <>
-                    <SendAsRadioButtons sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
+                    <SendAsRadioButtons  setSendAs={setSendAs} formData={formData}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                 </>
