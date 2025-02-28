@@ -3,7 +3,7 @@ import {
     DueDate,
     LeadForm,
     Message,
-    PipelineSelect, SendAsRadioButtons,
+    PipelineSelect, SendAsRadioButtons, SenderSelection,
     Sequence,
     Subject, UserDropdown,
     WebHooks,
@@ -12,8 +12,10 @@ import {
 import {Form, Input} from "antd";
 
 
-const LeadFormIsSubmitted = ({actionCode, webhooks, formData, users}) => {
+const LeadFormIsSubmitted = ({actionCode, webhooks, formData, users,senders}) => {
     const [selectedLead, setSelectedLead] = useState("");
+    const [sendAs, setSendAs] = useState("default");
+    const [selectedSender, setSelectedSender] = useState(null);
 
     switch (actionCode) {
         case "LEAD_FORM_SUBMITTED_SEND_WEBHOOK_NOTIFICATION":
@@ -30,7 +32,13 @@ const LeadFormIsSubmitted = ({actionCode, webhooks, formData, users}) => {
                 <>
                     <LeadForm formData={formData}/>
                     <WhenAfterDays formData={formData}/>
-                    <SendAsRadioButtons/>
+                    <SendAsRadioButtons setSendAs={setSendAs} formData={formData}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead}/>
@@ -83,7 +91,13 @@ const LeadFormIsSubmitted = ({actionCode, webhooks, formData, users}) => {
                     <LeadForm formData={formData}/>
                     <UserDropdown users={users} formData={formData}/>
                     <WhenAfterDays formData={formData} />
-                    <SendAsRadioButtons/>
+                    <SendAsRadioButtons setSendAs={setSendAs} formData={formData}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead}/>
