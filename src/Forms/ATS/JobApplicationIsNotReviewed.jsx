@@ -1,5 +1,7 @@
-import {SendAs, Sender, WebHooks,DueDate,WhenApplicationIsNotProcessedFor,
-    Subject,Message} from "../DefaultFields/FormFields.jsx";
+import {
+    Sender, WebHooks, DueDate, WhenApplicationIsNotProcessedFor,
+    Subject, Message, SendAsRadioButtons
+} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types
@@ -16,7 +18,7 @@ const JobApplicationIsNotReviewed = ({ actionCode,formData,webhooks }) => {
             return (
                 <>
                     <DueDate formData={formData} />
-                    <SendAs formData={formData} />
+                    <SendAsRadioButtons formData={formData} />
                     <Sender formData={formData} />
                 </>
             );
