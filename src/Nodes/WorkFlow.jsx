@@ -34,6 +34,11 @@ import OpportunityPipelineStatusIsUpdated from "../Forms/CRM/OpportunityPipeline
 import OpportunityIsCreatedManually from "../Forms/CRM/OpportunityIsCreatedManually.jsx";
 import LeadFormIsSubmitted from "../Forms/CRM/LeadFormIsSubmitted.jsx";
 import ACandidateIsAddedManually from "../Forms/GDPR/ACandidateIsAddedManually.jsx";
+import GDPRConsentRequestIsRejected from "../Forms/GDPR/GDPRConsentRequestIsRejected.jsx";
+import NoResponseToGDPRConsentRequestNewConsent from "../Forms/GDPR/NoResponseToGDPRConsentRequest(New Consent).jsx";
+import GDPRPrivacyConsentIsAboutToExpire from "../Forms/GDPR/GDPRPrivacyConsentIsAboutToExpire.jsx";
+import NoResponseToGDPRConsentRequestConsentProvidedBefore
+    from "../Forms/GDPR/NoResponseToGDPRConsentRequest(Consent Provided before).jsx";
 
 
 const initialEdges = [
@@ -266,7 +271,18 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'CANDIDATE_ADDED_MANUALLY':
                 ActionForm = ACandidateIsAddedManually;
                 break;
-
+            case 'GDPR_CONSENT_REQUEST_REJECTED':
+                ActionForm = GDPRConsentRequestIsRejected;
+                break;
+            case 'GDPR_CONSENT_REQUEST_NO_RESPONSE':
+                ActionForm = NoResponseToGDPRConsentRequestNewConsent;
+                break;
+            case 'GDPR_CONSENT_REQUEST_EXPIRING':
+                ActionForm = GDPRPrivacyConsentIsAboutToExpire;
+                break;
+            case 'GDPR_CONSENT_REQUEST_EXISTING_NO_RESPONSE':
+                ActionForm = NoResponseToGDPRConsentRequestConsentProvidedBefore;
+                break;
 
             // ATS
             case 'ATS_JOB_ABOUT_EXPIRE':

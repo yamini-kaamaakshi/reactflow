@@ -236,7 +236,24 @@ export const WhenJobIsOpenFor = ({ formData }) => (
             </div>
         </Form.Item>
     );
-
+export const WhenDaysAfterOriginalRequest = ({ formData }) => (
+    <Form.Item
+        label="When:"
+        name="when"
+        rules={[{ required: true, message: "Please input the number of days!" }]}
+        initialValue={formData?.when}
+    >
+        <div className="input-group">
+            <Input
+                type="number"
+                title="Days After Original Request"
+                placeholder="7"
+                addonAfter="Days After Original Request"
+                defaultValue={formData?.when}
+            />
+        </div>
+    </Form.Item>
+);
 export const SendAsRadioButtons = ({formData}) => {
     const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
     return (
