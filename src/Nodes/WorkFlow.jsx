@@ -320,7 +320,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const fetchJobStatus = () => {
         fetchData(`${apiServer}/api/masterdata/jobstatus`, (data) => {
-            console.log("API Response - Job Status Data:", data);
             setJobStatus(data);
         });
     };
@@ -336,8 +335,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const fetchJobPipelineData = () => {
         const url = `${apiServer}/api/masterdata/job_pipeline`;
-
-        console.log(`Fetching job pipeline data from: ${url}`);
 
         fetchData(url, (data) => {
             console.log("API Response - Job Pipeline Data:", data);
