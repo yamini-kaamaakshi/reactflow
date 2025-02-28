@@ -6,9 +6,6 @@ import { IoIosFlash } from "react-icons/io";
 import { GrTrigger } from "react-icons/gr";
 import { SaveOutlined } from "@ant-design/icons";
 
-
-
-
 import PipelineStatusUpdate from "../Forms/ATS/PipelineStatusUpdate.jsx";
 import JobStatusUpdate from "../Forms/ATS/JobStatusUpdate.jsx";
 import JobStatusOpen from "../Forms/ATS/JobStatusOpen.jsx";
@@ -160,12 +157,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
 
-
-
-
-
-
-
     const [selectFilter, setSelectFilter] = useState("All");
     const [, setDroppedItem] = useState(null);
     const [iconVisible, setIconVisible] = useState(!!selectedTriggerName);
@@ -270,9 +261,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     useEffect(() => {
         fetchData(`${apiServer}/api/masterdata/job_pipeline`, (data) => {
-            console.log("📊 API Response - Job Pipeline Data:", data); // ✅ Check API response
+            console.log("API Response - Job Pipeline Data:", data);
 
-            setPipelineStatuses(data); // ✅ Set the exact statuses from API
+            setPipelineStatuses(data);
         });
     }, []);
 
@@ -307,10 +298,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
 
     const fetchActions = (triggerCode) => {
-        console.log(`🚀 Fetching actions for triggerCode: ${triggerCode}`); // ✅ Log triggerCode before API call
+        console.log(`Fetching actions for triggerCode: ${triggerCode}`);
 
         fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, (data) => {
-            console.log("📊 API Response - Actions Data:", data); // ✅ Log API response data
+            console.log("API Response - Actions Data:", data);
             setActions(data);
         });
     };
@@ -329,7 +320,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const fetchJobStatus = () => {
         fetchData(`${apiServer}/api/masterdata/jobstatus`, (data) => {
-            console.log("📊 API Response - Job Status Data:", data); // ✅ Added console log
+            console.log("API Response - Job Status Data:", data);
             setJobStatus(data);
         });
     };
@@ -346,10 +337,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const fetchJobPipelineData = () => {
         const url = `${apiServer}/api/masterdata/job_pipeline`;
 
-        console.log(`🚀 Fetching job pipeline data from: ${url}`); // ✅ Log API request URL
+        console.log(`Fetching job pipeline data from: ${url}`);
 
         fetchData(url, (data) => {
-            console.log("📊 API Response - Job Pipeline Data:", data); // ✅ Log API response
+            console.log("API Response - Job Pipeline Data:", data);
         });
     };
 
@@ -399,26 +390,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'ATS_PLACEMENT_ABOUT_START':
                 ActionForm = PlacedCandidateIsAboutToStart;
                 break;
-
-
-            case 'PIPELINE_STATUS_UPDATE':
-                ActionForm = PipelineStatusUpdate;
-                break;
-            case 'JOB_STATUS_UPDATED':
-                ActionForm = JobStatusUpdate;
-                break;
-            case 'JOB_STATUS_OPEN':
-                ActionForm = JobStatusOpen; // Add this line
-                break;
-            case "PLACEMENT_INVOICE_CREATION_DUE":
-                ActionForm = PlacementInvoiceDue;
-                break;
-            case "ATS_CANDIDATE_ADDED_TO_PIPELINE":
-                ActionForm = CandidateAddedToPipeline;
-                break;
-
-
-
             case 'NEW_CANDIDATE_ADDED_MANUALLY':
                 ActionForm = ACandidateAddedManually;
                 break;
