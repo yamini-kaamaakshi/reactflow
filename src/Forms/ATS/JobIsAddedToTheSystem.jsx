@@ -4,7 +4,6 @@ import {DueDay,WebHooks} from "../DefaultFields/FormFields.jsx";
 
 // eslint-disable-next-line react/prop-types
 const JobIsAddedToTheSystem = ({ actionCode,webhooks,formData }) => {
-
     switch (actionCode) {
         case "JOB_ADDED_SEND_WEBHOOK_NOTIFICATION":
             return (

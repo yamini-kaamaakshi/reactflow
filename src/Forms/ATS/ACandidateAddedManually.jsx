@@ -12,6 +12,7 @@ const ACandidateAddedManually = ({ actionCode,webhooks,formData }) => {
 
                 <WebHooks webhooks={webhooks} formData={formData} />
             );
+
         case "CANDIDATE_ADDED_MANUALLY_SEND_EMAIL_REQUESTING_UPDATES":
             return (
                 <>
@@ -26,6 +27,7 @@ const ACandidateAddedManually = ({ actionCode,webhooks,formData }) => {
                     <Subject formData={formData}/>
                 </>
             )
+
         case "CANDIDATE_ADDED_MANUALLY_ADD_TASK_TO_OWNER":
             return (
                 <>

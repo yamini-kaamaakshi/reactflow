@@ -4,7 +4,6 @@ import {WhenBeforeDays,Subject,Message,DueDay,WebHooks} from "../DefaultFields/F
 
 // eslint-disable-next-line react/prop-types
 const WhenAPlacementIsNearingItsEndDate = ({ actionCode,formData,webhooks }) => {
-
     switch (actionCode) {
         case "ATS_PLACEMENT_ABOUT_END_SEND_EMAIL_TO_USER":
             return (
@@ -62,6 +61,7 @@ const WhenAPlacementIsNearingItsEndDate = ({ actionCode,formData,webhooks }) => 
                     </Form.Item>
                 </>
             );
+
         case "ATS_PLACEMENT_ABOUT_END_SEND_EMAIL_TO_CLIENT":
             return (
                 <>
@@ -70,6 +70,7 @@ const WhenAPlacementIsNearingItsEndDate = ({ actionCode,formData,webhooks }) => 
                     <Message formData={formData} />
                 </>
             );
+
         case "ATS_PLACEMENT_ABOUT_END_SEND_EMAIL_TO_CANDIDATE":
             return (
                 <>

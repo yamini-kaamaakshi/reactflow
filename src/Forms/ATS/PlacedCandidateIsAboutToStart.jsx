@@ -4,7 +4,6 @@ import {WebHooks,WhenBeforeDays,Subject,Message,DueDay} from "../DefaultFields/F
 
 // eslint-disable-next-line react/prop-types
 const PlacedCandidateIsAboutToStart = ({ actionCode,webhooks,formData }) => {
-
     switch (actionCode) {
         case "ATS_PLACEMENT_ABOUT_START_SEND_EMAIL_TO_USER":
             return (

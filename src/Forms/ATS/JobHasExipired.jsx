@@ -4,10 +4,7 @@ import {WhenAfterDays,WebHooks,DueDay,Subject,Message} from "../DefaultFields/Fo
 
 // eslint-disable-next-line react/prop-types
 const JoBHasExpired = ({ actionCode, formData,rejectReasons,webhooks }) => {
-
     switch (actionCode) {
-
-
         case "JOB_EXPIRED_ADD_TASK_TO_OWNER":
             return (
                 <>
@@ -16,10 +13,12 @@ const JoBHasExpired = ({ actionCode, formData,rejectReasons,webhooks }) => {
                 <Message formData={formData} />
                 </>
             )
+
         case "MARK_JOB_STATUS_AS_CLOSED":
             return (
                     <WhenAfterDays formData={formData} />
             )
+
         case "JOB_EXPIRED_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <>
@@ -53,6 +52,7 @@ const JoBHasExpired = ({ actionCode, formData,rejectReasons,webhooks }) => {
                     </Form.Item>
                 </>
             );
+
         case "REMOVE_JOB_FROM_WEBSITE":
         case "UNPUBLISH_FROM_JOB_BOARDS":
             return (

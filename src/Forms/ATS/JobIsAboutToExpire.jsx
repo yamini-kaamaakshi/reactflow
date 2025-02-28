@@ -25,6 +25,7 @@ const DaysBeforeExpire = ({formData}) => (
         </div>
     </Form.Item>
 );
+
 // eslint-disable-next-line react/prop-types
 const JobIsAboutToExpire = ({actionCode,webhooks,formData }) => {
     switch (actionCode) {
@@ -43,8 +44,6 @@ const JobIsAboutToExpire = ({actionCode,webhooks,formData }) => {
             );
 
         case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
-
-
             return (
                 <>
                 <DaysBeforeExpire formData={formData}/>

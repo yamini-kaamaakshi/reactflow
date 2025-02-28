@@ -4,7 +4,6 @@ import {WebHooks,Subject,Message,WhenAfterDays} from "../DefaultFields/FormField
 
 // eslint-disable-next-line react/prop-types
 const PlacedCandidateHasStarted = ({ actionCode,webhooks,formData }) => {
-
     switch (actionCode) {
         case "ATS_PLACEMENT_STARTED_SEND_EMAIL_TO_USER":
         case "ATS_PLACEMENT_STARTED_SEND_EMAIL_TO_CLIENT":
@@ -18,12 +17,14 @@ const PlacedCandidateHasStarted = ({ actionCode,webhooks,formData }) => {
                     <Message formData={formData} />
                 </>
             )
+
         case "ATS_PLACEMENT_STARTED_ADD_CANDIDATE_TO_SEQUENCE":
             return (
                 <>
                     <WhenAfterDays formData={formData} />
                 </>
             )
+
         case "ATS_PLACEMENT_STARTED_ADD_TASK_TO_OWNER":
             return (
                 <>
@@ -61,6 +62,7 @@ const PlacedCandidateHasStarted = ({ actionCode,webhooks,formData }) => {
                     </Form.Item>
                 </>
             )
+
         case "ATS_PLACEMENT_STARTED_SEND_WEBHOOK_NOTIFICATION":
             return (
                     <>

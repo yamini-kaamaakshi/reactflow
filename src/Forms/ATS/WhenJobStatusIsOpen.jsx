@@ -3,9 +3,7 @@ import {WebHooks,WhenJobIsOpenFor,DueDay,Subject,Message} from "../DefaultFields
 
 // eslint-disable-next-line react/prop-types
 const WhenJobStatusIsOpen = ({ actionCode, formData,webhooks }) => {
-
     switch (actionCode) {
-
         case "JOB_OPEN_SEND_EMAIL_TO_OWNER":
             return (
              <>
@@ -22,6 +20,7 @@ const WhenJobStatusIsOpen = ({ actionCode, formData,webhooks }) => {
                     <WebHooks webhooks={webhooks} formData={formData} />
               </>
             )
+
         case "JOB_OPEN_ADD_TASK_TO_OWNER":
             return (
                 <>
@@ -31,6 +30,7 @@ const WhenJobStatusIsOpen = ({ actionCode, formData,webhooks }) => {
                     <Message formData={formData} />
                 </>
             )
+
         case "JOB_OPEN_MARK_JOB_STATUS_AS_CLOSED":
             return (
              <>

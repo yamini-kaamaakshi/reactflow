@@ -3,7 +3,6 @@ import {Subject,Message,WhenDaysBefore} from "../DefaultFields/FormFields.jsx";
 
 // eslint-disable-next-line react/prop-types
 const JobInterviewIsDue = ({ actionCode,formData }) => {
-
     switch (actionCode) {
         case "JOB_INTERVIEW_DUE_SEND_SMS_TO_CLIENT":
         case "JOB_INTERVIEW_DUE_SEND_SMS_TO_CANDIDATE":
@@ -14,6 +13,7 @@ const JobInterviewIsDue = ({ actionCode,formData }) => {
 
                 </>
             )
+
         case "JOB_INTERVIEW_DUE_SEND_EMAIL_TO_CLIENT":
         case "JOB_INTERVIEW_DUE_SEND_EMAIL_TO_CANDIDATE":
             return (

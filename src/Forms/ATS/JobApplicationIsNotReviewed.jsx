@@ -4,7 +4,6 @@ import {SendAs, Sender, WebHooks,DueDate,WhenApplicationIsNotProcessedFor,
 
 // eslint-disable-next-line react/prop-types
 const JobApplicationIsNotReviewed = ({ actionCode,formData,webhooks }) => {
-
     switch (actionCode) {
         case "JOB_APPLICATION_RECEIVED_SEND_WEBHOOK_NOTIFICATION":
             return (
@@ -21,6 +20,7 @@ const JobApplicationIsNotReviewed = ({ actionCode,formData,webhooks }) => {
                     <Sender formData={formData} />
                 </>
             );
+
         case 'JOB_APPLICATION_RECEIVED_SEND_EMAIL_TO_OWNER':
             return (
                 <>
@@ -29,6 +29,7 @@ const JobApplicationIsNotReviewed = ({ actionCode,formData,webhooks }) => {
                     <Message formData={formData} />
                 </>
             );
+
         case 'JOB_APPLICATION_RECEIVED_SEND_EMAIL_TO_SENDER':
             return (
                 <>
@@ -36,6 +37,7 @@ const JobApplicationIsNotReviewed = ({ actionCode,formData,webhooks }) => {
                     <Message formData={formData} />
                 </>
             );
+
         case 'JOB_APPLICATION_RECEIVED_SEND_EMAIL_TO_CANDIDATE':
         case 'JOB_APPLICATION_RECEIVED_SEND_EMAIL_TO_RECRUITING_TEAM_MEMBER':
                     return (
