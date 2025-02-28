@@ -1,4 +1,6 @@
 import WorkFlow from "./Nodes/WorkFlow.jsx";
+import "react-quill/dist/quill.snow.css"; // Import Quill editor styles
+
 
 const App = ({
   apiServer = "https://api.edge.recruitly.io",

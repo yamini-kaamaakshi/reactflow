@@ -33,21 +33,21 @@ const JobIsAboutToExpire = ({actionCode,webhooks,formData }) => {
             return (
                 <>
                     <DaysBeforeExpire formData={formData} />
-                  <WebHooks webhooks={webhooks} formData={formData} />
+                    <WebHooks webhooks={webhooks} formData={formData} />
                 </>
             );
 
         case "JOB_EXPIRY_SEND_EMAIL_TO_CONCERNED_USERS":
         case "JOB_EXPIRY_SEND_EMAIL_TO_OWNER":
             return (
-                    <DaysBeforeExpire formData={formData}/>
+                <DaysBeforeExpire formData={formData}/>
             );
 
         case 'JOB_EXPIRY_ADD_TASK_TO_OWNER':
             return (
                 <>
-                <DaysBeforeExpire formData={formData}/>
-                <DueDay formData={formData} />
+                    <DaysBeforeExpire formData={formData}/>
+                    <DueDay formData={formData} />
                     <Form.Item
                         label="Subject:"
                         name="subject"
