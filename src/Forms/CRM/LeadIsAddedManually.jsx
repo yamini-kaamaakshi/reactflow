@@ -15,7 +15,6 @@ const LeadIsAddedManually = ({actionCode, webhooks, users,formData}) => {
     const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
 
     switch (actionCode) {
-
         case "LEAD_ADDED_MANUALLY_SEND_EMAIL_TO_LEAD":
             return (
                 <>
