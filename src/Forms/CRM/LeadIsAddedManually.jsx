@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {
     Message,
-    PipelineSelect, SendAsRadioButtons,
+    PipelineSelect, SendAsRadioButtons, SenderSelection,
     Sequence,
     Subject,
     UserDropdown,
@@ -9,15 +9,22 @@ import {
 } from "../DefaultFields/FormFields.jsx";
 
 
-const LeadIsAddedManually = ({actionCode, webhooks, users,formData}) => {
+const LeadIsAddedManually = ({actionCode, webhooks, users,formData,senders}) => {
     const [selectedLead, setSelectedLead] = useState("");
-    const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
+    const [sendAs, setSendAs] = useState("default");
+    const [selectedSender, setSelectedSender] = useState(null);
 
     switch (actionCode) {
         case "LEAD_ADDED_MANUALLY_SEND_EMAIL_TO_LEAD":
             return (
                 <>
-                    <SendAsRadioButtons sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
+                    <SendAsRadioButtons setSendAs={setSendAs} formData={formData}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Subject  formData={formData}/>
                     <Message formData={formData} />
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead} formData={formData}/>
@@ -36,7 +43,13 @@ const LeadIsAddedManually = ({actionCode, webhooks, users,formData}) => {
             return (
                 <>
                     <UserDropdown users={users} formData={formData}/>
-                    <SendAsRadioButtons sendAs={sendAs} setSendAs={setSendAs}/>
+                    <SendAsRadioButtons setSendAs={setSendAs} formData={formData}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead}/>
