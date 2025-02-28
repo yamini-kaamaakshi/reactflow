@@ -8,9 +8,9 @@ const JoBHasExpired = ({ actionCode, formData,rejectReasons,webhooks }) => {
         case "JOB_EXPIRED_ADD_TASK_TO_OWNER":
             return (
                 <>
-                <DueDay formData={formData} />
-                <Subject formData={formData} />
-                <Message formData={formData} />
+                    <DueDay formData={formData} />
+                    <Subject formData={formData} />
+                    <Message formData={formData} />
                 </>
             )
 

@@ -4,6 +4,16 @@ import {Button, Drawer, Form, Segmented, Spin} from "antd";
 import { Card, Flex } from "antd";
 import { IoIosFlash } from "react-icons/io";
 import { GrTrigger } from "react-icons/gr";
+import { SaveOutlined } from "@ant-design/icons";
+
+
+
+
+import PipelineStatusUpdate from "../Forms/PipelineStatusUpdate.jsx";
+import JobStatusUpdate from "../Forms/JobStatusUpdate.jsx";
+import JobStatusOpen from "../Forms/JobStatusOpen.jsx";
+import PlacementInvoiceDue from "../Forms/PlacementInvoiceDue.jsx";
+import CandidateAddedToPipeline from "../Forms/CandidateAddedToPipeline.jsx";
 
 import AddTriggerNode from "./AddTriggerNode.jsx";
 import AddActionNode  from "./AddActionNode.jsx";
@@ -109,6 +119,52 @@ const WorkFlow = ({apiServer, apiKey}) => {
         localStorage.setItem('edges', JSON.stringify(edges));
     }, [nodes, edges]);
 
+    const handleSaveTrigger = () => {
+        let workflowData = JSON.parse(localStorage.getItem("workflowData")) || { steps: {} };
+
+        // Retrieve the selected trigger
+        const selectedTrigger = JSON.parse(localStorage.getItem("selectedTrigger")) || null;
+        const triggerId = selectedTrigger?._id || null;
+
+        // Ensure only one trigger is saved at a time
+        workflowData.steps = {}; // Clears all existing triggers before saving the new one
+
+        // Retrieve all saved actions
+        let savedActionData = JSON.parse(localStorage.getItem("savedActionData")) || [];
+
+        // Remove invalid actions
+        savedActionData = savedActionData.filter(action => action?.selectedAction?._id);
+
+        // Convert actions array to object
+        const actions = savedActionData.reduce((acc, action) => {
+            const actionId = action?.selectedAction?._id;
+            if (actionId) {
+                acc[actionId] = {
+                    actionData: action.formData || {}
+                };
+            }
+            return acc;
+        }, {});
+
+        if (selectedTrigger) {
+            workflowData.steps[triggerId] = {
+                ...selectedTrigger,
+                actions: actions
+            };
+        }
+
+        // Save updated workflowData to localStorage
+        localStorage.setItem("workflowData", JSON.stringify(workflowData));
+
+        console.log("workflowData:", workflowData);
+    };
+
+
+
+
+
+
+
 
     const [selectFilter, setSelectFilter] = useState("All");
     const [, setDroppedItem] = useState(null);
@@ -131,6 +187,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [webhooks, setWebhooks] = useState([])
     const [rejectReasons, setRejectReasons] = useState([])
     const [senders, setSenders] = useState([])
+    const [pipelineStatuses, setPipelineStatuses] = useState([]);
+    const jobStatuses = pipelineStatuses?.map((status) => status.statusName) || [];
 
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
@@ -197,12 +255,27 @@ const WorkFlow = ({apiServer, apiKey}) => {
     }, [triggerCode]);
 
     useEffect(() => {
+        if (triggerCode === "PIPELINE_STATUS_UPDATE") {
+            fetchJobPipelineData();
+        }
+    }, [triggerCode]);
+
+    useEffect(() => {
         if(actionCode){
             fetchWebhooks();
             fetchRejectReasons();
             fetchSenders();
         }
     }, [actionCode]);
+
+    useEffect(() => {
+        fetchData(`${apiServer}/api/masterdata/job_pipeline`, (data) => {
+            console.log("📊 API Response - Job Pipeline Data:", data); // ✅ Check API response
+
+            setPipelineStatuses(data); // ✅ Set the exact statuses from API
+        });
+    }, []);
+
 
     const fetchData = async (url, setter) => {
         try {
@@ -219,7 +292,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
 
             const result = await response.json();
-             // console.log(`Fetched data from ${url}:`, result);
+            // console.log(`Fetched data from ${url}:`, result);
 
             setter(result?.data || []);
         } catch (error) {
@@ -233,9 +306,14 @@ const WorkFlow = ({apiServer, apiKey}) => {
         fetchData(`${apiServer}/api/lookup_automation/triggers`, setTriggers);
 
 
-    const fetchActions = (triggerCode) =>
-        fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, setActions);
+    const fetchActions = (triggerCode) => {
+        console.log(`🚀 Fetching actions for triggerCode: ${triggerCode}`); // ✅ Log triggerCode before API call
 
+        fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, (data) => {
+            console.log("📊 API Response - Actions Data:", data); // ✅ Log API response data
+            setActions(data);
+        });
+    };
     const fetchJobTypes = () =>
         fetchData(`${apiServer}/api/masterdata/jobTypes`, setJobTypes);
 
@@ -249,8 +327,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const fetchSource = () =>
         fetchData(`${apiServer}/api/masterdata/source`, setSource);
 
-    const fetchJobStatus = () =>
-        fetchData(`${apiServer}/api/masterdata/jobstatus`, setJobStatus);
+    const fetchJobStatus = () => {
+        fetchData(`${apiServer}/api/masterdata/jobstatus`, (data) => {
+            console.log("📊 API Response - Job Status Data:", data); // ✅ Added console log
+            setJobStatus(data);
+        });
+    };
 
     const fetchUsers = () =>
         fetchData(`${apiServer}/api/user_list`, setUsers);
@@ -260,6 +342,16 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const fetchRejectReasons = () =>
         fetchData(`${apiServer}/api/masterdata/job_pipeline/reject_reasons`, setRejectReasons);
+
+    const fetchJobPipelineData = () => {
+        const url = `${apiServer}/api/masterdata/job_pipeline`;
+
+        console.log(`🚀 Fetching job pipeline data from: ${url}`); // ✅ Log API request URL
+
+        fetchData(url, (data) => {
+            console.log("📊 API Response - Job Pipeline Data:", data); // ✅ Log API response
+        });
+    };
 
     const fetchSenders = () =>
         fetchData(`${apiServer}/api/marketing/senders`, setSenders);
@@ -303,12 +395,30 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'ATS_PLACEMENT_STARTED':
                 ActionForm = PlacedCandidateHasStarted;
                 break;
-            case 'JOB_STATUS_OPEN':
-                ActionForm = WhenJobStatusIsOpen;
-                break;
+
             case 'ATS_PLACEMENT_ABOUT_START':
                 ActionForm = PlacedCandidateIsAboutToStart;
                 break;
+
+
+            case 'PIPELINE_STATUS_UPDATE':
+                ActionForm = PipelineStatusUpdate;
+                break;
+            case 'JOB_STATUS_UPDATED':
+                ActionForm = JobStatusUpdate;
+                break;
+            case 'JOB_STATUS_OPEN':
+                ActionForm = JobStatusOpen; // Add this line
+                break;
+            case "PLACEMENT_INVOICE_CREATION_DUE":
+                ActionForm = PlacementInvoiceDue;
+                break;
+            case "ATS_CANDIDATE_ADDED_TO_PIPELINE":
+                ActionForm = CandidateAddedToPipeline;
+                break;
+
+
+
             case 'NEW_CANDIDATE_ADDED_MANUALLY':
                 ActionForm = ACandidateAddedManually;
                 break;
@@ -369,6 +479,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 selectedNodeId={selectedNodeId}
                 webhooks={webhooks}
                 rejectReasons={rejectReasons}
+                senders={senders}
+                fetchSenders={fetchSenders}
+                pipelineStatuses={pipelineStatuses}
+                jobStatuses={jobStatus}
             />
         );
     };
@@ -488,22 +602,22 @@ const WorkFlow = ({apiServer, apiKey}) => {
         event.preventDefault();
     };
 
-   const handleNodeDelete = () => {
-            localStorage.removeItem('selectedTriggerName');
-            localStorage.removeItem('savedActionData');
-            localStorage.removeItem('droppedTrigger');
-            localStorage.removeItem('isFirstNodeUsed');
-            localStorage.removeItem('selectedNodeId');
-            localStorage.removeItem('triggerCode');
+    const handleNodeDelete = () => {
+        localStorage.removeItem('selectedTriggerName');
+        localStorage.removeItem('savedActionData');
+        localStorage.removeItem('droppedTrigger');
+        localStorage.removeItem('isFirstNodeUsed');
+        localStorage.removeItem('selectedNodeId');
+        localStorage.removeItem('triggerCode');
 
-            setNodes(initialNodes);
-            setEdges(initialEdges);
-            resetAll();
-            setActionCode(null);
-            setIconVisible(false);
-            setDrawerVisible(true);
-            setIsFirstNodeUsed(false);
-            closeActionDrawer();
+        setNodes(initialNodes);
+        setEdges(initialEdges);
+        resetAll();
+        setActionCode(null);
+        setIconVisible(false);
+        setDrawerVisible(true);
+        setIsFirstNodeUsed(false);
+        closeActionDrawer();
     };
 
     const moduleNames = [
@@ -846,7 +960,15 @@ const WorkFlow = ({apiServer, apiKey}) => {
     };
 
     return (
-        <div style={{ height: "90vh", verticalAlign: "top" }}>
+        <div style={{ height: "90vh", verticalAlign: "top",position: "relative" }}>
+            <Button
+                type="primary"
+                icon={<SaveOutlined />} // ✅ Ensure this is wrapped in JSX brackets
+                onClick={handleSaveTrigger}
+                style={{ position: "absolute", top: 16, right: 16, zIndex: 1000 }}
+            >
+                Save Trigger
+            </Button>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
