@@ -1,4 +1,4 @@
-import {Message, SendAs, Subject, UserDropdown} from "../DefaultFields/FormFields.jsx";
+import {Message, SendAsRadioButtons, Subject, UserDropdown} from "../DefaultFields/FormFields.jsx";
 
 
 const OpportunityIsCreatedManually = ({actionCode, users,formData}) => {
@@ -7,7 +7,7 @@ const OpportunityIsCreatedManually = ({actionCode, users,formData}) => {
         case "OPPORTUNITY_CREATED_SEND_EMAIL_TO_OPPORTUNITY_OWNER":
             return (
                 <>
-                    <SendAs/>
+                    <SendAsRadioButtons/>
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                 </>
@@ -17,7 +17,7 @@ const OpportunityIsCreatedManually = ({actionCode, users,formData}) => {
             return (
                 <>
                     <UserDropdown users={users}/>
-                    <SendAs/>
+                    <SendAsRadioButtons/>
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                 </>
