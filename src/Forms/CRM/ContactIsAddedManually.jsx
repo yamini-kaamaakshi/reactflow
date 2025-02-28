@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {Message, SendAsRadioButtons, Subject, UserDropdown, WebHooks} from "../DefaultFields/FormFields.jsx";
+import {Message, SendAsRadioButtons, Sequence, Subject, UserDropdown, WebHooks} from "../DefaultFields/FormFields.jsx";
 
 
 const ContactIsAddedManually = ({actionCode, webhooks, users,formData}) => {
@@ -35,7 +35,7 @@ const ContactIsAddedManually = ({actionCode, webhooks, users,formData}) => {
         case "CONTACT_ADDED_MANUALLY_ADD_TO_SEQUENCE":
             return (
                 <>
-                    <WebHooks webhooks={webhooks} formData={formData}/>
+                    <Sequence formData={formData}/>
                 </>
             );
 
