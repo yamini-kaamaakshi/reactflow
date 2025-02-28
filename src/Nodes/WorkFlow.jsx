@@ -341,6 +341,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 handleFormSubmit={handleFormSubmit}
                 actionCode={actionCode}
                 formData={selectedActionData?.formData}
+                users={users}
                 selectedNodeId={selectedNodeId}
                 webhooks={webhooks}
                 rejectReasons={rejectReasons}
