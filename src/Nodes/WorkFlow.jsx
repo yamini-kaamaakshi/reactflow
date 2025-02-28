@@ -31,6 +31,7 @@ import ContactStatusIsUpdated from "../Forms/CRM/ContactStatusIsUpdated.jsx";
 import LeadIsAddedManually from "../Forms/CRM/LeadIsAddedManually.jsx";
 import LeadStatusIsUpdated from "../Forms/CRM/LeadStatusIsUpdated.jsx";
 import OpportunityPipelineStatusIsUpdated from "../Forms/CRM/OpportunityPipelineStatusIsUpdated.jsx";
+import OpportunityIsCreatedManually from "../Forms/CRM/OpportunityIsCreatedManually.jsx";
 
 
 const initialEdges = [
@@ -309,17 +310,20 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
 
             // CRM Data
+            case 'NEW_LEAD_ADDED_MANUALLY':
+                ActionForm = LeadIsAddedManually;
+                break;
+            case 'LEAD_STATUS_UPDATED':
+                ActionForm = LeadStatusIsUpdated;
+                break;
             case 'NEW_CONTACT_ADDED_MANUALLY':
                 ActionForm = ContactIsAddedManually;
                 break;
             case 'CONTACT_STATUS_UPDATED':
                 ActionForm = ContactStatusIsUpdated;
                 break;
-            case 'NEW_LEAD_ADDED_MANUALLY':
-                ActionForm = LeadIsAddedManually;
-                break;
-            case 'LEAD_STATUS_UPDATED':
-                ActionForm = LeadStatusIsUpdated;
+            case 'NEW_OPPORTUNITY_CREATED_MANUALLY':
+                ActionForm = OpportunityIsCreatedManually;
                 break;
             case 'OPPORTUNITY_STATUS_UPDATED':
                 ActionForm = OpportunityPipelineStatusIsUpdated;
