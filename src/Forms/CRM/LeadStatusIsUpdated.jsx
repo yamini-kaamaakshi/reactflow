@@ -1,4 +1,4 @@
-import {Message, SendAs, Subject, UserDropdown} from "../DefaultFields/FormFields.jsx";
+import {Message, SendAsRadioButtons, Subject, UserDropdown} from "../DefaultFields/FormFields.jsx";
 
 
 const LeadStatusIsUpdated = ({actionCode, users,formData}) => {
@@ -7,7 +7,7 @@ const LeadStatusIsUpdated = ({actionCode, users,formData}) => {
         case "LEAD_STATUS_UPDATED_SEND_EMAIL_TO_LEAD_OWNER":
             return (
                 <>
-                    <SendAs/>
+                    <SendAsRadioButtons/>
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                 </>
@@ -17,7 +17,7 @@ const LeadStatusIsUpdated = ({actionCode, users,formData}) => {
             return (
                 <>
                     <UserDropdown users={users}/>
-                    <SendAs/>
+                    <SendAsRadioButtons/>
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                 </>

@@ -1,8 +1,7 @@
 import {useState} from "react";
 import {
     Message,
-    PipelineSelect,
-    SendAs,
+    PipelineSelect, SendAsRadioButtons,
     Sequence,
     Subject,
     UserDropdown,
@@ -18,7 +17,7 @@ const LeadIsAddedManually = ({actionCode, webhooks, users,formData}) => {
         case "LEAD_ADDED_MANUALLY_SEND_EMAIL_TO_LEAD":
             return (
                 <>
-                    <SendAs sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
+                    <SendAsRadioButtons sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
                     <Subject  formData={formData}/>
                     <Message formData={formData} />
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead} formData={formData}/>
@@ -37,7 +36,7 @@ const LeadIsAddedManually = ({actionCode, webhooks, users,formData}) => {
             return (
                 <>
                     <UserDropdown users={users} formData={formData}/>
-                    <SendAs sendAs={sendAs} setSendAs={setSendAs}/>
+                    <SendAsRadioButtons sendAs={sendAs} setSendAs={setSendAs}/>
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead}/>

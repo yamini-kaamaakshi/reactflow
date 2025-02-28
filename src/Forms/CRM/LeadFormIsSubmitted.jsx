@@ -3,8 +3,8 @@ import {
     DueDate,
     LeadForm,
     Message,
-    PipelineSelect,
-    SendAs, Sequence,
+    PipelineSelect, SendAsRadioButtons,
+    Sequence,
     Subject, UserDropdown,
     WebHooks,
     WhenAfterDays
@@ -29,7 +29,7 @@ const LeadFormIsSubmitted = ({actionCode, webhooks, formData, users}) => {
                 <>
                     <LeadForm formData={formData}/>
                     <WhenAfterDays formData={formData}/>
-                    <SendAs/>
+                    <SendAsRadioButtons/>
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead}/>
@@ -59,7 +59,7 @@ const LeadFormIsSubmitted = ({actionCode, webhooks, formData, users}) => {
                 <>
                     <LeadForm formData={formData}/>
                     <UserDropdown users={users} formData={formData}/>
-                    <SendAs/>
+                    <SendAsRadioButtons/>
                     <Subject/>
                     <Message/>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead}/>
