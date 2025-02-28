@@ -6,12 +6,6 @@ import { IoIosFlash } from "react-icons/io";
 import { GrTrigger } from "react-icons/gr";
 import { SaveOutlined } from "@ant-design/icons";
 
-import PipelineStatusUpdate from "../Forms/ATS/PipelineStatusUpdate.jsx";
-import JobStatusUpdate from "../Forms/ATS/JobStatusUpdate.jsx";
-import JobStatusOpen from "../Forms/ATS/JobStatusOpen.jsx";
-import PlacementInvoiceDue from "../Forms/ATS/PlacementInvoiceDue.jsx";
-import CandidateAddedToPipeline from "../Forms/ATS/CandidateAddedToPipeline.jsx";
-
 import AddTriggerNode from "./AddTriggerNode.jsx";
 import AddActionNode  from "./AddActionNode.jsx";
 import FilterIcon from "../Custom/FilterIcon.jsx";
@@ -23,7 +17,6 @@ import JobHasExipired from "../Forms/ATS/JobHasExipired.jsx";
 import JobIsAddedToTheSystem from "../Forms/ATS/JobIsAddedToTheSystem.jsx";
 import JobApplicationIsNotReviewed from "../Forms/ATS/JobApplicationIsNotReviewed.jsx";
 import PlacedCandidateHasStarted from "../Forms/ATS/PlacedCandidateHasStarted.jsx";
-import WhenJobStatusIsOpen from "../Forms/ATS/WhenJobStatusIsOpen.jsx";
 import PlacedCandidateIsAboutToStart from "../Forms/ATS/PlacedCandidateIsAboutToStart.jsx";
 import  ACandidateAddedManually from "../Forms/ATS/ACandidateAddedManually.jsx"
 import CandidateAddedToJobPipline from "../Forms/ATS/CandidateAddedToJobPipline.jsx"
