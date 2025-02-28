@@ -6,7 +6,6 @@ const ContactStatusIsUpdated = ({actionCode, users,formData}) => {
     const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
 
     switch (actionCode) {
-
         case "CONTACT_STATUS_UPDATED_SEND_EMAIL_TO_CONTACT":
         case "CONTACT_STATUS_UPDATED_SEND_EMAIL_TO_CONTACT_OWNER":
             return (
