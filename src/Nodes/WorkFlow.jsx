@@ -30,6 +30,7 @@ import ContactIsAddedManually from "../Forms/CRM/ContactIsAddedManually.jsx";
 import ContactStatusIsUpdated from "../Forms/CRM/ContactStatusIsUpdated.jsx";
 import LeadIsAddedManually from "../Forms/CRM/LeadIsAddedManually.jsx";
 import LeadStatusIsUpdated from "../Forms/CRM/LeadStatusIsUpdated.jsx";
+import OpportunityPipelineStatusIsUpdated from "../Forms/CRM/OpportunityPipelineStatusIsUpdated.jsx";
 
 
 const initialEdges = [
@@ -319,6 +320,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
             case 'LEAD_STATUS_UPDATED':
                 ActionForm = LeadStatusIsUpdated;
+                break;
+            case 'OPPORTUNITY_STATUS_UPDATED':
+                ActionForm = OpportunityPipelineStatusIsUpdated;
                 break;
             default:
                 return <div>Invalid Action code.</div>;
