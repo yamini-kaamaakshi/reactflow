@@ -32,6 +32,7 @@ import LeadIsAddedManually from "../Forms/CRM/LeadIsAddedManually.jsx";
 import LeadStatusIsUpdated from "../Forms/CRM/LeadStatusIsUpdated.jsx";
 import OpportunityPipelineStatusIsUpdated from "../Forms/CRM/OpportunityPipelineStatusIsUpdated.jsx";
 import OpportunityIsCreatedManually from "../Forms/CRM/OpportunityIsCreatedManually.jsx";
+import LeadFormIsSubmitted from "../Forms/CRM/LeadFormIsSubmitted.jsx";
 
 
 const initialEdges = [
@@ -315,6 +316,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
             case 'LEAD_STATUS_UPDATED':
                 ActionForm = LeadStatusIsUpdated;
+                break;
+            case 'LEAD_GENERATOR_FORM_SUBMITTED':
+                ActionForm = LeadFormIsSubmitted;
                 break;
             case 'NEW_CONTACT_ADDED_MANUALLY':
                 ActionForm = ContactIsAddedManually;
