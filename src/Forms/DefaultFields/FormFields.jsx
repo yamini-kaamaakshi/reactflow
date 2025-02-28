@@ -1,6 +1,129 @@
-import { Form, Input, Select } from "antd";
-import { Radio } from "antd";
+import { Form, Input, Select ,Radio ,Alert } from "antd";
+import ReactQuill from "react-quill";
 import { useState } from "react";
+
+
+
+
+// ✅ Reusable "Send As" Radio Buttons
+// eslint-disable-next-line react/prop-types
+export const SendAsRadioButtons = ({ formData, setSendAs }) => (
+    <Form.Item
+        label="Send as:"
+        name="sendAs"
+        initialValue={formData?.sendAs || "default"}
+        rules={[{ required: true, message: "Please select a sender type" }]}
+    >
+        <Radio.Group onChange={(e) => setSendAs(e.target.value)}>
+            <Radio value="default">Default</Radio>
+            <Radio value="recordOwner">Record Owner</Radio>
+            <Radio value="emailSender">Email Sender</Radio>
+        </Radio.Group>
+    </Form.Item>
+);
+
+// ✅ Reusable Sender Selection (Dropdown + Alerts)
+// eslint-disable-next-line react/prop-types
+export const SenderSelection = ({ sendAs, selectedSender, setSelectedSender, senders }) => {
+    if (sendAs === "default") {
+        return (
+            <Form.Item label="Sender:">
+                <Alert message="Emails are sent from noreply@recruitly.io account." type="info" />
+            </Form.Item>
+        );
+    }
+
+    if (sendAs === "recordOwner") {
+        return (
+            <Form.Item label="Sender:">
+                <Alert message="Emails are sent from record owner email account." type="info" />
+            </Form.Item>
+        );
+    }
+
+    if (sendAs === "emailSender") {
+        return (
+            <Form.Item
+                label="Sender:"
+                name="emailSender"
+                rules={[{ required: true, message: "Please select a sender" }]}
+            >
+                <Select
+                    value={selectedSender}
+                    onChange={setSelectedSender}
+                    placeholder="Select Sender..."
+                    style={{ width: "100%" }}
+                >
+                    {senders
+                        .filter((sender) => sender.fromEmail && sender.fromName)
+                        .map((sender) => (
+                            <Select.Option key={sender.id} value={sender.fromEmail}>
+                                {sender.fromName} - {sender.fromEmail}
+                            </Select.Option>
+                        ))}
+                </Select>
+            </Form.Item>
+        );
+    }
+
+    return null;
+};
+
+// ✅ Reusable Subject Field
+// eslint-disable-next-line react/prop-types
+export const SubjectField = ({ formData, subject, setSubject }) => (
+    <Form.Item
+        label="Subject:"
+        name="subject"
+        rules={[{ required: true, message: "Please enter a subject" }]}
+    >
+        <Input
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            placeholder="Enter Subject"
+        />
+    </Form.Item>
+);
+
+// ✅ Reusable Message Input (ReactQuill)
+// eslint-disable-next-line react/prop-types
+export const MessageField = ({ formData, message, setMessage }) => (
+    <Form.Item
+        label="Message:"
+        name="message"
+        rules={[{ required: true, message: "Please enter a message" }]}
+    >
+        <ReactQuill
+            theme="snow"
+            value={message}
+            onChange={setMessage}
+            placeholder="Type your message here..."
+        />
+    </Form.Item>
+);
+
+// ✅ Reusable Due Date Dropdown
+export const DueDateDropdown = ({ formData }) => (
+    <Form.Item
+        label="Due Date:"
+        name="dueDays"
+        rules={[{ required: true, message: "Please select a due date" }]}
+    >
+        <Select placeholder="Select Due Date">
+            <Select.Option value="0">Same Day</Select.Option>
+            <Select.Option value="1">After 1 Day</Select.Option>
+            <Select.Option value="2">After 2 Days</Select.Option>
+            <Select.Option value="3">After 3 Days</Select.Option>
+            <Select.Option value="4">After 4 Days</Select.Option>
+            <Select.Option value="5">After 5 Days</Select.Option>
+            <Select.Option value="7">After 1 Week</Select.Option>
+            <Select.Option value="14">After 2 Weeks</Select.Option>
+            <Select.Option value="30">After 1 Month</Select.Option>
+        </Select>
+    </Form.Item>
+);
+
+
 
 export const WhenAfterDays = ({ formData }) => (
     <Form.Item
@@ -254,21 +377,7 @@ export const WhenDaysAfterOriginalRequest = ({ formData }) => (
         </div>
     </Form.Item>
 );
-export const SendAsRadioButtons = ({formData}) => {
-    const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
-    return (
 
-        <Form.Item label="Send as:" name="sendAs">
-                <Form.Item name="sendAs" initialValue="DEFAULT">
-                    <Radio.Group value={sendAs} onChange={(e) => setSendAs(e.target.value)}>
-                        <Radio value="DEFAULT">Default</Radio>
-                        <Radio value="RECORD_OWNER">Record owner</Radio>
-                        <Radio value="EMAIL_SENDER">Email Sender</Radio>
-                    </Radio.Group>
-                </Form.Item>
-        </Form.Item>
-    );
-};
 export const Sender = ({ sendAs }) => {
     return (
         <Form.Item label="Sender:" name="sender">

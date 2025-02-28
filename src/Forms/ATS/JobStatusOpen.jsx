@@ -2,7 +2,11 @@ import { Alert, Form, Input, Radio, Select } from "antd";
 import { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // Import Quill styles
-import {WhenAfterDays,WebHooks,DueDay,Subject,Message} from "../DefaultFields/FormFields.jsx";
+import {WhenAfterDays,WebHooks, SendAsRadioButtons,
+    SenderSelection,
+    SubjectField,
+    MessageField,
+    DueDateDropdown,} from "../DefaultFields/FormFields.jsx";
 
 // eslint-disable-next-line react/prop-types
 const JobStatusOpen = ({ actionCode, senders, formData , webhooks , jobStatuses }) => { // Added formData here
@@ -18,78 +22,24 @@ const JobStatusOpen = ({ actionCode, senders, formData , webhooks , jobStatuses 
                 <>
                     <WhenAfterDays formData={formData} /> {/* formData is now available */}
 
-                    <Form.Item
-                        label="Send as:"
-                        name="sendAs"
-                        initialValue="default"
-                        rules={[{ required: true, message: "Please select a sender type" }]}
-                    >
-                        <Radio.Group onChange={(e) => setSendAs(e.target.value)}>
-                            <Radio value="default">Default</Radio>
-                            <Radio value="recordOwner">Record Owner</Radio>
-                            <Radio value="emailSender">Email Sender</Radio>
-                        </Radio.Group>
-                    </Form.Item>
+                    {/* Reusable Send As Radio Buttons */}
+                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs} />
 
-                    {sendAs === "default" && (
-                        <Form.Item label="Sender:">
-                            <Alert message="Emails are sent from noreply@recruitly.io account." type="info" />
-                        </Form.Item>
-                    )}
 
-                    {sendAs === "recordOwner" && (
-                        <Form.Item label="Sender:">
-                            <Alert message="Emails are sent from record owner email account. Ex: If you are owner of record then emails will be sent from andy@hireoptica.com." type="info" />
-                        </Form.Item>
-                    )}
+                    {/* Reusable Sender Selection */}
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
 
-                    {sendAs === "emailSender" && (
-                        <Form.Item
-                            label="Sender:"
-                            name="emailSender"
-                            rules={[{ required: true, message: "Please select a sender" }]}
-                        >
-                            <Select
-                                value={selectedSender}
-                                onChange={setSelectedSender}
-                                placeholder="Select Sender..."
-                                style={{ width: "100%" }}
-                            >
-                                {senders
-                                    .filter((sender) => sender.fromEmail && sender.fromName)
-                                    .map((sender) => (
-                                        <Select.Option key={sender.id} value={sender.fromEmail}>
-                                            {sender.fromName} - {sender.fromEmail}
-                                        </Select.Option>
-                                    ))}
-                            </Select>
-                        </Form.Item>
-                    )}
+                    {/* Reusable Subject Field */}
+                    <SubjectField formData={formData} subject={subject} setSubject={setSubject} />
 
-                    <Form.Item
-                        label="Subject:"
-                        name="subject"
-                        rules={[{ required: true, message: "Please enter a subject" }]}
-                    >
-                        <Input
-                            value={subject}
-                            onChange={(e) => setSubject(e.target.value)}
-                            placeholder="Enter Subject"
-                        />
-                    </Form.Item>
 
-                    <Form.Item
-                        label="Message:"
-                        name="message"
-                        rules={[{ required: true, message: "Please enter a message" }]}
-                    >
-                        <ReactQuill
-                            theme="snow"
-                            value={message}
-                            onChange={setMessage}
-                            placeholder="Type your message here..."
-                        />
-                    </Form.Item>
+                    {/* Reusable Message Field */}
+                    <MessageField formData={formData} message={message} setMessage={setMessage} />
                 </>
             );
 
@@ -105,53 +55,21 @@ const JobStatusOpen = ({ actionCode, senders, formData , webhooks , jobStatuses 
                 <>
                     <WhenAfterDays formData={formData} /> {/* formData is now available */}
 
-                    {/* Due Date Dropdown */}
-                    <Form.Item
-                        label="Due Date:"
-                        name="dueDays"
-                        rules={[{ required: true, message: "Please select a due date" }]}
-                    >
-                        <Select placeholder="Select Due Date">
-                            <Select.Option value="0">Same Day</Select.Option>
-                            <Select.Option value="1">After 1 Day</Select.Option>
-                            <Select.Option value="2">After 2 Days</Select.Option>
-                            <Select.Option value="3">After 3 Days</Select.Option>
-                            <Select.Option value="4">After 4 Days</Select.Option>
-                            <Select.Option value="5">After 5 Days</Select.Option>
-                            <Select.Option value="7">After 1 Week</Select.Option>
-                            <Select.Option value="14">After 2 Weeks</Select.Option>
-                            <Select.Option value="30">After 1 Month</Select.Option>
-                        </Select>
-                    </Form.Item>
+
+                    {/* Reusable Due Date Dropdown */}
+                    <DueDateDropdown formData={formData} />
 
 
 
 
 
-                    <Form.Item
-                        label="Subject:"
-                        name="subject"
-                        rules={[{ required: true, message: "Please enter a subject" }]}
-                    >
-                        <Input
-                            value={subject}
-                            onChange={(e) => setSubject(e.target.value)}
-                            placeholder="Enter Subject"
-                        />
-                    </Form.Item>
 
-                    <Form.Item
-                        label="Message:"
-                        name="message"
-                        rules={[{ required: true, message: "Please enter a message" }]}
-                    >
-                        <ReactQuill
-                            theme="snow"
-                            value={message}
-                            onChange={setMessage}
-                            placeholder="Type your message here..."
-                        />
-                    </Form.Item>
+                    {/* Reusable Subject Field */}
+                    <SubjectField formData={formData} subject={subject} setSubject={setSubject} />
+
+
+                    {/* Reusable Message Field */}
+                    <MessageField formData={formData} message={message} setMessage={setMessage} />
                 </>
             );
         case "JOB_OPEN_MARK_JOB_STATUS_AS_CLOSED":
