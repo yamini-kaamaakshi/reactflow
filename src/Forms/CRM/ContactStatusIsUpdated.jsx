@@ -1,16 +1,23 @@
 import {useState} from "react";
-import {Message, SendAsRadioButtons, Subject, UserDropdown} from "../DefaultFields/FormFields.jsx";
+import {Message, SendAsRadioButtons, SenderSelection, Subject, UserDropdown} from "../DefaultFields/FormFields.jsx";
 
 
-const ContactStatusIsUpdated = ({actionCode, users,formData}) => {
-    const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
+const ContactStatusIsUpdated = ({actionCode, users,formData,senders}) => {
+    const [sendAs, setSendAs] = useState("default");
+    const [selectedSender, setSelectedSender] = useState(null);
 
     switch (actionCode) {
         case "CONTACT_STATUS_UPDATED_SEND_EMAIL_TO_CONTACT":
         case "CONTACT_STATUS_UPDATED_SEND_EMAIL_TO_CONTACT_OWNER":
             return (
                 <>
-                    <SendAsRadioButtons sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
+                    <SendAsRadioButtons setSendAs={setSendAs} formData={formData}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                 </>
@@ -20,7 +27,13 @@ const ContactStatusIsUpdated = ({actionCode, users,formData}) => {
             return (
                 <>
                     <UserDropdown users={users} formData={formData}/>
-                    <SendAsRadioButtons sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
+                    <SendAsRadioButtons setSendAs={setSendAs} formData={formData}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                 </>

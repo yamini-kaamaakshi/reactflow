@@ -1,16 +1,31 @@
 import {useState} from "react";
-import {Message, SendAsRadioButtons, Sequence, Subject, UserDropdown, WebHooks} from "../DefaultFields/FormFields.jsx";
+import {
+    Message,
+    SendAsRadioButtons,
+    SenderSelection,
+    Sequence,
+    Subject,
+    UserDropdown,
+    WebHooks
+} from "../DefaultFields/FormFields.jsx";
 
 
-const ContactIsAddedManually = ({actionCode, webhooks, users,formData}) => {
-    const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
+const ContactIsAddedManually = ({actionCode, webhooks, users,formData,senders}) => {
+    const [sendAs, setSendAs] = useState("default");
+    const [selectedSender, setSelectedSender] = useState(null);
 
     switch (actionCode) {
         case "CONTACT_ADDED_MANUALLY_SEND_EMAIL_TO_SPECIFIED_USERS":
             return (
                 <>
                     <UserDropdown users={users} formData={formData}/>
-                    <SendAsRadioButtons sendAs={sendAs} setSendAs={setSendAs} formData={formData}/>
+                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                 </>
