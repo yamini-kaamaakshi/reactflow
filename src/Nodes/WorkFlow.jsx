@@ -33,6 +33,7 @@ import LeadStatusIsUpdated from "../Forms/CRM/LeadStatusIsUpdated.jsx";
 import OpportunityPipelineStatusIsUpdated from "../Forms/CRM/OpportunityPipelineStatusIsUpdated.jsx";
 import OpportunityIsCreatedManually from "../Forms/CRM/OpportunityIsCreatedManually.jsx";
 import LeadFormIsSubmitted from "../Forms/CRM/LeadFormIsSubmitted.jsx";
+import ACandidateIsAddedManually from "../Forms/GDPR/ACandidateIsAddedManually.jsx";
 
 
 const initialEdges = [
@@ -213,7 +214,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
 
             const result = await response.json();
-             console.log(`Fetched data from ${url}:`, result);
+             // console.log(`Fetched data from ${url}:`, result);
 
             setter(result?.data || []);
         } catch (error) {
@@ -261,6 +262,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const renderForm = () => {
         let ActionForm;
         switch (triggerCode) {
+            // GDPR
+            case 'CANDIDATE_ADDED_MANUALLY':
+                ActionForm = ACandidateIsAddedManually;
+                break;
+
+            // ATS
             case 'ATS_JOB_ABOUT_EXPIRE':
                 ActionForm = JobIsAboutToExpire;
                 break;
