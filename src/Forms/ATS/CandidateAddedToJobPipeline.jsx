@@ -1,9 +1,9 @@
-import {SendAsRadioButtons, WebHooks, Subject, Message, SenderSelection} from "../DefaultFields/FormFields.jsx";
 import {useState} from "react";
+import {SendAsRadioButtons, WebHooks, Subject, Message, SenderSelection} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types
-const CandidateAddedToJobPipline = ({ actionCode,webhooks,formData,senders}) => {
+const CandidateAddedToJobPipeline = ({ actionCode,webhooks,formData,senders}) => {
     const [sendAs, setSendAs] = useState("default");
     const [selectedSender, setSelectedSender] = useState(null);
 
@@ -32,4 +32,4 @@ const CandidateAddedToJobPipline = ({ actionCode,webhooks,formData,senders}) => 
     }
 };
 
-export default CandidateAddedToJobPipline;
+export default CandidateAddedToJobPipeline;
