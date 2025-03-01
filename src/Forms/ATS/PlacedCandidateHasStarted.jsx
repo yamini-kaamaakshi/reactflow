@@ -5,7 +5,7 @@ import {
     Message,
     WhenAfterDays,
     SendAsRadioButtons,
-    SenderSelection
+    SenderSelection, DueDay
 } from "../DefaultFields/FormFields.jsx";
 import {useState} from "react";
 
@@ -45,6 +45,7 @@ const PlacedCandidateHasStarted = ({ actionCode,webhooks,formData,senders}) => {
             return (
                 <>
                     <WhenAfterDays formData={formData} />
+                    <DueDay formData={formData} />
                     <Form.Item
                         label="Subject:"
                         name="subject"
