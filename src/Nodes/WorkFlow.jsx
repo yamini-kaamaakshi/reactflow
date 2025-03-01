@@ -39,6 +39,9 @@ import NoResponseToGDPRConsentRequestNewConsent from "../Forms/GDPR/NoResponseTo
 import GDPRPrivacyConsentIsAboutToExpire from "../Forms/GDPR/GDPRPrivacyConsentIsAboutToExpire.jsx";
 import NoResponseToGDPRConsentRequestConsentProvidedBefore
     from "../Forms/GDPR/NoResponseToGDPRConsentRequest(Consent Provided before).jsx";
+import GDPRConsentAddedByTheSystemAfterCVSubmit from "../Forms/GDPR/GDPRConsentAddedByTheSystemAfterCVSubmit.jsx";
+import GDPRConsentAddedByTheSystemAfterJobApplication
+    from "../Forms/GDPR/GDPRConsentAddedByTheSystemAfterJobApplication.jsx";
 
 
 const initialEdges = [
@@ -356,7 +359,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'GDPR_CONSENT_REQUEST_EXISTING_NO_RESPONSE':
                 ActionForm = NoResponseToGDPRConsentRequestConsentProvidedBefore;
                 break;
-
+            case 'GDPR_CONSENT_REQUEST_ADDED_BY_CV_SUBMIT':
+                ActionForm = GDPRConsentAddedByTheSystemAfterCVSubmit;
+                break;
+            case 'GDPR_CONSENT_REQUEST_ADDED_BY_JOB_APPLICATION':
+                ActionForm = GDPRConsentAddedByTheSystemAfterJobApplication;
+                break;
             // ATS
             case 'ATS_JOB_ABOUT_EXPIRE':
                 ActionForm = JobIsAboutToExpire;
