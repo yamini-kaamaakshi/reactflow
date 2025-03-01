@@ -43,6 +43,7 @@ import GDPRConsentAddedByTheSystemAfterJobApplication
     from "../Forms/GDPR/GDPRConsentAddedByTheSystemAfterJobApplication.jsx";
 import GDPRConsentRequestIsApproved from "../Forms/GDPR/GDPRConsentRequestIsApproved.jsx";
 import ACandidateAddedManually from "../Forms/ATS/ACandidateAddedManually.jsx";
+import WhenJobStatusIsOpen from "../Forms/ATS/WhenJobStatusIsOpen.jsx";
 
 
 const initialEdges = [
@@ -415,6 +416,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
             case 'ATS_CANDIDATE_CV_SHARED':
                 ActionForm = candidateCVIsShared;
+                break;
+            case 'JOB_STATUS_OPEN':
+                ActionForm = WhenJobStatusIsOpen;
                 break;
 
             // CRM Data
