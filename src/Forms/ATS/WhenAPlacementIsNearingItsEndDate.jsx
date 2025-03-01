@@ -1,14 +1,33 @@
 import {Form, Input} from "antd";
-import {WhenBeforeDays,Subject,Message,DueDay,WebHooks} from "../DefaultFields/FormFields.jsx";
+import {
+    WhenBeforeDays,
+    Subject,
+    Message,
+    DueDay,
+    WebHooks,
+    SendAsRadioButtons,
+    SenderSelection
+} from "../DefaultFields/FormFields.jsx";
+import {useState} from "react";
 
 
 // eslint-disable-next-line react/prop-types
-const WhenAPlacementIsNearingItsEndDate = ({ actionCode,formData,webhooks }) => {
+const WhenAPlacementIsNearingItsEndDate = ({ actionCode,formData,webhooks,senders}) => {
+    const [sendAs, setSendAs] = useState("default");
+    const [selectedSender, setSelectedSender] = useState(null);
+
     switch (actionCode) {
         case "ATS_PLACEMENT_ABOUT_END_SEND_EMAIL_TO_USER":
             return (
                 <>
                 <WhenBeforeDays formData = {formData} />
+                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                 <Subject formData={formData} />
                 <Message formData={formData} />
                 </>
@@ -26,7 +45,8 @@ const WhenAPlacementIsNearingItsEndDate = ({ actionCode,formData,webhooks }) => 
                 <>
                     <WhenBeforeDays formData = {formData} />
                     <DueDay formData={formData} />
-
+                    <Subject formData={formData} />
+                    <Message formData={formData} />
                 </>
             );
 
