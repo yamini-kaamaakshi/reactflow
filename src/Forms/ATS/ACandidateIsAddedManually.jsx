@@ -1,17 +1,18 @@
 import {useState} from "react";
 import {Radio} from "antd";
-import {Subject,DueDay,Message,WebHooks} from "../DefaultFields/FormFields.jsx"
+import {Subject, DueDay, Message, WebHooks} from "../DefaultFields/FormFields.jsx"
 
 
 // eslint-disable-next-line react/prop-types
-const ACandidateIsAddedManually = ({ actionCode,webhooks,formData }) => {
+const ACandidateIsAddedManually = ({actionCode, webhooks, formData}) => {
     const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
 
     switch (actionCode) {
         case "CANDIDATE_ADDED_MANUALLY_SEND_WEBHOOK_NOTIFICATION":
             return (
-
-                <WebHooks webhooks={webhooks} formData={formData} />
+                <>
+                    <WebHooks webhooks={webhooks} formData={formData}/>
+                </>
             );
 
         case "CANDIDATE_ADDED_MANUALLY_SEND_EMAIL_REQUESTING_UPDATES":
@@ -32,13 +33,13 @@ const ACandidateIsAddedManually = ({ actionCode,webhooks,formData }) => {
         case "CANDIDATE_ADDED_MANUALLY_ADD_TASK_TO_OWNER":
             return (
                 <>
-                <DueDay formData={formData} />
-                <Subject formData={formData}/>
-                <Message formData={formData} />
-                 </>
+                    <DueDay formData={formData}/>
+                    <Subject formData={formData}/>
+                    <Message formData={formData}/>
+                </>
             )
         default:
-            return ;
+            return;
     }
 };
 
