@@ -369,6 +369,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'GDPR_CONSENT_REQUEST_APPROVED':
                 ActionForm = GDPRConsentRequestIsApproved;
                 break;
+
             // ATS
             case 'ATS_JOB_ABOUT_EXPIRE':
                 ActionForm = JobIsAboutToExpire;

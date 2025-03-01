@@ -16,4 +16,5 @@ const GDPRConsentRequestIsApproved = ({ actionCode,formData }) => {
     }
 };
 
+
 export default GDPRConsentRequestIsApproved;
