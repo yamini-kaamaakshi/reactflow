@@ -11,7 +11,7 @@ import {
 
 
 // eslint-disable-next-line react/prop-types
-const PlacementIscreated = ({actionCode, handleFormSubmit, formData, senders, webhooks}) => {
+const PlacementIsCreated = ({actionCode, handleFormSubmit, formData, senders, webhooks}) => {
     const [sendAs, setSendAs] = useState("default");
     const [selectedSender, setSelectedSender] = useState(null);
     const [dueDate, setDueDate] = useState("0");
@@ -98,4 +98,4 @@ const PlacementIscreated = ({actionCode, handleFormSubmit, formData, senders, we
     }
 };
 
-export default PlacementIscreated;
+export default PlacementIsCreated;
