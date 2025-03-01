@@ -1,11 +1,11 @@
 import {useState} from "react";
-import {Radio} from "antd";
-import {Subject, DueDay, Message, WebHooks} from "../DefaultFields/FormFields.jsx"
+import {Subject, DueDay, Message, WebHooks, SendAsRadioButtons, SenderSelection} from "../DefaultFields/FormFields.jsx"
 
 
 // eslint-disable-next-line react/prop-types
-const ACandidateAddedManually = ({actionCode, webhooks, formData}) => {
-    const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
+const ACandidateAddedManually = ({actionCode, webhooks, formData,senders}) => {
+    const [sendAs, setSendAs] = useState("default");
+    const [selectedSender, setSelectedSender] = useState(null);
 
     switch (actionCode) {
         case "CANDIDATE_ADDED_MANUALLY_SEND_WEBHOOK_NOTIFICATION":
@@ -18,15 +18,15 @@ const ACandidateAddedManually = ({actionCode, webhooks, formData}) => {
         case "CANDIDATE_ADDED_MANUALLY_SEND_EMAIL_REQUESTING_UPDATES":
             return (
                 <>
-                    <Radio.Group
-                        onChange={(e) => setSendAs(e.target.value)}
-                        value={sendAs}
-                    >
-                        <Radio value="DEFAULT">Default</Radio>
-                        <Radio value="RECORD_OWNER">Record owner</Radio>
-                        <Radio value="EMAIL_SENDER">Email Sender</Radio>
-                    </Radio.Group>
+                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Subject formData={formData}/>
+                    <Message formData={formData} />
                 </>
             )
 
