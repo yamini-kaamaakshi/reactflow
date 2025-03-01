@@ -34,6 +34,13 @@ const JobApplicationIsNotReviewed = ({ actionCode,formData,webhooks,senders}) =>
             return (
                 <>
                     <WhenApplicationIsNotProcessedFor formData={formData} />
+                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Subject formData={formData} />
                     <Message formData={formData} />
                 </>
