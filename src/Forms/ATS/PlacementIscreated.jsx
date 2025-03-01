@@ -19,9 +19,11 @@ const PlacementIscreated = ({actionCode, handleFormSubmit, formData, senders, we
     const handleChange = (value) => {
         setDueDate(value);
     };
+
     switch (actionCode) {
         case "ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER":
         case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_CANDIDATE':
+        case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_CLIENT':
             return (
                 <>
                     <WhenAfterDays formData={formData}/>
@@ -67,7 +69,7 @@ const PlacementIscreated = ({actionCode, handleFormSubmit, formData, senders, we
                             <Select.Option value="30">After 1 Month</Select.Option>
                         </Select>
                     </Form.Item>
-
+                    <Subject formData={formData} />
                     <Form.Item
                         label="Message:"
                         name="message"
