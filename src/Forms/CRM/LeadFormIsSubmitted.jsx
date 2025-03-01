@@ -24,28 +24,6 @@ const LeadFormIsSubmitted = ({actionCode, webhooks, formData, users,senders}) =>
                     <LeadForm formData={formData}/>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead}/>
                     <DueDay formData={formData}/>
-                    <Form.Item
-                        label="Subject:"
-                        name="subject"
-                        initialValue={"New Submission for form ${formName}"}
-                        rules={[{ required: true }]}
-                    >
-                        <Input type="text" />
-                    </Form.Item>
-                    <Form.Item
-                        label="Message:"
-                        name="message"
-                        initialValue={"New Submission ${reference} for form ${formName}"}
-                    >
-                        <Input.TextArea
-                            rows={5}
-                            placeholder="Message"
-                            style={{
-                                borderTopLeftRadius: 0,
-                                borderTopRightRadius: 0,
-                            }}
-                        />
-                    </Form.Item>
                 </>
             );
 
