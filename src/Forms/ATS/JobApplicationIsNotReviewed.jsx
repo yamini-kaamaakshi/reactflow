@@ -20,13 +20,6 @@ const JobApplicationIsNotReviewed = ({ actionCode,formData,webhooks,senders}) =>
             return (
                 <>
                     <DueDate formData={formData} />
-                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
-                    <SenderSelection
-                        sendAs={sendAs}
-                        selectedSender={selectedSender}
-                        setSelectedSender={setSelectedSender}
-                        senders={senders}
-                    />
                 </>
             );
 
