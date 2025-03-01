@@ -42,6 +42,7 @@ import GDPRConsentAddedByTheSystemAfterCVSubmit from "../Forms/GDPR/GDPRConsentA
 import GDPRConsentAddedByTheSystemAfterJobApplication
     from "../Forms/GDPR/GDPRConsentAddedByTheSystemAfterJobApplication.jsx";
 import GDPRConsentRequestIsApproved from "../Forms/GDPR/GDPRConsentRequestIsApproved.jsx";
+import ACandidateAddedManually from "../Forms/ATS/ACandidateAddedManually.jsx";
 
 
 const initialEdges = [
@@ -388,12 +389,11 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'ATS_PLACEMENT_STARTED':
                 ActionForm = PlacedCandidateHasStarted;
                 break;
-
             case 'ATS_PLACEMENT_ABOUT_START':
                 ActionForm = PlacedCandidateIsAboutToStart;
                 break;
             case 'NEW_CANDIDATE_ADDED_MANUALLY':
-                ActionForm = ACandidateIsAddedManually;
+                ActionForm = ACandidateAddedManually;
                 break;
             case 'ATS_CANDIDATE_ADDED_TO_PIPELINE':
                 ActionForm = CandidateAddedToJobPipline;
