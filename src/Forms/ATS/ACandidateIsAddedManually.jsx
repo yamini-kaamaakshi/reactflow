@@ -4,8 +4,9 @@ import {Subject,DueDay,Message,WebHooks} from "../DefaultFields/FormFields.jsx"
 
 
 // eslint-disable-next-line react/prop-types
-const ACandidateAddedManually = ({ actionCode,webhooks,formData }) => {
+const ACandidateIsAddedManually = ({ actionCode,webhooks,formData }) => {
     const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
+
     switch (actionCode) {
         case "CANDIDATE_ADDED_MANUALLY_SEND_WEBHOOK_NOTIFICATION":
             return (
@@ -41,4 +42,4 @@ const ACandidateAddedManually = ({ actionCode,webhooks,formData }) => {
     }
 };
 
-export default ACandidateAddedManually;
+export default ACandidateIsAddedManually;
