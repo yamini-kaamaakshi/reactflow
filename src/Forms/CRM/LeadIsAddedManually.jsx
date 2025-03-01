@@ -31,6 +31,14 @@ const LeadIsAddedManually = ({actionCode, webhooks, users,formData,senders}) => 
                 </>
             );
 
+        case "LEAD_ADDED_MANUALLY_ADD_TO_SEQUENCE":
+            return (
+                <>
+                    <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead} formData={formData}/>
+                    <Sequence formData={formData}/>
+                </>
+            );
+
         case "LEAD_ADDED_MANUALLY_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <>
@@ -53,14 +61,6 @@ const LeadIsAddedManually = ({actionCode, webhooks, users,formData,senders}) => 
                     <Subject formData={formData}/>
                     <Message formData={formData}/>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead}/>
-                </>
-            );
-
-        case "LEAD_ADDED_MANUALLY_ADD_TO_SEQUENCE":
-            return (
-                <>
-                    <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead} formData={formData}/>
-                    <Sequence formData={formData}/>
                 </>
             );
 
