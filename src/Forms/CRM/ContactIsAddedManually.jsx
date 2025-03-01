@@ -15,22 +15,6 @@ const ContactIsAddedManually = ({actionCode, webhooks, users,formData,senders}) 
     const [selectedSender, setSelectedSender] = useState(null);
 
     switch (actionCode) {
-        case "CONTACT_ADDED_MANUALLY_SEND_EMAIL_TO_SPECIFIED_USERS":
-            return (
-                <>
-                    <UserDropdown users={users} formData={formData}/>
-                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
-                    <SenderSelection
-                        sendAs={sendAs}
-                        selectedSender={selectedSender}
-                        setSelectedSender={setSelectedSender}
-                        senders={senders}
-                    />
-                    <Subject formData={formData}/>
-                    <Message formData={formData}/>
-                </>
-            );
-
         case "CONTACT_ADDED_MANUALLY_SEND_EMAIL_TO_CONTACT":
             return (
                 <>
@@ -46,6 +30,13 @@ const ContactIsAddedManually = ({actionCode, webhooks, users,formData,senders}) 
                 </>
             );
 
+        case "CONTACT_ADDED_MANUALLY_ADD_TO_SEQUENCE":
+            return (
+                <>
+                    <Sequence formData={formData}/>
+                </>
+            );
+
         case "CONTACT_ADDED_MANUALLY_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <>
@@ -53,10 +44,19 @@ const ContactIsAddedManually = ({actionCode, webhooks, users,formData,senders}) 
                 </>
             );
 
-        case "CONTACT_ADDED_MANUALLY_ADD_TO_SEQUENCE":
+        case "CONTACT_ADDED_MANUALLY_SEND_EMAIL_TO_SPECIFIED_USERS":
             return (
                 <>
-                    <Sequence formData={formData}/>
+                    <UserDropdown users={users} formData={formData}/>
+                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
+                    <Subject formData={formData}/>
+                    <Message formData={formData}/>
                 </>
             );
 
