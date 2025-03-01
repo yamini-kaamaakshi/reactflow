@@ -18,7 +18,7 @@ import JobIsAddedToTheSystem from "../Forms/ATS/JobIsAddedToTheSystem.jsx";
 import JobApplicationIsNotReviewed from "../Forms/ATS/JobApplicationIsNotReviewed.jsx";
 import PlacedCandidateHasStarted from "../Forms/ATS/PlacedCandidateHasStarted.jsx";
 import PlacedCandidateIsAboutToStart from "../Forms/ATS/PlacedCandidateIsAboutToStart.jsx";
-import CandidateAddedToJobPipline from "../Forms/ATS/CandidateAddedToJobPipline.jsx"
+import CandidateAddedToJobPipeline from "../Forms/ATS/CandidateAddedToJobPipeline.jsx"
 import PlacementInvoiceCreationIsDue from "../Forms/ATS/PlacementInvoiceCreationIsDue.jsx";
 import WhenAPlacementIsNearingItsEndDate from "../Forms/ATS/WhenAPlacementIsNearingItsEndDate.jsx";
 import CandidatePipelineStatusIsUpdated from "../Forms/ATS/CandidatePipelineStatusIsUpdated.jsx";
@@ -396,7 +396,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 ActionForm = ACandidateAddedManually;
                 break;
             case 'ATS_CANDIDATE_ADDED_TO_PIPELINE':
-                ActionForm = CandidateAddedToJobPipline;
+                ActionForm = CandidateAddedToJobPipeline;
                 break;
             case 'PLACEMENT_INVOICE_CREATION_DUE':
                 ActionForm = PlacementInvoiceCreationIsDue;
