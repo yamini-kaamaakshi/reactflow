@@ -1,11 +1,13 @@
-import {
-    Sender, WebHooks, DueDate, WhenApplicationIsNotProcessedFor,
-    Subject, Message, SendAsRadioButtons
-} from "../DefaultFields/FormFields.jsx";
+import {useState} from "react";
+import {WebHooks, DueDate, WhenApplicationIsNotProcessedFor, Subject, Message, SendAsRadioButtons,
+    SenderSelection} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types
-const JobApplicationIsNotReviewed = ({ actionCode,formData,webhooks }) => {
+const JobApplicationIsNotReviewed = ({ actionCode,formData,webhooks,senders}) => {
+    const [sendAs, setSendAs] = useState("default");
+    const [selectedSender, setSelectedSender] = useState(null);
+
     switch (actionCode) {
         case "JOB_APPLICATION_RECEIVED_SEND_WEBHOOK_NOTIFICATION":
             return (
@@ -18,8 +20,13 @@ const JobApplicationIsNotReviewed = ({ actionCode,formData,webhooks }) => {
             return (
                 <>
                     <DueDate formData={formData} />
-                    <SendAsRadioButtons formData={formData} />
-                    <Sender formData={formData} />
+                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                 </>
             );
 

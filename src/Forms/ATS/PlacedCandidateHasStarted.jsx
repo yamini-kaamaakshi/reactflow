@@ -12,7 +12,6 @@ const PlacedCandidateHasStarted = ({ actionCode,webhooks,formData }) => {
                 <>
                     {/*<FormFields formData={formData} />*/}
                     <WhenAfterDays formData={formData} />
-
                     <Subject formData={formData} />
                     <Message formData={formData} />
                 </>

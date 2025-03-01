@@ -1,12 +1,12 @@
 import { useState} from "react";
 import { Button, Form, Input, Radio, Select } from "antd";
-import {WhenAfterDays} from "../DefaultFields/FormFields.jsx";
+import {SendAsRadioButtons, SenderSelection, WhenAfterDays} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types
-const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
-    const [sendAs, setSendAs] = useState(formData?.sendAs || "DEFAULT");
-    const [sender, setSender] = useState(formData?.sender );
+const PlacementIscreated = ({ actionCode, handleFormSubmit, formData,senders}) => {
+    const [sendAs, setSendAs] = useState("default");
+    const [selectedSender, setSelectedSender] = useState(null);
     const [dueDate, setDueDate] = useState("0");
 
     const handleChange = (value) => {
@@ -23,45 +23,13 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData }) => {
                     message: formData?.message || ""
                 }}>
                     <WhenAfterDays formData={formData} />
-
-                    <Form.Item label="Send as:" name="sendAs">
-                        <Radio.Group
-                            onChange={(e) => setSendAs(e.target.value)}
-                            value={sendAs}
-                        >
-                            <Radio value="DEFAULT">Default</Radio>
-                            <Radio value="RECORD_OWNER">Record owner</Radio>
-                            <Radio value="EMAIL_SENDER">Email Sender</Radio>
-                        </Radio.Group>
-                    </Form.Item>
-
-                    <Form.Item label="Sender:" name="sender">
-                        {sendAs === "DEFAULT" && (
-                            <div className="default-response-email">
-                                Emails are sent from <b>noreply@recruitly.io</b> account.
-                            </div>
-                        )}
-                        {sendAs === "RECORD_OWNER" && (
-                            <div className="record-owner-response-email">
-                                Emails are sent from the record owner's email account.
-                            </div>
-                        )}
-                        {sendAs === "EMAIL_SENDER" && (
-                            <Select
-                                title="Select Email Sender"
-                                className="form-control sel-email-sender"
-                                value={sender}
-                                onChange={setSender}
-                            >
-                                <Select.Option value="weavbba8751e5f53483f852ab61be082c05c">
-                                    Gary Williams 123
-                                </Select.Option>
-                                <Select.Option value="test77da082deb5944ea80241166e8094311">
-                                    Andy
-                                </Select.Option>
-                            </Select>
-                        )}
-                    </Form.Item>
+                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
 
                     <Form.Item label="Subject:" name="subject">
                         <Input placeholder="Subject" maxLength={128} />
