@@ -9,7 +9,6 @@ import {
 } from "../DefaultFields/FormFields.jsx";
 
 
-
 // eslint-disable-next-line react/prop-types
 const WhenJobStatusIsOpen = ({ actionCode, formData,webhooks,senders}) => {
     const [sendAs, setSendAs] = useState("default");

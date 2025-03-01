@@ -11,7 +11,6 @@ import {
 } from "../DefaultFields/FormFields.jsx";
 
 
-
 // eslint-disable-next-line react/prop-types
 const PlacedCandidateIsAboutToStart = ({ actionCode,webhooks,formData,senders}) => {
     const [sendAs, setSendAs] = useState("default");
