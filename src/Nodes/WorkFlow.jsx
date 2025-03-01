@@ -13,7 +13,7 @@ import AddActionButton from "../Custom/AddActionButton.jsx";
 import generateUpdatedData from "../swichcaseManager/ActionDisplay.jsx";
 import JobIsAboutToExpire from "../Forms/ATS/JobIsAboutToExpire.jsx";
 import PlacementIsCreated from "../Forms/ATS/PlacementIsCreated.jsx";
-import JobHasExipired from "../Forms/ATS/JobHasExipired.jsx";
+import JoBHasExpired from "../Forms/ATS/JobHasExpired.jsx";
 import JobIsAddedToTheSystem from "../Forms/ATS/JobIsAddedToTheSystem.jsx";
 import JobApplicationIsNotReviewed from "../Forms/ATS/JobApplicationIsNotReviewed.jsx";
 import PlacedCandidateHasStarted from "../Forms/ATS/PlacedCandidateHasStarted.jsx";
@@ -376,7 +376,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 ActionForm = JobIsAboutToExpire;
                 break;
             case 'JOB_EXPIRED':
-                ActionForm = JobHasExipired;
+                ActionForm = JoBHasExpired;
                 break;
             case 'ATS_PLACEMENT_CREATED':
                 ActionForm = PlacementIsCreated;
