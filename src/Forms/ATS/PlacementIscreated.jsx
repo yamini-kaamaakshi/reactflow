@@ -86,6 +86,13 @@ const PlacementIscreated = ({actionCode, handleFormSubmit, formData, senders, we
                     </Form.Item>
                 </Form>
             );
+
+        case "ATS_PLACEMENT_CREATED_MARK_JOB_STATUS_AS_CLOSED":
+            return (
+                <>
+                    <WhenAfterDays formData={formData}/>
+                </>
+            );
         default:
             return;
     }
