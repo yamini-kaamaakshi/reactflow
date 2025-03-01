@@ -52,7 +52,8 @@ export const SenderSelection = ({sendAs, selectedSender, setSelectedSender, send
     if (sendAs === "recordOwner") {
         return (
             <Form.Item label="Sender:">
-                <Alert message="Emails are sent from record owner email account." type="info"/>
+                <Alert message="Emails are sent from record owner email account.
+                Ex: If you are owner of record then emails will be sent from andy@hireoptica.com" type="info"/>
             </Form.Item>
         );
     }
