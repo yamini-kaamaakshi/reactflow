@@ -90,6 +90,7 @@ const PlacedCandidateIsAboutToStart = ({ actionCode,webhooks,formData,senders}) 
             );
 
         case "ATS_PLACEMENT_ABOUT_START_SEND_EMAIL_TO_CLIENT":
+        case 'ATS_PLACEMENT_ABOUT_START_SEND_EMAIL_TO_CANDIDATE':
             return (
                 <>
                     <WhenBeforeDays formData={formData} />
@@ -100,15 +101,6 @@ const PlacedCandidateIsAboutToStart = ({ actionCode,webhooks,formData,senders}) 
                         setSelectedSender={setSelectedSender}
                         senders={senders}
                     />
-                    <Subject formData={formData} />
-                    <Message formData={formData}/>
-                </>
-            );
-
-        case 'ATS_PLACEMENT_ABOUT_START_SEND_EMAIL_TO_CANDIDATE':
-            return (
-                <>
-                    <WhenBeforeDays formData={formData} />
                     <Subject formData={formData} />
                     <Message formData={formData}/>
                 </>
