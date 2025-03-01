@@ -42,6 +42,7 @@ import NoResponseToGDPRConsentRequestConsentProvidedBefore
 import GDPRConsentAddedByTheSystemAfterCVSubmit from "../Forms/GDPR/GDPRConsentAddedByTheSystemAfterCVSubmit.jsx";
 import GDPRConsentAddedByTheSystemAfterJobApplication
     from "../Forms/GDPR/GDPRConsentAddedByTheSystemAfterJobApplication.jsx";
+import GDPRConsentRequestIsApproved from "../Forms/GDPR/GDPRConsentRequestIsApproved.jsx";
 
 
 const initialEdges = [
@@ -365,6 +366,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'GDPR_CONSENT_REQUEST_ADDED_BY_JOB_APPLICATION':
                 ActionForm = GDPRConsentAddedByTheSystemAfterJobApplication;
                 break;
+            case 'GDPR_CONSENT_REQUEST_APPROVED':
+                ActionForm = GDPRConsentRequestIsApproved;
+                break;
+
             // ATS
             case 'ATS_JOB_ABOUT_EXPIRE':
                 ActionForm = JobIsAboutToExpire;
