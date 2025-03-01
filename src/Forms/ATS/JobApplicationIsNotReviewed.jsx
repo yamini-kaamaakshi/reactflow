@@ -42,6 +42,13 @@ const JobApplicationIsNotReviewed = ({ actionCode,formData,webhooks,senders}) =>
         case 'JOB_APPLICATION_RECEIVED_SEND_EMAIL_TO_SENDER':
             return (
                 <>
+                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Subject formData={formData} />
                     <Message formData={formData} />
                 </>
