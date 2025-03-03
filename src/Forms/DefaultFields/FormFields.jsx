@@ -167,7 +167,6 @@ export const DueDay = ({formData}) => (
     <Form.Item
         label="Due Date:"
         name="dueDate"
-        rules={[{required: true}]}
         initialValue={formData?.dueDate}
         {...formItemLayout}
     >
