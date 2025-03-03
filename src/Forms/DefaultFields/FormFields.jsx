@@ -37,7 +37,6 @@ export const SendAsRadioButtons = ({formData, setSendAs}) => (
         name="sendAs"
         {...formItemLayout}
         initialValue={formData?.sendAs || "default"}
-        rules={[{required: true, message: "Please select a sender type"}]}
     >
         <Radio.Group onChange={(e) => setSendAs(e.target.value)}>
             <Radio value="default">Default</Radio>
@@ -187,7 +186,6 @@ export const Subject = ({formData}) => (
         label="Subject:"
         name="subject"
         {...formItemLayout}
-        rules={[{required: true}]}
         initialValue={formData?.subject}
     >
         <div className="input-group">
@@ -201,7 +199,6 @@ export const Message = ({formData}) => (
         label="Message:"
         name="message"
         {...formItemLayout}
-        rules={[{required: true}]}
         initialValue={formData?.message}
     >
         <div className="input-group">
