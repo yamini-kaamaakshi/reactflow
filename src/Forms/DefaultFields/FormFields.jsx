@@ -163,7 +163,7 @@ export const DueDay = ({formData}) => (
     <Form.Item
         label="Due Date:"
         name="dueDate"
-        initialValue={formData?.dueDate}
+        initialValue={formData?.dueDate ?? "0"}
         {...formItemLayout}
     >
         <Select className="form-control">
