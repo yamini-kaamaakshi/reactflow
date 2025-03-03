@@ -142,7 +142,6 @@ export const DueDate = ({formData}) => (
         label="Due Date:"
         name="dueDate"
         {...formItemLayout}
-        rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.dueDate}
     >
         <div className="input-group">
