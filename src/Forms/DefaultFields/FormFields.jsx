@@ -185,6 +185,7 @@ export const Subject = ({formData}) => (
         name="subject"
         {...formItemLayout}
         initialValue={formData?.subject}
+        rules={[{ required:true,message: "Please Enter a Subject!"}]}
     >
         <div className="input-group">
             <Input type="text" placeholder="Subject" defaultValue={formData?.subject}/>
