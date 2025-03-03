@@ -116,7 +116,6 @@ export const DaysBeforeBillingDate = ({formData}) => (
         label="When:"
         name="when"
         {...formItemLayout}
-        rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
         <div className="input-group">
@@ -243,7 +242,6 @@ export const WhenBeforeDays = ({formData}) => (
         label="When:"
         name="when"
         {...formItemLayout}
-        rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
         <div className="input-group">
@@ -268,7 +266,6 @@ export const WhenDaysBefore = ({formData}) => (
         label="When:"
         name="when"
         {...formItemLayout}
-        rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
         <div className="input-group">
@@ -288,7 +285,6 @@ export const WhenJobIsOpenFor = ({formData}) => (
         label="When:"
         name="when"
         {...formItemLayout}
-        rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
         <div className="input-group">
@@ -313,7 +309,6 @@ export const WhenDaysAfterOriginalRequest = ({formData}) => (
         label="When:"
         name="when"
         {...formItemLayout}
-        rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
         <div className="input-group">
@@ -333,7 +328,6 @@ export const NoActivitySinceDays = ({formData}) => (
         label="No Activity:"
         name="noActivity"
         {...formItemLayout}
-        rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.noActivity}
     >
         <div className="input-group">
@@ -400,7 +394,6 @@ export const Sequence = ({formData}) => {
             label="Sequence:"
             name="sequence"
             {...formItemLayout}
-            rules={[{required: true, message: "Please select a sequence!"}]}
             initialValue={formData?.sequence}
         >
             <Select mode="multiple" placeholder="Please Select..">
