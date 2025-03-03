@@ -1,10 +1,17 @@
 import {Form, Input, Select, Radio, Alert} from "antd";
 
 
+// Common styles for form item layout
+const formItemLayout = {
+    labelCol: { span: 4 },  // Adjust label width
+    wrapperCol: { span: 18 }, // Adjust input field width
+};
+
 export const WhenAfterDays = ({formData}) => (
     <Form.Item
         label="When:"
         name="when"
+        {...formItemLayout}
         rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
@@ -29,6 +36,7 @@ export const SendAsRadioButtons = ({formData, setSendAs}) => (
     <Form.Item
         label="Send as:"
         name="sendAs"
+        {...formItemLayout}
         initialValue={formData?.sendAs || "default"}
         rules={[{required: true, message: "Please select a sender type"}]}
     >
@@ -43,7 +51,7 @@ export const SendAsRadioButtons = ({formData, setSendAs}) => (
 export const SenderSelection = ({sendAs, selectedSender, setSelectedSender, senders}) => {
     if (sendAs === "default") {
         return (
-            <Form.Item label="Sender:">
+            <Form.Item label="Sender:"  {...formItemLayout} >
                 <Alert message="Emails are sent from noreply@recruitly.io account." type="info"/>
             </Form.Item>
         );
@@ -51,7 +59,7 @@ export const SenderSelection = ({sendAs, selectedSender, setSelectedSender, send
 
     if (sendAs === "recordOwner") {
         return (
-            <Form.Item label="Sender:">
+            <Form.Item label="Sender:"  {...formItemLayout} >
                 <Alert message="Emails are sent from record owner email account.
                 Ex: If you are owner of record then emails will be sent from andy@hireoptica.com" type="info"/>
             </Form.Item>
@@ -63,6 +71,7 @@ export const SenderSelection = ({sendAs, selectedSender, setSelectedSender, send
             <Form.Item
                 label="Sender:"
                 name="emailSender"
+                {...formItemLayout}
                 rules={[{required: true, message: "Please select a sender"}]}
             >
                 <Select
@@ -90,6 +99,7 @@ export const WebHooks = ({webhooks, formData}) => (
     <Form.Item
         label="Webhook:"
         name="webhook"
+        {...formItemLayout}
         rules={[{required: true, message: "Please select a webhook!"}]}
         initialValue={formData?.webhook}
     >
@@ -153,7 +163,9 @@ export const DueDate = ({formData}) => (
 
 export const DueDay = ({formData}) => (
     <Form.Item label="Due Date:" name="dueDate" rules={[{required: true}]}
-               initialValue={formData?.dueDate}>
+               initialValue={formData?.dueDate}
+               {...formItemLayout}
+    >
         <Select
             className="form-control"
 
@@ -170,10 +182,12 @@ export const DueDay = ({formData}) => (
         </Select>
     </Form.Item>
 );
+
 export const Subject = ({formData}) => (
     <Form.Item
         label="Subject:"
         name="subject"
+        {...formItemLayout}
         rules={[{required: true}]}
         initialValue={formData?.subject}
     >
@@ -187,6 +201,7 @@ export const Message = ({formData}) => (
     <Form.Item
         label="Message:"
         name="message"
+        {...formItemLayout}
         rules={[{required: true}]}
         initialValue={formData?.message}
     >
@@ -356,7 +371,11 @@ export const UserDropdown = ({users, formData}) => {
 
 export const PipelineSelect = ({selectedLead, setSelectedLead, formData}) => {
     return (
-        <Form.Item label="Pipeline:" name="Pipeline">
+        <Form.Item
+            label="Pipeline:"
+            name="Pipeline"
+            {...formItemLayout}
+        >
             <Select
                 mode="multiple"
                 value={selectedLead}
@@ -392,6 +411,7 @@ export const LeadForm = ({formData}) => {
         <Form.Item
             label="Lead Form:"
             name="LeadForm"
+            {...formItemLayout}
             initialValue={formData?.LeadForm}
         >
             <Select mode="multiple" placeholder="Please Select..">
