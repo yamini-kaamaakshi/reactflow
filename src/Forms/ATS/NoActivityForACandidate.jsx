@@ -18,7 +18,7 @@ const NoActivityForACandidate = ({ actionCode,formData,senders,webhooks}) => {
         case "NO_ACTIVITY_SEND_EMAIL_TO_CANDIDATE_REQUESTING_UPDATES":
             return (
                 <>
-                    <NoActivitySinceDays formData={formData} />s
+                    <NoActivitySinceDays formData={formData} />
                     <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
                     <SenderSelection
                         sendAs={sendAs}
