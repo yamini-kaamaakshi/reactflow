@@ -44,6 +44,7 @@ import GDPRConsentAddedByTheSystemAfterJobApplication
 import GDPRConsentRequestIsApproved from "../Forms/GDPR/GDPRConsentRequestIsApproved.jsx";
 import ACandidateAddedManually from "../Forms/ATS/ACandidateAddedManually.jsx";
 import WhenJobStatusIsOpen from "../Forms/ATS/WhenJobStatusIsOpen.jsx";
+import NoActivityForACandidate from "../Forms/ATS/NoActivityForACandidate.jsx";
 
 
 const initialEdges = [
@@ -442,6 +443,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
             case 'OPPORTUNITY_STATUS_UPDATED':
                 ActionForm = OpportunityPipelineStatusIsUpdated;
+                break;
+            case 'NO_ACTIVITY_CANDIDATE':
+                ActionForm = NoActivityForACandidate;
                 break;
             default:
                 return <div>Invalid Action code.</div>;

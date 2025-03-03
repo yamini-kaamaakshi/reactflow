@@ -103,18 +103,6 @@ export const WebHooks = ({webhooks, formData}) => (
     </Form.Item>
 );
 
-export const Subject = ({formData}) => (
-    <Form.Item
-        label="Subject:"
-        name="subject"
-        rules={[{required: true}]}
-        initialValue={formData?.subject}
-    >
-        <div className="input-group">
-            <Input type="text" placeholder="Subject" defaultValue={formData?.subject}/>
-        </div>
-    </Form.Item>
-);
 
 export const DaysBeforeBillingDate = ({formData}) => (
     <Form.Item
@@ -180,6 +168,18 @@ export const DueDay = ({formData}) => (
             <Select.Option value="14">After 2 Weeks</Select.Option>
             <Select.Option value="30">After 1 Month</Select.Option>
         </Select>
+    </Form.Item>
+);
+export const Subject = ({formData}) => (
+    <Form.Item
+        label="Subject:"
+        name="subject"
+        rules={[{required: true}]}
+        initialValue={formData?.subject}
+    >
+        <div className="input-group">
+            <Input type="text" placeholder="Subject" defaultValue={formData?.subject}/>
+        </div>
     </Form.Item>
 );
 
@@ -308,6 +308,25 @@ export const WhenDaysAfterOriginalRequest = ({formData}) => (
                 placeholder="7"
                 addonAfter="Days After Original Request"
                 defaultValue={formData?.when}
+            />
+        </div>
+    </Form.Item>
+);
+
+export const NoActivitySinceDays = ({formData}) => (
+    <Form.Item
+        label="No Activity:"
+        name="noActivity"
+        rules={[{required: true, message: "Please input the number of days!"}]}
+        initialValue={formData?.noActivity}
+    >
+        <div className="input-group">
+            <Input
+                type="number"
+                title="Days After Original Request"
+                addonBefore="Since"
+                addonAfter="Days"
+                defaultValue={formData?.noActivity}
             />
         </div>
     </Form.Item>
