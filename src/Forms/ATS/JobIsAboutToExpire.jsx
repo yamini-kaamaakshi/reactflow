@@ -9,7 +9,6 @@ const DaysBeforeExpire = ({formData}) => (
         name="when"
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 18 }}
-        rules={[{ required: true, message: "Please input the number of days!" }]}
         initialValue={formData?.when}
 
     >
