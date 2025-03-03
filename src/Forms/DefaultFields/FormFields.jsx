@@ -70,7 +70,6 @@ export const SenderSelection = ({sendAs, selectedSender, setSelectedSender, send
                 label="Sender:"
                 name="emailSender"
                 {...formItemLayout}
-                rules={[{required: true, message: "Please select a sender"}]}
             >
                 <Select
                     value={selectedSender}
