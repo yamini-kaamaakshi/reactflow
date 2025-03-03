@@ -118,6 +118,7 @@ export const DaysBeforeBillingDate = ({formData}) => (
     <Form.Item
         label="When:"
         name="when"
+        {...formItemLayout}
         rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
@@ -141,6 +142,7 @@ export const DueDate = ({formData}) => (
     <Form.Item
         label="Due Date:"
         name="dueDate"
+        {...formItemLayout}
         rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.dueDate}
     >
@@ -162,14 +164,14 @@ export const DueDate = ({formData}) => (
 )
 
 export const DueDay = ({formData}) => (
-    <Form.Item label="Due Date:" name="dueDate" rules={[{required: true}]}
-               initialValue={formData?.dueDate}
-               {...formItemLayout}
+    <Form.Item
+        label="Due Date:"
+        name="dueDate"
+        rules={[{required: true}]}
+        initialValue={formData?.dueDate}
+        {...formItemLayout}
     >
-        <Select
-            className="form-control"
-
-        >
+        <Select className="form-control">
             <Select.Option value="0">Same Day</Select.Option>
             <Select.Option value="1">After 1 Day</Select.Option>
             <Select.Option value="2">After 2 Days</Select.Option>
@@ -222,6 +224,7 @@ export const WhenApplicationIsNotProcessedFor = ({formData}) => (
     <Form.Item
         label="When:"
         name="when"
+        {...formItemLayout}
         rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
@@ -246,6 +249,7 @@ export const WhenBeforeDays = ({formData}) => (
     <Form.Item
         label="When:"
         name="when"
+        {...formItemLayout}
         rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
@@ -270,6 +274,7 @@ export const WhenDaysBefore = ({formData}) => (
     <Form.Item
         label="When:"
         name="when"
+        {...formItemLayout}
         rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
@@ -289,6 +294,7 @@ export const WhenJobIsOpenFor = ({formData}) => (
     <Form.Item
         label="When:"
         name="when"
+        {...formItemLayout}
         rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
@@ -313,6 +319,7 @@ export const WhenDaysAfterOriginalRequest = ({formData}) => (
     <Form.Item
         label="When:"
         name="when"
+        {...formItemLayout}
         rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
@@ -332,6 +339,7 @@ export const NoActivitySinceDays = ({formData}) => (
     <Form.Item
         label="No Activity:"
         name="noActivity"
+        {...formItemLayout}
         rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.noActivity}
     >
@@ -349,12 +357,15 @@ export const NoActivitySinceDays = ({formData}) => (
 
 export const UserDropdown = ({users, formData}) => {
     return (
-        <Form.Item label="User" name="users">
+        <Form.Item
+            label="User"
+            name="users"
+            {...formItemLayout}
+        >
             <Select
                 mode="multiple"
                 placeholder="Select User"
                 showSearch
-                style={{width: "432px", marginLeft: "25px"}}
                 initialValue={formData?.users}
             >
                 {users
@@ -395,6 +406,7 @@ export const Sequence = ({formData}) => {
         <Form.Item
             label="Sequence:"
             name="sequence"
+            {...formItemLayout}
             rules={[{required: true, message: "Please select a sequence!"}]}
             initialValue={formData?.sequence}
         >
