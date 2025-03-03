@@ -12,7 +12,6 @@ export const WhenAfterDays = ({formData}) => (
         label="When:"
         name="when"
         {...formItemLayout}
-        rules={[{required: true, message: "Please input the number of days!"}]}
         initialValue={formData?.when}
     >
         <div className="input-group">
