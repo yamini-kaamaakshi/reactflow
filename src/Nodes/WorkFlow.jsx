@@ -323,47 +323,21 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     };
 
-    const fetchEmailSequences = async () => {
-        const url = `${apiServer}/api/masterdata/emailsequences?type=CANDIDATE`; // ✅ Ensure type is in query
-        console.log("📡 Fetching Email Sequences from:", url);
 
-        try {
-            const response = await fetch(url, {
-                headers: {
-                    Authorization: `Bearer ${apiKey}`,
-                    "Content-Type": "application/json",
-                },
-            });
 
-            console.log("🔎 Response status:", response.status); // Log HTTP status
+    const fetchEmailSequences = () =>
+        fetchData(`${apiServer}/api/masterdata/emailsequences?type=CANDIDATE`, setEmailSequences);
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
 
-            const result = await response.json();
-            console.log("✅ API Response:", result);
 
-            if (!result?.data?.length) {
-                console.warn("⚠️ No email sequences found!");
-            }
-
-            setEmailSequences(result?.data || []);
-        } catch (error) {
-            console.error("❌ Error fetching email sequences:", error);
-        }
-    };
-
-// Fetch on component mount
     useEffect(() => {
+        console.log("🚀 Fetching email sequences...");
         fetchEmailSequences();
     }, []);
 
-// Debugging: Log when emailSequences updates
     useEffect(() => {
         console.log("🔄 Updated emailSequences:", emailSequences);
     }, [emailSequences]);
-
 
 
 
