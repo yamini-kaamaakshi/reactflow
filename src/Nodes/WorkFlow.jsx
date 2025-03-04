@@ -12,14 +12,13 @@ import FilterIcon from "../Custom/FilterIcon.jsx";
 import AddActionButton from "../Custom/AddActionButton.jsx";
 import generateUpdatedData from "../swichcaseManager/ActionDisplay.jsx";
 import JobIsAboutToExpire from "../Forms/ATS/JobIsAboutToExpire.jsx";
-import PlacementIscreated from "../Forms/ATS/PlacementIscreated.jsx";
-import JobHasExipired from "../Forms/ATS/JobHasExipired.jsx";
+import PlacementIsCreated from "../Forms/ATS/PlacementIsCreated.jsx";
+import JoBHasExpired from "../Forms/ATS/JobHasExpired.jsx";
 import JobIsAddedToTheSystem from "../Forms/ATS/JobIsAddedToTheSystem.jsx";
 import JobApplicationIsNotReviewed from "../Forms/ATS/JobApplicationIsNotReviewed.jsx";
 import PlacedCandidateHasStarted from "../Forms/ATS/PlacedCandidateHasStarted.jsx";
 import PlacedCandidateIsAboutToStart from "../Forms/ATS/PlacedCandidateIsAboutToStart.jsx";
-import  ACandidateAddedManually from "../Forms/ATS/ACandidateAddedManually.jsx"
-import CandidateAddedToJobPipline from "../Forms/ATS/CandidateAddedToJobPipline.jsx"
+import CandidateAddedToJobPipeline from "../Forms/ATS/CandidateAddedToJobPipeline.jsx"
 import PlacementInvoiceCreationIsDue from "../Forms/ATS/PlacementInvoiceCreationIsDue.jsx";
 import WhenAPlacementIsNearingItsEndDate from "../Forms/ATS/WhenAPlacementIsNearingItsEndDate.jsx";
 import CandidatePipelineStatusIsUpdated from "../Forms/ATS/CandidatePipelineStatusIsUpdated.jsx";
@@ -42,6 +41,10 @@ import NoResponseToGDPRConsentRequestConsentProvidedBefore
 import GDPRConsentAddedByTheSystemAfterCVSubmit from "../Forms/GDPR/GDPRConsentAddedByTheSystemAfterCVSubmit.jsx";
 import GDPRConsentAddedByTheSystemAfterJobApplication
     from "../Forms/GDPR/GDPRConsentAddedByTheSystemAfterJobApplication.jsx";
+import GDPRConsentRequestIsApproved from "../Forms/GDPR/GDPRConsentRequestIsApproved.jsx";
+import ACandidateAddedManually from "../Forms/ATS/ACandidateAddedManually.jsx";
+import WhenJobStatusIsOpen from "../Forms/ATS/WhenJobStatusIsOpen.jsx";
+import NoActivityForACandidate from "../Forms/ATS/NoActivityForACandidate.jsx";
 
 
 const initialEdges = [
@@ -426,15 +429,19 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'GDPR_CONSENT_REQUEST_ADDED_BY_JOB_APPLICATION':
                 ActionForm = GDPRConsentAddedByTheSystemAfterJobApplication;
                 break;
+            case 'GDPR_CONSENT_REQUEST_APPROVED':
+                ActionForm = GDPRConsentRequestIsApproved;
+                break;
+
             // ATS
             case 'ATS_JOB_ABOUT_EXPIRE':
                 ActionForm = JobIsAboutToExpire;
                 break;
             case 'JOB_EXPIRED':
-                ActionForm = JobHasExipired;
+                ActionForm = JoBHasExpired;
                 break;
             case 'ATS_PLACEMENT_CREATED':
-                ActionForm = PlacementIscreated;
+                ActionForm = PlacementIsCreated;
                 break;
             case 'JOB_ADDED_TO_SYSTEM':
                 ActionForm = JobIsAddedToTheSystem;
@@ -445,7 +452,6 @@ const WorkFlow = ({apiServer, apiKey}) => {
             case 'ATS_PLACEMENT_STARTED':
                 ActionForm = PlacedCandidateHasStarted;
                 break;
-
             case 'ATS_PLACEMENT_ABOUT_START':
                 ActionForm = PlacedCandidateIsAboutToStart;
                 break;
@@ -453,7 +459,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 ActionForm = ACandidateAddedManually;
                 break;
             case 'ATS_CANDIDATE_ADDED_TO_PIPELINE':
-                ActionForm = CandidateAddedToJobPipline;
+                ActionForm = CandidateAddedToJobPipeline;
                 break;
             case 'PLACEMENT_INVOICE_CREATION_DUE':
                 ActionForm = PlacementInvoiceCreationIsDue;
@@ -472,6 +478,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
             case 'ATS_CANDIDATE_CV_SHARED':
                 ActionForm = candidateCVIsShared;
+                break;
+            case 'JOB_STATUS_OPEN':
+                ActionForm = WhenJobStatusIsOpen;
                 break;
 
             // CRM Data
@@ -495,6 +504,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 break;
             case 'OPPORTUNITY_STATUS_UPDATED':
                 ActionForm = OpportunityPipelineStatusIsUpdated;
+                break;
+            case 'NO_ACTIVITY_CANDIDATE':
+                ActionForm = NoActivityForACandidate;
                 break;
             default:
                 return <div>Invalid Action code.</div>;

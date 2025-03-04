@@ -1,5 +1,6 @@
-import {Message, SendAsRadioButtons, SenderSelection, Subject, UserDropdown} from "../DefaultFields/FormFields.jsx";
 import {useState} from "react";
+import {Message, SendAsRadioButtons, SenderSelection, Subject, UserDropdown} from "../DefaultFields/FormFields.jsx";
+
 
 
 const OpportunityIsCreatedManually = ({actionCode, users,formData,senders}) => {
@@ -7,10 +8,10 @@ const OpportunityIsCreatedManually = ({actionCode, users,formData,senders}) => {
     const [selectedSender, setSelectedSender] = useState(null);
 
     switch (actionCode) {
-        case "OPPORTUNITY_CREATED_SEND_EMAIL_TO_OPPORTUNITY_CONTACT":
-        case "OPPORTUNITY_CREATED_SEND_EMAIL_TO_OPPORTUNITY_OWNER":
+        case "OPPORTUNITY_CREATED_SEND_EMAIL_TO_SPECIFIED_USERS":
             return (
                 <>
+                    <UserDropdown users={users}/>
                     <SendAsRadioButtons setSendAs={setSendAs} formData={formData}/>
                     <SenderSelection
                         sendAs={sendAs}
@@ -23,10 +24,10 @@ const OpportunityIsCreatedManually = ({actionCode, users,formData,senders}) => {
                 </>
             );
 
-        case "OPPORTUNITY_CREATED_SEND_EMAIL_TO_SPECIFIED_USERS":
+        case "OPPORTUNITY_CREATED_SEND_EMAIL_TO_OPPORTUNITY_CONTACT":
+        case "OPPORTUNITY_CREATED_SEND_EMAIL_TO_OPPORTUNITY_OWNER":
             return (
                 <>
-                    <UserDropdown users={users}/>
                     <SendAsRadioButtons setSendAs={setSendAs} formData={formData}/>
                     <SenderSelection
                         sendAs={sendAs}

@@ -1,10 +1,17 @@
-import { useState} from "react";
-import { Button, Form, Input, Radio, Select } from "antd";
-import {SendAsRadioButtons, SenderSelection, WhenAfterDays} from "../DefaultFields/FormFields.jsx";
+import {useState} from "react";
+import {Form, Input, Select} from "antd";
+import {
+    Message,
+    SendAsRadioButtons,
+    SenderSelection,
+    Subject,
+    WebHooks,
+    WhenAfterDays
+} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types
-const PlacementIscreated = ({ actionCode, handleFormSubmit, formData,senders}) => {
+const PlacementIsCreated = ({actionCode, handleFormSubmit, formData, senders, webhooks}) => {
     const [sendAs, setSendAs] = useState("default");
     const [selectedSender, setSelectedSender] = useState(null);
     const [dueDate, setDueDate] = useState("0");
@@ -12,17 +19,14 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData,senders}) =
     const handleChange = (value) => {
         setDueDate(value);
     };
+
     switch (actionCode) {
         case "ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER":
         case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_CANDIDATE':
+        case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_CLIENT':
             return (
-                <Form onFinish={handleFormSubmit} initialValues={{
-                    sendAs: formData?.sendAs || "DEFAULT",
-                    sender: formData?.sender || "",
-                    subject: formData?.subject || "",
-                    message: formData?.message || ""
-                }}>
-                    <WhenAfterDays formData={formData} />
+                <>
+                    <WhenAfterDays formData={formData}/>
                     <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
                     <SenderSelection
                         sendAs={sendAs}
@@ -30,43 +34,24 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData,senders}) =
                         setSelectedSender={setSelectedSender}
                         senders={senders}
                     />
-
-                    <Form.Item label="Subject:" name="subject">
-                        <Input placeholder="Subject" maxLength={128} />
-                    </Form.Item>
-
-                    <Form.Item label="Message:" name="message">
-                        <Input.TextArea rows={5} />
-                    </Form.Item>
-
-                    <input type="hidden" value="hire91d671c1f45d42608c2b7f73d6c2cce3" />
-
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
-                </Form>
+                    <Subject formData={formData} />
+                    <Message formData={formData} />
+                </>
             );
 
         case "ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION":
             return (
-                <Form onFinish={handleFormSubmit}>
-                    <WhenAfterDays formData={formData} />
-
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
-                </Form>
+                <>
+                    <WhenAfterDays formData={formData}/>
+                    <WebHooks webhooks={webhooks} formData={formData}/>
+                </>
             );
 
         case "ATS_PLACEMENT_CREATED_ADD_TASK_CONCERNED_USERS":
         case 'ATS_PLACEMENT_CREATED_ADD_TASK_TO_OWNER':
             return (
                 <Form onFinish={handleFormSubmit}>
-                    <WhenAfterDays formData={formData} />
+                    <WhenAfterDays formData={formData}/>
                     <Form.Item label="Due Date:" name="dueDate">
                         <Select
                             className="form-control"
@@ -84,7 +69,7 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData,senders}) =
                             <Select.Option value="30">After 1 Month</Select.Option>
                         </Select>
                     </Form.Item>
-
+                    <Subject formData={formData} />
                     <Form.Item
                         label="Message:"
                         name="message"
@@ -99,17 +84,18 @@ const PlacementIscreated = ({ actionCode, handleFormSubmit, formData,senders}) =
                             }}
                         />
                     </Form.Item>
-
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                            Submit
-                        </Button>
-                    </Form.Item>
                 </Form>
             );
+
+        case "ATS_PLACEMENT_CREATED_MARK_JOB_STATUS_AS_CLOSED":
+            return (
+                <>
+                    <WhenAfterDays formData={formData}/>
+                </>
+            );
         default:
-            return ;
+            return;
     }
 };
 
-export default PlacementIscreated;
+export default PlacementIsCreated;
