@@ -152,6 +152,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
         console.log("workflowData:", workflowData);
     };
 
+    const [emailSequences, setEmailSequences] = useState([]);
 
     const [selectFilter, setSelectFilter] = useState("All");
     const [, setDroppedItem] = useState(null);
@@ -221,6 +222,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
         fetchTriggers();
     }, []);
 
+
+
     useEffect(() => {
         const savedTriggerCode = localStorage.getItem('triggerCode'); // Retrieve triggerCode from localStorage
         if (savedTriggerCode) {
@@ -255,6 +258,12 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     }, [actionCode]);
 
+
+
+
+
+
+
     useEffect(() => {
         fetchData(`${apiServer}/api/masterdata/job_pipeline`, (data) => {
             console.log("API Response - Job Pipeline Data:", data);
@@ -262,6 +271,28 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setPipelineStatuses(data);
         });
     }, []);
+
+
+
+
+
+
+
+    const fetchTriggers = () =>
+        fetchData(`${apiServer}/api/lookup_automation/triggers`, setTriggers);
+
+
+    const fetchActions = (triggerCode) => {
+        console.log(`Fetching actions for triggerCode: ${triggerCode}`);
+
+        fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, (data) => {
+            console.log("API Response - Actions Data:", data);
+            setActions(data);
+        });
+    };
+    const fetchJobTypes = () =>
+        fetchData(`${apiServer}/api/masterdata/jobTypes`, setJobTypes);
+
 
 
     const fetchData = async (url, setter) => {
@@ -279,7 +310,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             }
 
             const result = await response.json();
-            // console.log(`Fetched data from ${url}:`, result);
+            console.log(`Fetched data from ${url}:`, result);
 
             setter(result?.data || []);
         } catch (error) {
@@ -289,20 +320,50 @@ const WorkFlow = ({apiServer, apiKey}) => {
         }
     };
 
-    const fetchTriggers = () =>
-        fetchData(`${apiServer}/api/lookup_automation/triggers`, setTriggers);
+    const fetchEmailSequences = async () => {
+        const url = `${apiServer}/api/masterdata/emailsequences?type=CANDIDATE`; // ✅ Ensure type is in query
+        console.log("📡 Fetching Email Sequences from:", url);
 
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                    "Content-Type": "application/json",
+                },
+            });
 
-    const fetchActions = (triggerCode) => {
-        console.log(`Fetching actions for triggerCode: ${triggerCode}`);
+            console.log("🔎 Response status:", response.status); // Log HTTP status
 
-        fetchData(`${apiServer}/api/lookup_automation/actions?triggerCode=${triggerCode}`, (data) => {
-            console.log("API Response - Actions Data:", data);
-            setActions(data);
-        });
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log("✅ API Response:", result);
+
+            if (!result?.data?.length) {
+                console.warn("⚠️ No email sequences found!");
+            }
+
+            setEmailSequences(result?.data || []);
+        } catch (error) {
+            console.error("❌ Error fetching email sequences:", error);
+        }
     };
-    const fetchJobTypes = () =>
-        fetchData(`${apiServer}/api/masterdata/jobTypes`, setJobTypes);
+
+// Fetch on component mount
+    useEffect(() => {
+        fetchEmailSequences();
+    }, []);
+
+// Debugging: Log when emailSequences updates
+    useEffect(() => {
+        console.log("🔄 Updated emailSequences:", emailSequences);
+    }, [emailSequences]);
+
+
+
+
 
     const fetchTags = () =>
         fetchData(`${apiServer}/api/masterdata/tags/v2`, setTags);
