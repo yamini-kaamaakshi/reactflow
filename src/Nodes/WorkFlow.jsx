@@ -189,6 +189,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [senders, setSenders] = useState([])
     const [pipelineStatuses, setPipelineStatuses] = useState([]);
     const jobStatuses = pipelineStatuses?.map((status) => status.statusName) || [];
+    const [emailSequences, setEmailSequences] = useState([]); // ✅ Define state for email sequences
 
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
@@ -301,6 +302,53 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setIsLoading(false);
         }
     };
+
+    const fetchEmailSequences = async () => {
+        const url = `${apiServer}/api/masterdata/emailsequences?type=CANDIDATE`; // ✅ Ensure type is in query
+        console.log("📡 Fetching Email Sequences from:", url);
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            console.log("🔎 Response status:", response.status); // Log HTTP status
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log("✅ API Response:", result);
+
+            if (!result?.data?.length) {
+                console.warn("⚠️ No email sequences found!");
+            }
+
+            setEmailSequences(result?.data || []);
+        } catch (error) {
+            console.error("❌ Error fetching email sequences:", error);
+        }
+    };
+
+// Fetch on component mount
+    useEffect(() => {
+        fetchEmailSequences();
+    }, []);
+
+// Debugging: Log when emailSequences updates
+    useEffect(() => {
+        console.log("🔄 Updated emailSequences:", emailSequences);
+    }, [emailSequences]);
+
+
+
+
+
+
 
     const fetchTriggers = () =>
         fetchData(`${apiServer}/api/lookup_automation/triggers`, setTriggers);
