@@ -1,9 +1,9 @@
-import {Form, Select} from "antd";
+import {Form, Select, Switch} from "antd";
 import {WhenAfterDays,WebHooks,DueDay,Subject,Message} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types
-const JoBHasExpired = ({ actionCode, formData,rejectReasons,webhooks }) => {
+const JoBHasExpired = ({ actionCode, formData,rejectReasons,webhooks,jobStatuses }) => {
     switch (actionCode) {
         case "JOB_EXPIRED_ADD_TASK_TO_OWNER":
             return (
@@ -16,8 +16,25 @@ const JoBHasExpired = ({ actionCode, formData,rejectReasons,webhooks }) => {
 
         case "MARK_JOB_STATUS_AS_CLOSED":
             return (
-                <WhenAfterDays formData={formData} />
-            )
+                <>
+                    <Form.Item
+                        label="Job Status:"
+                        name="jobStatus"
+                        rules={[{ required: true, message: "Please select a job status" }]}
+                    >
+                        <Select placeholder="Select Job Status">
+                            {jobStatuses?.map((status) => (
+                                <Select.Option key={status.id} value={status.code}>
+                                    {status.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
+                    <WhenAfterDays formData={formData} />
+                </>
+            );
+
 
         case "JOB_EXPIRED_SEND_WEBHOOK_NOTIFICATION":
             return (
@@ -49,6 +66,15 @@ const JoBHasExpired = ({ actionCode, formData,rejectReasons,webhooks }) => {
                                 </Select.Option>
                             ))}
                         </Select>
+                    </Form.Item>
+                    {/* Toggle for sending rejection email */}
+                    <Form.Item name="sendRejectionEmail" valuePropName="checked">
+                        <Switch /> Send rejection email
+                    </Form.Item>
+
+                    {/* Toggle for saving candidate records */}
+                    <Form.Item name="saveCandidateRecords" valuePropName="checked">
+                        <Switch /> Save candidate records
                     </Form.Item>
                 </>
             );

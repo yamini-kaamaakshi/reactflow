@@ -1,4 +1,7 @@
 import {Form, Input, Select, Radio, Alert} from "antd";
+import ReactQuill from "react-quill";
+import { useState } from "react";
+
 
 
 // Common styles for form item layout
@@ -193,25 +196,26 @@ export const Subject = ({formData}) => (
     </Form.Item>
 );
 
-export const Message = ({formData}) => (
-    <Form.Item
-        label="Message:"
-        name="message"
-        {...formItemLayout}
-        initialValue={formData?.message}
-    >
-        <div className="input-group">
-            <Input.TextArea
-                rows={5}
-                placeholder="Message"
-                style={{
-                    borderTopLeftRadius: 0,
-                    borderTopRightRadius: 0,
-                }}
+
+export const Message = () => {
+    const [message, setMessage] = useState("");
+
+    return (
+        <Form.Item
+            label="Message:"
+            name="message"
+            rules={[{ required: true, message: "Please enter a message" }]}
+            {...formItemLayout}
+        >
+            <ReactQuill
+                theme="snow"
+                value={message}
+                onChange={setMessage}
+                placeholder="Type your message here..."
             />
-        </div>
-    </Form.Item>
-);
+        </Form.Item>
+    );
+};
 
 export const WhenApplicationIsNotProcessedFor = ({formData}) => (
     <Form.Item

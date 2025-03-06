@@ -21,8 +21,6 @@ import PlacedCandidateIsAboutToStart from "../Forms/ATS/PlacedCandidateIsAboutTo
 import CandidateAddedToJobPipeline from "../Forms/ATS/CandidateAddedToJobPipeline.jsx"
 import PlacementInvoiceCreationIsDue from "../Forms/ATS/PlacementInvoiceCreationIsDue.jsx";
 import WhenAPlacementIsNearingItsEndDate from "../Forms/ATS/WhenAPlacementIsNearingItsEndDate.jsx";
-import CandidatePipelineStatusIsUpdated from "../Forms/ATS/CandidatePipelineStatusIsUpdated.jsx";
-import JobStatusUpdated from "../Forms/ATS/JobStatusUpdated.jsx";
 import JobInterviewIsDue from "../Forms/ATS/JobInterviewIsDue.jsx";
 import candidateCVIsShared from "../Forms/ATS/CandidateCVIsShared.jsx";
 import ContactIsAddedManually from "../Forms/CRM/ContactIsAddedManually.jsx";
@@ -43,8 +41,10 @@ import GDPRConsentAddedByTheSystemAfterJobApplication
     from "../Forms/GDPR/GDPRConsentAddedByTheSystemAfterJobApplication.jsx";
 import GDPRConsentRequestIsApproved from "../Forms/GDPR/GDPRConsentRequestIsApproved.jsx";
 import ACandidateAddedManually from "../Forms/ATS/ACandidateAddedManually.jsx";
-import WhenJobStatusIsOpen from "../Forms/ATS/WhenJobStatusIsOpen.jsx";
 import NoActivityForACandidate from "../Forms/ATS/NoActivityForACandidate.jsx";
+import JobStatusOpen from "../Forms/ATS/JobStatusOpen.jsx";
+import JobStatusUpdate from "../Forms/ATS/JobStatusUpdate.jsx";
+import PipelineStatusUpdate from "../Forms/ATS/PipelineStatusUpdate.jsx";
 
 
 const initialEdges = [
@@ -442,10 +442,10 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 ActionForm = WhenAPlacementIsNearingItsEndDate;
                 break;
             case 'PIPELINE_STATUS_UPDATE':
-                ActionForm = CandidatePipelineStatusIsUpdated;
+                ActionForm = PipelineStatusUpdate;
                 break;
             case 'JOB_STATUS_UPDATED':
-                ActionForm = JobStatusUpdated;
+                ActionForm = JobStatusUpdate;
                 break;
             case 'JOB_INTERVIEW_DUE':
                 ActionForm = JobInterviewIsDue;
@@ -454,7 +454,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 ActionForm = candidateCVIsShared;
                 break;
             case 'JOB_STATUS_OPEN':
-                ActionForm = WhenJobStatusIsOpen;
+                ActionForm = JobStatusOpen;
                 break;
 
             // CRM Data

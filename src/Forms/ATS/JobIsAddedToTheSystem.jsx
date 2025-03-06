@@ -1,5 +1,6 @@
 import {Form, Input} from "antd";
 import {DueDay,WebHooks} from "../DefaultFields/FormFields.jsx";
+import {Message} from "../DefaultFields/FormFields.jsx";
 
 
 // eslint-disable-next-line react/prop-types
@@ -28,23 +29,7 @@ const JobIsAddedToTheSystem = ({ actionCode,webhooks,formData }) => {
                     />
                 </div>
             </Form.Item>
-            <Form.Item
-                label="Message:"
-                name="message"
-                rules={[{ required: true}]}
-                initialValue={formData?.message}
-            >
-                <div className="input-group">
-                    <Input.TextArea
-                        rows={5}
-                        placeholder="Message"
-                        style={{
-                            borderTopLeftRadius: 0,
-                            borderTopRightRadius: 0,
-                        }}
-                    />
-                </div>
-            </Form.Item>
+                    <Message formData={formData} />
                 </>
             )
         default:
