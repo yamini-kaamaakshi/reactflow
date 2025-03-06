@@ -33,6 +33,13 @@ const ContactIsAddedManually = ({actionCode, webhooks, users,formData,senders}) 
         case "CONTACT_ADDED_MANUALLY_ADD_TO_SEQUENCE":
             return (
                 <>
+                    <SendAsRadioButtons setSendAs={setSendAs} formData={formData}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Sequence formData={formData}/>
                 </>
             );

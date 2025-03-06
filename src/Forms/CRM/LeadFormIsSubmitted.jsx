@@ -24,6 +24,8 @@ const LeadFormIsSubmitted = ({actionCode, webhooks, formData, users,senders}) =>
                     <LeadForm formData={formData}/>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead}/>
                     <DueDay formData={formData}/>
+                    <Subject formData={formData}/>
+                    <Message formData={formData}/>
                 </>
             );
 

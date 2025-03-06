@@ -35,6 +35,13 @@ const LeadIsAddedManually = ({actionCode, webhooks, users,formData,senders}) => 
             return (
                 <>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead} formData={formData}/>
+                    <SendAsRadioButtons setSendAs={setSendAs} formData={formData}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <Sequence formData={formData}/>
                 </>
             );
