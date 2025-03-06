@@ -1,5 +1,8 @@
 import { Form, Input} from "antd";
-import {WebHooks,DueDay} from "../DefaultFields/FormFields.jsx";
+import {WebHooks,DueDay,Message} from "../DefaultFields/FormFields.jsx";
+
+
+
 
 
 // DefaultFormItem now renders an Input field with the given props
@@ -63,23 +66,7 @@ const JobIsAboutToExpire = ({actionCode,webhooks,formData }) => {
                             />
                         </div>
                     </Form.Item>
-                    <Form.Item
-                        label="Message:"
-                        name="message"
-                        rules={[{ required: true}]}
-                        initialValue={formData?.message}
-                    >
-                        <div className="input-group">
-                            <Input.TextArea
-                                rows={5}
-                                placeholder="Message"
-                                style={{
-                                    borderTopLeftRadius: 0,
-                                    borderTopRightRadius: 0,
-                                }}
-                            />
-                        </div>
-                    </Form.Item>
+                    <Message formData={formData} />
                 </>
             );
         default:

@@ -21,24 +21,6 @@ const PlacementIsCreated = ({actionCode, handleFormSubmit, formData, senders, we
     };
 
     switch (actionCode) {
-        case "ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER":
-        case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_CANDIDATE':
-        case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_CLIENT':
-            return (
-                <>
-                    <WhenAfterDays formData={formData}/>
-                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
-                    <SenderSelection
-                        sendAs={sendAs}
-                        selectedSender={selectedSender}
-                        setSelectedSender={setSelectedSender}
-                        senders={senders}
-                    />
-                    <Subject formData={formData} />
-                    <Message formData={formData} />
-                </>
-            );
-
         case "ATS_PLACEMENT_CREATED_SEND_WEBHOOK_NOTIFICATION":
             return (
                 <>
@@ -47,6 +29,9 @@ const PlacementIsCreated = ({actionCode, handleFormSubmit, formData, senders, we
                 </>
             );
 
+
+
+        case "ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER":
         case "ATS_PLACEMENT_CREATED_ADD_TASK_CONCERNED_USERS":
         case 'ATS_PLACEMENT_CREATED_ADD_TASK_TO_OWNER':
             return (
@@ -86,6 +71,25 @@ const PlacementIsCreated = ({actionCode, handleFormSubmit, formData, senders, we
                     </Form.Item>
                 </Form>
             );
+        case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_CANDIDATE':
+        case 'ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_CLIENT':
+            return (
+                <>
+                    <WhenAfterDays formData={formData}/>
+                    <SendAsRadioButtons formData={formData} setSendAs={setSendAs}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
+                    <Subject formData={formData} />
+                    <Message formData={formData} />
+                </>
+            );
+
+
+
 
         case "ATS_PLACEMENT_CREATED_MARK_JOB_STATUS_AS_CLOSED":
             return (
