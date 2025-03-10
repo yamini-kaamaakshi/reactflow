@@ -117,30 +117,30 @@ const WorkFlow = ({apiServer, apiKey}) => {
 
     const handleSaveTrigger = () => {
         let workflowData = JSON.parse(localStorage.getItem("workflowData")) || { steps: {} };
-
-        // Retrieve the selected trigger
         const selectedTrigger = JSON.parse(localStorage.getItem("selectedTrigger")) || null;
         const triggerId = selectedTrigger?._id || null;
 
-        // Ensure only one trigger is saved at a time
-        workflowData.steps = {}; // Clears all existing triggers before saving the new one
+        workflowData.steps = {}; // Clear previous triggers before saving the new one
 
-        // Retrieve all saved actions
+        // Re-fetch saved actions from localStorage
         let savedActionData = JSON.parse(localStorage.getItem("savedActionData")) || [];
 
-        // Remove invalid actions
+        console.log("Before processing savedActionData:", savedActionData);
+
         savedActionData = savedActionData.filter(action => action?.selectedAction?._id);
 
-        // Convert actions array to object
         const actions = savedActionData.reduce((acc, action) => {
             const actionId = action?.selectedAction?._id;
             if (actionId) {
                 acc[actionId] = {
-                    actionData: action.formData || {}
+                    actionData: action.formData || {},
+                    notifyOwner: action.notifyOwner || false, // Ensure correct notifyOwner value is saved
                 };
             }
             return acc;
         }, {});
+
+        console.log("Processed actions object:", actions); // Debugging
 
         if (selectedTrigger) {
             workflowData.steps[triggerId] = {
@@ -149,11 +149,11 @@ const WorkFlow = ({apiServer, apiKey}) => {
             };
         }
 
-        // Save updated workflowData to localStorage
         localStorage.setItem("workflowData", JSON.stringify(workflowData));
 
-        console.log("workflowData:", workflowData);
+        console.log("Updated workflowData:", JSON.parse(localStorage.getItem("workflowData"))); // Debugging
     };
+
 
     const [emailSequences, setEmailSequences] = useState([]);
 
@@ -193,6 +193,7 @@ const WorkFlow = ({apiServer, apiKey}) => {
             setSelectedActionData(actionToEdit);
         }
     }, [selectedNodeId]);
+
 
     useEffect(() => {
         if (selectedNodeId) {
