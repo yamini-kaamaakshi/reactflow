@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Subject, Message } from "../DefaultFields/FormFields.jsx";
+import { Subject, Message,When } from "../DefaultFields/FormFields.jsx";
 import { Switch } from "antd";
 
 // eslint-disable-next-line react/prop-types
@@ -64,6 +64,7 @@ const GDPRConsentRequestIsRejected = ({ actionCode, formData}) => {
         case "DELETE_RECORD":
             return (
                 <>
+                    <When formData={formData} />
                     <p><strong>Delete Record</strong></p>
                     <p>This action will permanently delete the record. This cannot be undone.</p>
                     {renderToggle("Notify the owner after record is deleted")}

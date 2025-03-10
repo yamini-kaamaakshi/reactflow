@@ -182,6 +182,28 @@ export const DueDay = ({formData}) => (
     </Form.Item>
 );
 
+export const When = ({ formData }) => (
+    <Form.Item
+        label="When:"
+        name="when"
+        initialValue={formData?.when ?? "immediately"}
+        {...formItemLayout}
+    >
+        <Select className="form-control">
+            <Select.Option value="immediately">Immediately</Select.Option>
+            <Select.Option value="1">After 1 Hour</Select.Option>
+            <Select.Option value="2">After 2 Hours</Select.Option>
+            <Select.Option value="6">After 6 Hours</Select.Option>
+            <Select.Option value="12">After 12 Hours</Select.Option>
+            <Select.Option value="24">After 1 Day</Select.Option>
+            <Select.Option value="48">After 2 Days</Select.Option>
+            <Select.Option value="72">After 3 Days</Select.Option>
+            <Select.Option value="168">After 1 Week</Select.Option>
+        </Select>
+    </Form.Item>
+);
+
+
 export const Subject = ({formData}) => (
     <Form.Item
         label="Subject:"
