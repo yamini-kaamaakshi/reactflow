@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Subject, Message,When } from "../DefaultFields/FormFields.jsx";
+import {Subject, Message, When, SendAsRadioButtons, SenderSelection} from "../DefaultFields/FormFields.jsx";
 import { Switch } from "antd";
 
 // eslint-disable-next-line react/prop-types
-const GDPRConsentRequestIsRejected = ({ actionCode, formData}) => {
+const GDPRConsentRequestIsRejected = ({ actionCode, formData,senders}) => {
     const [notifyOwner, setNotifyOwner] = useState(false);
+    const [sendAs, setSendAs] = useState("default");
+    const [selectedSender, setSelectedSender] = useState(null);
 
     const handleCheckboxChange = (checked) => {
         setNotifyOwner(checked);
@@ -83,6 +85,13 @@ const GDPRConsentRequestIsRejected = ({ actionCode, formData}) => {
         case "SEND_CONSENT_REJECT_EMAIL_TO_SUBJECT":
             return (
                 <>
+                    <SendAsRadioButtons setSendAs={setSendAs} formData={formData}/>
+                    <SenderSelection
+                        sendAs={sendAs}
+                        selectedSender={selectedSender}
+                        setSelectedSender={setSelectedSender}
+                        senders={senders}
+                    />
                     <p><strong>Send Consent Rejection Email</strong></p>
                     <Subject formData={formData} />
                     <Message formData={formData} />
