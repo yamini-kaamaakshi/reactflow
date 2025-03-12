@@ -500,6 +500,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 fetchSenders={fetchSenders}
                 pipelineStatuses={pipelineStatuses}
                 jobStatuses={jobStatus}
+                emailSequences={emailSequences} // <-- Add this line
+
             />
         );
     };
