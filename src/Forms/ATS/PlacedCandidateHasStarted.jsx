@@ -23,7 +23,7 @@ const PlacedCandidateHasStarted = ({ actionCode, webhooks, formData, senders, em
         console.log("emailSequences data:", emailSequences);
 
         if (Array.isArray(emailSequences)) {
-            setSequences(emailSequences); // Use emailSequences directly
+            setSequences(emailSequences);
         }
     }, [emailSequences]);
 
