@@ -1,5 +1,5 @@
-import {useState} from "react";
-import {Form, Input} from "antd";
+import {useEffect, useState} from "react";
+import {Form, Input, Select} from "antd";
 import {
     WebHooks,
     WhenBeforeDays,
@@ -12,9 +12,21 @@ import {
 
 
 // eslint-disable-next-line react/prop-types
-const PlacedCandidateIsAboutToStart = ({ actionCode,webhooks,formData,senders}) => {
+const PlacedCandidateIsAboutToStart = ({ actionCode,webhooks,formData,senders,emailSequences}) => {
     const [sendAs, setSendAs] = useState("default");
     const [selectedSender, setSelectedSender] = useState(null);
+    const [sequences, setSequences] = useState([]);
+
+    useEffect(() => {
+        console.log("emailSequences data:", emailSequences);
+
+        if (Array.isArray(emailSequences)) {
+            setSequences(emailSequences);
+        }
+    }, [emailSequences]);
+
+    console.log("Sequences in state:", sequences);
+
 
     switch (actionCode) {
         case "ATS_PLACEMENT_ABOUT_START_SEND_EMAIL_TO_USER":
@@ -37,6 +49,24 @@ const PlacedCandidateIsAboutToStart = ({ actionCode,webhooks,formData,senders}) 
             return (
                 <>
                     <WhenBeforeDays formData={formData} />
+                    <Form.Item
+                        label="Sequence"
+                        name="sequence"
+                        rules={[{ required: true, message: "Please select a sequence!" }]}
+                    >
+                        <Select placeholder="Please select..." onChange={(value) => setSelectedSender(value)}>
+                            {sequences.length > 0 ? (
+                                sequences.map((sequence) => (
+                                    <Option key={sequence._id} value={sequence._id}>
+                                        {sequence.name}
+                                    </Option>
+                                ))
+                            ) : (
+                                <Option disabled>No data</Option>
+                            )}
+                        </Select>
+
+                    </Form.Item>
                 </>
             );
 
