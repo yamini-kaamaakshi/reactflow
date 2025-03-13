@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {
     DueDay,
     LeadForm,
@@ -9,13 +9,24 @@ import {
     WebHooks,
     WhenAfterDays
 } from "../DefaultFields/FormFields.jsx";
-import {Form, Input} from "antd";
+import {Form, Input, Select} from "antd";
 
 
-const LeadFormIsSubmitted = ({actionCode, webhooks, formData, users,senders}) => {
+const LeadFormIsSubmitted = ({actionCode, webhooks, formData, users,senders,emailSequences}) => {
     const [selectedLead, setSelectedLead] = useState("");
     const [sendAs, setSendAs] = useState("default");
     const [selectedSender, setSelectedSender] = useState(null);
+    const [sequences, setSequences] = useState([]);
+
+    useEffect(() => {
+        console.log("emailSequences data:", emailSequences);
+
+        if (Array.isArray(emailSequences)) {
+            setSequences(emailSequences);
+        }
+    }, [emailSequences]);
+
+    console.log("Sequences in state:", sequences);
 
     switch (actionCode) {
         case "LEAD_FORM_SUBMITTED_ADD_TASK_TO_OWNER":
@@ -61,7 +72,24 @@ const LeadFormIsSubmitted = ({actionCode, webhooks, formData, users,senders}) =>
                 <>
                     <LeadForm formData={formData}/>
                     <PipelineSelect selectedLead={selectedLead} setSelectedLead={setSelectedLead}/>
-                    <Sequence formData={formData}/>
+                    <Form.Item
+                        label="Sequence"
+                        name="sequence"
+                        rules={[{ required: true, message: "Please select a sequence!" }]}
+                    >
+                        <Select placeholder="Please select..." onChange={(value) => setSelectedSender(value)}>
+                            {sequences.length > 0 ? (
+                                sequences.map((sequence) => (
+                                    <Option key={sequence._id} value={sequence._id}>
+                                        {sequence.name}
+                                    </Option>
+                                ))
+                            ) : (
+                                <Option disabled>No data</Option>
+                            )}
+                        </Select>
+
+                    </Form.Item>
                 </>
             );
 
