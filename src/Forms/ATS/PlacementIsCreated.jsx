@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Form, Input, Select} from "antd";
 import {
     Message,
@@ -11,10 +11,21 @@ import {
 
 
 // eslint-disable-next-line react/prop-types
-const PlacementIsCreated = ({actionCode, handleFormSubmit, formData, senders, webhooks}) => {
+const PlacementIsCreated = ({actionCode, handleFormSubmit, formData, senders, webhooks,emailSequences}) => {
     const [sendAs, setSendAs] = useState("default");
     const [selectedSender, setSelectedSender] = useState(null);
     const [dueDate, setDueDate] = useState("0");
+    const [sequences, setSequences] = useState([]);
+
+    useEffect(() => {
+        console.log("emailSequences data:", emailSequences);
+
+        if (Array.isArray(emailSequences)) {
+            setSequences(emailSequences);
+        }
+    }, [emailSequences]);
+
+    console.log("Sequences in state:", sequences);
 
     const handleChange = (value) => {
         setDueDate(value);
@@ -29,6 +40,31 @@ const PlacementIsCreated = ({actionCode, handleFormSubmit, formData, senders, we
                 </>
             );
 
+        case "ATS_PLACEMENT_CREATED_ADD_CANDIDATE_TO_SEQUENCE":
+            return (
+                <>
+                    <WhenAfterDays formData={formData}/>
+                    <WebHooks webhooks={webhooks} formData={formData}/>
+                    <Form.Item
+                        label="Sequence"
+                        name="sequence"
+                        rules={[{ required: true, message: "Please select a sequence!" }]}
+                    >
+                        <Select placeholder="Please select..." onChange={(value) => setSelectedSender(value)}>
+                            {sequences.length > 0 ? (
+                                sequences.map((sequence) => (
+                                    <Option key={sequence._id} value={sequence._id}>
+                                        {sequence.name}
+                                    </Option>
+                                ))
+                            ) : (
+                                <Option disabled>No data</Option>
+                            )}
+                        </Select>
+
+                    </Form.Item>
+                </>
+            );
 
 
         case "ATS_PLACEMENT_CREATED_SEND_EMAIL_TO_USER":
