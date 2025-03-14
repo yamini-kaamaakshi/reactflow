@@ -90,6 +90,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
     const [formData, setFormData] = useState({});
 
+
+
     // Reset functions
     const resetSelectedAction = () => setSelectedAction(null);
     const resetFormData = () => setFormData({});
@@ -180,6 +182,8 @@ const WorkFlow = ({apiServer, apiKey}) => {
     const [senders, setSenders] = useState([])
     const [pipelineStatuses, setPipelineStatuses] = useState([]);
     const jobStatuses = pipelineStatuses?.map((status) => status.statusName) || [];
+    const [smsConfiguration, setSmsConfiguration] = useState([]);
+    const [virtualPhoneAllocation, setVirtualPhoneAllocation] = useState([]);
 
     useEffect(() => {
         if (selectedActionData?.selectedAction) {
@@ -277,8 +281,47 @@ const WorkFlow = ({apiServer, apiKey}) => {
     }, []);
 
 
+// Define fetch functions
+
+    const fetchSmsConfiguration = () =>
+        fetchData(`${apiServer}/api/smsConfiguration`, (data) => {
+            console.log("✅ SMS Configuration Data:", data);
+            if (data && Array.isArray(data.fromNames)) {
+                setSmsConfiguration(data.fromNames.map(item => ({ _id: item._id, name: item.fromName })));
+            }
+        });
 
 
+    const fetchVirtualPhoneAllocation = () =>
+        fetchData(`${apiServer}/api/masterdata/virtualPhoneAllocation`, (data) => {
+            console.log("✅ Virtual Phone Allocation Data:", data);
+            if (data && Array.isArray(data)) {
+                setVirtualPhoneAllocation(
+                    data
+                        .filter(item => item.forwardToNumber) // Only include non-empty numbers
+                        .map(item => ({
+                            id: item.id,
+                            number: item.forwardToNumber
+                        }))
+                );
+            }
+        });
+
+// Fetch data on component mount (same as email sequences)
+    useEffect(() => {
+        console.log("📡 Fetching SMS Configuration and Virtual Phone Allocation...");
+        fetchSmsConfiguration();
+        fetchVirtualPhoneAllocation();
+    }, []);
+
+// Log updates when data is received
+    useEffect(() => {
+        console.log("✅ SMS Configuration Data:", smsConfiguration);
+    }, [smsConfiguration]);
+
+    useEffect(() => {
+        console.log("✅ Virtual Phone Allocation Data:", virtualPhoneAllocation);
+    }, [virtualPhoneAllocation]);
 
 
 
@@ -501,6 +544,9 @@ const WorkFlow = ({apiServer, apiKey}) => {
                 pipelineStatuses={pipelineStatuses}
                 jobStatuses={jobStatus}
                 emailSequences={emailSequences} // <-- Add this line
+                sendAsOptions={smsConfiguration}  // Passing the extracted fromNames
+                virtualPhoneOptions={virtualPhoneAllocation} // Virtual phone numbers
+
 
             />
         );
