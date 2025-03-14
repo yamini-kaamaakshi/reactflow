@@ -10,7 +10,7 @@ import {
 import { Form, Select, Radio } from "antd";
 
 const ContactIsAddedManually = ({ actionCode, webhooks, users, formData, senders, emailSequences, sendAsOptions, virtualPhoneOptions }) => {
-    const [sendAs, setSendAs] = useState("default");
+    const [sendAs, setSendAs] = useState(null);
     const [selectedSender, setSelectedSender] = useState(null);
     const [sequences, setSequences] = useState([]);
     const [sendMethod, setSendMethod] = useState("sendAs");
@@ -93,22 +93,28 @@ const ContactIsAddedManually = ({ actionCode, webhooks, users, formData, senders
                                     </p>
                                 )}
 
-                                <Form.Item label="Send As" name="sendAs">
-                                    <Select placeholder="Select Send As">
-                                        {sendAsOptions && sendAsOptions.length > 0 ? (
-                                            sendAsOptions.map((option) => (
-                                                <Select.Option key={option._id} value={option._id}>
-                                                    {option.name}
-                                                </Select.Option>
-                                            ))
-                                        ) : (
-                                            <Select.Option disabled>No data</Select.Option>
-                                        )}
-                                    </Select>
-                                </Form.Item>
+
+                                {sendMethod === "sendAs" && (
+                                    <Form.Item label="Send As" name="sendAs" initialValue={null}>                                        <Select
+                                            placeholder="Select Send As"
+                                            value={sendAs}
+                                            onChange={(value) => setSendAs(value)}
+                                        >
+                                            {sendAsOptions?.length > 0 ? (
+                                                sendAsOptions.map((option) => (
+                                                    <Select.Option key={option._id} value={option._id}>
+                                                        {option.name}
+                                                    </Select.Option>
+                                                ))
+                                            ) : (
+                                                <Select.Option disabled>No data</Select.Option>
+                                            )}
+                                        </Select>
+                                    </Form.Item>
+
+                                )}
 
 
-                                {/* Virtual Phone Dropdown */}
                                 {sendMethod === "virtualPhone" && (
                                     <Form.Item label="Virtual Phone" name="virtualPhone">
                                         <Select placeholder="Select Virtual Phone">
@@ -124,6 +130,7 @@ const ContactIsAddedManually = ({ actionCode, webhooks, users, formData, senders
                                         </Select>
                                     </Form.Item>
                                 )}
+
 
                             </>
                         );
